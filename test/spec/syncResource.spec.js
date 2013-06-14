@@ -1,11 +1,17 @@
 describe('Setup', function () {
-  var syncResource, scope;
+  var syncResource, scope, protocol, syncer;
 
   beforeEach(module('SyncResource'));
   beforeEach(inject(function ($injector, $rootScope, $httpBackend, _$syncResource_) {
     $syncResource = _$syncResource_;
     
     scope = $rootScope;
+
+    protocol = new VolatileProtocol({host: 'localhost'});
+    syncer = $syncResource({
+      protocol: protocol,
+      scope: scope
+    });
   }));
 
   it('should exist', function () {
@@ -14,14 +20,17 @@ describe('Setup', function () {
   });
 
   it('should accept a configured transport when generating a syncer', function () {
-    var protocol = Object.create(VolatileProtocol.prototype);
-    VolatileProtocol.call(protocol, {host: 'localhost'});
-
-    var syncer = $syncResource({
-      protocol: protocol,
-      scope: scope
-    });
-    expect(typeof syncer.protocol).toEqual('object');
-    expect(syncer.protocol.host).toEqual('localhost');
+    expect(typeof syncer.config.protocol).toEqual('object');
+    expect(syncer.config.protocol.host).toEqual('localhost');
   });
+
+  it('should call "subscribe" on the protocol when calling bind() on the syncer', function () {
+    syncer.bind('documents');
+    expect(protocol.bound[0].query).toEqual('documents');
+  });
+
+  it("should assign the result of the protocol's get method to the appropriate model on the scope", function () {
+    syncer.bind('documents', 'myModel');
+    expect(typeof scope.myModel.then).toEqual('function');
+  })
 });

@@ -2,10 +2,14 @@ function VolatileProtocol (config) {
   this.host = config.host;
 };
 
-VolatileProtocol.prototype.getCollection = function () {
+VolatileProtocol.prototype.bind = function (query, callback) {
 
 };
 
-VolatileProtocol.prototype.subscribeToCollection = function () {
-
-};
+VolatileProtocol.prototype.get = function (query) {
+  return { then: function () {}}
+}
+VolatileProtocol.prototype.subscribe = function (query) {
+  this.bound = [];
+  this.bound.push({query: query}); 
+}

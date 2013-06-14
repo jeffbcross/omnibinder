@@ -14,7 +14,7 @@ files = [
   'components/angular-mocks/angular-mocks.js',
   'lib/*.js',
   'test/mock/*.js',
-  'test/*.js'
+  'test/spec/*.js'
 ];
 
 

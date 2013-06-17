@@ -6,7 +6,7 @@ VolatileProtocol.prototype.bind = function (query, callback) {
 
 };
 
-VolatileProtocol.prototype.get = function (query) {
+VolatileProtocol.prototype.read = function (query) {
   return { then: function () {}}
 }
 VolatileProtocol.prototype.subscribe = function (query) {

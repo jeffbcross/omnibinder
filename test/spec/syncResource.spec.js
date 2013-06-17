@@ -32,5 +32,9 @@ describe('Setup', function () {
   it("should assign the result of the protocol's get method to the appropriate model on the scope", function () {
     syncer.bind('documents', 'myModel');
     expect(typeof scope.myModel.then).toEqual('function');
-  })
+  });
+
+  it('should return a promise when calling bind, which should resolve to the initial data state', function () {
+    expect(false).toBe(true);
+  });
 });

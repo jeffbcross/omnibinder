@@ -290,6 +290,26 @@ ddescribe('Setup', function () {
     });
   });
 
+  describe('onModelChange', function () {
+    it('should exist', function () {
+      expect(!!syncer.onModelChange).toBe(true);
+    });
+
+    it('should call protocol.create when new data is added', function () {
+      syncer.onModelChange.call(syncer, ['foo', 'addme'], ['foo'], {path: 'foo.bar'});
+      scope.$digest();
+      expect(protocol.created.model).toEqual('addme');
+
+      syncer.onModelChange.call(syncer, ['foo'], ['foo', 'remove'], {path: 'foo.bar'});
+      scope.$digest();
+      expect(protocol.removed.model).toEqual('remove');
+
+      syncer.onModelChange.call(syncer, ['too'], ['foo'], {path: 'foo.bar'});
+      scope.$digest();
+      expect(protocol.changed.model).toEqual('too');
+    });
+  });  
+
   // it('should call "subscribe" on the protocol when calling bind() on the syncer', function () {
   //   syncer.bind('documents');
   //   expect(protocol.bound[0].query).toEqual('documents');

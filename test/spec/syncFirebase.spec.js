@@ -1,12 +1,11 @@
-describe('Deployd Protocol', function () {
+describe('Firebase Protocol', function () {
   var protocol, $rootScope, $timeout, dpd;
 
-  beforeEach(module('SyncDeployd', 'SyncResource'));
-  beforeEach(inject(function (syncDeployd, _$rootScope_, $injector, _$timeout_, _dpd_) {
+  beforeEach(module('SyncFirebase', 'SyncResource'));
+  beforeEach(inject(function (syncFirebase, _$rootScope_, $injector, _$timeout_) {
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
-    protocol = new syncDeployd();
-    dpd = _dpd_;
+    protocol = new syncFirebase();
   }));
 
   it('should exist', function () {
@@ -28,9 +27,9 @@ describe('Deployd Protocol', function () {
   it('should unsubscribe from updates when calling unsubscribe', function () {
     protocol.subscribe({path: 'documents'});
     $rootScope.$digest();
-    expect(typeof dpd.documents.listeners.create).toEqual('function');
+
     protocol.unsubscribe({path: 'documents'});
-    expect(dpd.documents.listeners.create).toBe(null);
+    
   });
 
   it('should create an object when calling create', function () {

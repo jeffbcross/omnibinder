@@ -56,7 +56,8 @@ ddescribe('Setup', function () {
       var oldArr = ['foo', 'bar', 'baz'];
       var delta = syncer.findRemovedItem(newArr, oldArr);
 
-      expect(delta).toEqual('baz');
+      expect(delta.data).toEqual('baz');
+      expect(delta.position).toEqual(2);
     });
 
     it('should find the removed item from an array when comparing two arrays of objects', function () {
@@ -65,7 +66,8 @@ ddescribe('Setup', function () {
       var delta = syncer.findRemovedItem(newArr, oldArr);
 
       expect(typeof delta).toEqual('object');
-      expect(delta.baz).toEqual('duh!');
+      expect(delta.data.baz).toEqual('duh!');
+      expect(delta.position).toEqual(2);
     });
 
     it('should find the removed item from an array when comparing two arrays of mixed types', function () {
@@ -75,7 +77,39 @@ ddescribe('Setup', function () {
       var delta = syncer.findRemovedItem(newArr, oldArr);
 
       expect(typeof delta).toEqual('object');
-      expect(delta.baz).toEqual('duh!');
+      expect(delta.data.baz).toEqual('duh!');
+      expect(delta.position).toEqual(2);
+    });
+
+    it('should find the added item from an array when comparing two arrays of strings', function () {
+      var newArr = ['baz', 'foo', 'bar'];
+      var oldArr = ['foo', 'bar'];
+      var delta = syncer.findAddedItem(newArr, oldArr);
+
+      expect(delta.data).toEqual('baz');
+      expect(delta.position).toEqual(0);
+    });
+
+    it('should find the added item from an array when comparing two arrays of objects', function () {
+      var newArr = [{foo: true}, {bar: 'yes'}, {baz: 'duh!'}];
+      var oldArr = [{foo: true}, {bar: 'yes'}];
+      
+      var delta = syncer.findAddedItem(newArr, oldArr);
+
+      expect(typeof delta).toEqual('object');
+      expect(delta.data.baz).toEqual('duh!');
+      expect(delta.position).toEqual(2);
+    });
+
+    it('should find the added item from an array when comparing two arrays of mixed types', function () {
+      var newArr = ['foo', {baz: 'duh!'}, 'bar'];
+      var oldArr = ['foo', 'bar'];
+
+      var delta = syncer.findAddedItem(newArr, oldArr);
+
+      expect(typeof delta).toEqual('object');
+      expect(delta.data.baz).toEqual('duh!');
+      expect(delta.position).toEqual(1);
     });
   });
 

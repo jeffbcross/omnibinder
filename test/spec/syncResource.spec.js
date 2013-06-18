@@ -137,9 +137,46 @@ ddescribe('Setup', function () {
         expect(delta.data).toEqual('little ');
         expect(delta.position).toEqual(6);
       });
-    })
+    });
 
-    describe('detemineDelta', function () {
+    describe('findRemovedString', function () {
+      it('should exist', function () {
+        expect(!!syncer.findRemovedString).toBe(true);
+      });
+
+      it('should find the removed string', function () {
+        var oldStr = "I'm a little teapot.";
+        var newStr = "I'm a teapot.";
+        var delta = syncer.findRemovedString(newStr, oldStr);
+
+        expect(delta.data).toEqual('little ');
+        expect(delta.position).toEqual(6);
+
+        var oldStr = "I sure am a little teapot.";
+        var newStr = "You're a little teapot.";
+        var delta = syncer.findRemovedString(newStr, oldStr);
+
+        expect(delta.data).toEqual("I sure am");
+        expect(delta.position).toEqual(0);
+      });
+    });
+
+    describe('findChangedString', function () {
+      it('should exist', function () {
+        expect(!!syncer.findChangedString).toBe(true);
+      });
+
+      it('should find a single difference between two strings of the same length', function () {
+        var oldStr = "Can you find the needle in this haystack?";
+        var newStr = "Can you find the peanut in this haystack?";
+        var delta = syncer.findChangedString(newStr, oldStr);
+
+        expect(delta.data).toEqual('peanut');
+        expect(delta.position).toEqual(17);
+      });
+    });
+
+    describe('determineDelta', function () {
       it('should return an object with type, position, and data properties', function () {
         var oldArr = ['foo'];
         var newArr = ['foo', 'bar'];
@@ -181,10 +218,14 @@ ddescribe('Setup', function () {
       });
 
       it('should handle situations with no oldData', function () {
+        var newStr = "I'm a teapot.";
+        var delta = syncer.determineDelta(newStr);
 
+        expect(delta.data).toEqual("I'm a teapot.");
+        expect(delta.type).toEqual(syncer.events.CREATE);
       });
 
-      it('should find the first diff in a string.', function () {
+      it('should find the first diff in an added-to string.', function () {
         var oldStr = "I'm a teapot.";
         var newStr = "I'm a little teapot.";
         var delta = syncer.determineDelta(newStr, oldStr);
@@ -192,6 +233,16 @@ ddescribe('Setup', function () {
         expect(delta.type).toEqual(syncer.events.ADD);
         expect(delta.position).toEqual(6);
         expect(delta.data).toEqual('little ');
+      });
+
+      it('should find the first diff in a removed-from string', function () {
+        var oldStr = "I'm a little teapot.";
+        var newStr = "I'm a teapot.";
+        var delta = syncer.determineDelta(newStr, oldStr);
+
+        expect(delta.data).toEqual('little ');
+        expect(delta.type).toEqual(syncer.events.REMOVE);
+        expect(delta.position).toEqual(6);
       });
     });
   });

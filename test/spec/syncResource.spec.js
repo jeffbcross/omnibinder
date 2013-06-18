@@ -176,13 +176,37 @@ ddescribe('Setup', function () {
       });
     });
 
+    describe('compareStrings', function () {
+      it('should exist', function () {
+        expect(!!syncer.compareStrings).toBe(true);
+      });
+
+      it('should determine the correct type of comparison to make', function () {
+        expect(syncer.compareStrings('long', 'l').type).toEqual(syncer.events.ADD);
+        expect(syncer.compareStrings('s', 'short').type).toEqual(syncer.events.REMOVE);
+        expect(syncer.compareStrings('same', 'same').type).toEqual(syncer.events.UPDATE);
+      });
+    });
+
+    describe('compareArrays', function () {
+      it('should exist', function () {
+        expect(!!syncer.compareArrays).toBe(true);
+      });
+
+      it('should determine the correct type of comparison to make', function () {
+        expect(syncer.compareArrays(['1'], ['1','2']).type).toEqual(syncer.events.REMOVE);
+        expect(syncer.compareArrays(['1','2'], ['1']).type).toEqual(syncer.events.ADD);
+        expect(syncer.compareArrays(['1'],['2']).type).toEqual(syncer.events.UPDATE);
+      });
+    })
+
     describe('determineDelta', function () {
       it('should return an object with type, position, and data properties', function () {
         var oldArr = ['foo'];
         var newArr = ['foo', 'bar'];
         var delta = syncer.determineDelta(newArr, oldArr);
 
-        expect(delta.type).toEqual(syncer.events.CREATE);
+        expect(delta.type).toEqual(syncer.events.ADD);
         expect(delta.position).toEqual(1);
         expect(delta.data).toEqual('bar');
       });
@@ -202,7 +226,7 @@ ddescribe('Setup', function () {
         var newArr = ['foo', 'bar', 'baz'];
         var delta = syncer.determineDelta(newArr, oldArr);
 
-        expect(delta.type).toEqual(syncer.events.CREATE);
+        expect(delta.type).toEqual(syncer.events.ADD);
         expect(delta.position).toEqual(2);
         expect(delta.data).toEqual('baz');
       });

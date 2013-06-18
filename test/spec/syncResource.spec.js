@@ -156,7 +156,7 @@ ddescribe('Setup', function () {
         var newStr = "You're a little teapot.";
         var delta = syncer.findRemovedString(newStr, oldStr);
 
-        expect(delta.data).toEqual("I sure am");
+        expect(delta.data).toEqual("You're");
         expect(delta.position).toEqual(0);
       });
     });
@@ -243,6 +243,25 @@ ddescribe('Setup', function () {
         expect(delta.data).toEqual('little ');
         expect(delta.type).toEqual(syncer.events.REMOVE);
         expect(delta.position).toEqual(6);
+      });
+
+      it('should treat a diff as an update when the diff length is greater than the length delta between old and new strings', function () {
+        var oldStr = "I'm a little teapot.";
+        var newStr = "I'm a big teapot.";
+        var delta = syncer.determineDelta(newStr, oldStr);
+
+        expect(delta.data).toEqual('big');
+        expect(delta.type).toEqual(syncer.events.UPDATE);
+        expect(delta.position).toEqual(6);
+      });
+
+      it('should find the first diff in an equal-length string', function () {
+        var oldStr = "I'm a stupid teapot.";
+        var newStr = "I'm a little teapot.";
+        var delta = syncer.determineDelta(newStr, oldStr);
+
+        expect(delta.data).toEqual('little');
+        expect(delta.type).toEqual(syncer.events.UPDATE);
       });
     });
   });

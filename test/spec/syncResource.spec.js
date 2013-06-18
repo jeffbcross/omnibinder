@@ -31,14 +31,14 @@ ddescribe('Setup', function () {
     });
   });
 
-  describe('Utility Methods', function () {
-    it('should remove $$hashKey from objects in an array when calling unHash', function () {
+  describe('unHash', function () {
+    it('should remove $$hashKey from objects in an array', function () {
       var unHashed = syncer.unHash([{$$hashKey: '1', id: '2'}]);
       expect(unHashed[0].$$hashKey).toBeUndefined();
       expect(unHashed[0].id).toEqual('2');
     });
 
-    it('should remove $$hashKey from a single object when calling unHash', function () {
+    it('should remove $$hashKey from a single object', function () {
       var unHashed = syncer.unHash({$$hashKey: '3', id:'4'});
       expect(unHashed.id).toEqual('4');
       expect(unHashed.$$hashKey).toBeUndefined();
@@ -50,66 +50,149 @@ ddescribe('Setup', function () {
       expect(unHashed.baz).toEqual('foo');
       expect(Object.keys(unHashed).length).toEqual(2);
     });
+  });
 
-    it('should find the removed item from an array when comparing two arrays of strings', function () {
-      var newArr = ['foo', 'bar'];
-      var oldArr = ['foo', 'bar', 'baz'];
-      var delta = syncer.findRemovedItem(newArr, oldArr);
+  describe('Delta Parsing', function () {
+    describe('findRemovedItem', function () {
+      it('should find the removed item from an array when comparing two arrays of strings', function () {
+        var newArr = ['foo', 'bar'];
+        var oldArr = ['foo', 'bar', 'baz'];
+        var delta = syncer.findRemovedItem(newArr, oldArr);
 
-      expect(delta.data).toEqual('baz');
-      expect(delta.position).toEqual(2);
+        expect(delta.data).toEqual('baz');
+        expect(delta.position).toEqual(2);
+      });
+
+      it('should find the removed item from an array when comparing two arrays of objects', function () {
+        var newArr = [{foo: true}, {bar: 'yes'}];
+        var oldArr = [{foo: true}, {bar: 'yes'}, {baz: 'duh!'}];
+        var delta = syncer.findRemovedItem(newArr, oldArr);
+
+        expect(typeof delta).toEqual('object');
+        expect(delta.data.baz).toEqual('duh!');
+        expect(delta.position).toEqual(2);
+      });
+
+      it('should find the removed item from an array when comparing two arrays of mixed types', function () {
+        var newArr = ['foo', 'bar'];
+        var oldArr = ['foo', 'bar', {baz: 'duh!'}];
+
+        var delta = syncer.findRemovedItem(newArr, oldArr);
+
+        expect(typeof delta).toEqual('object');
+        expect(delta.data.baz).toEqual('duh!');
+        expect(delta.position).toEqual(2);
+      });
+    });
+    
+    describe('findAddedItem', function () {
+      it('should find the added item from an array when comparing two arrays of strings', function () {
+        var newArr = ['baz', 'foo', 'bar'];
+        var oldArr = ['foo', 'bar'];
+        var delta = syncer.findAddedItem(newArr, oldArr);
+
+        expect(delta.data).toEqual('baz');
+        expect(delta.position).toEqual(0);
+      });
+
+      it('should find the added item from an array when comparing two arrays of objects', function () {
+        var newArr = [{foo: true}, {bar: 'yes'}, {baz: 'duh!'}];
+        var oldArr = [{foo: true}, {bar: 'yes'}];
+        
+        var delta = syncer.findAddedItem(newArr, oldArr);
+
+        expect(typeof delta).toEqual('object');
+        expect(delta.data.baz).toEqual('duh!');
+        expect(delta.position).toEqual(2);
+      });
+
+      it('should find the added item from an array when comparing two arrays of mixed types', function () {
+        var newArr = ['foo', {baz: 'duh!'}, 'bar'];
+        var oldArr = ['foo', 'bar'];
+
+        var delta = syncer.findAddedItem(newArr, oldArr);
+
+        expect(typeof delta).toEqual('object');
+        expect(delta.data.baz).toEqual('duh!');
+        expect(delta.position).toEqual(1);
+      });
     });
 
-    it('should find the removed item from an array when comparing two arrays of objects', function () {
-      var newArr = [{foo: true}, {bar: 'yes'}];
-      var oldArr = [{foo: true}, {bar: 'yes'}, {baz: 'duh!'}];
-      var delta = syncer.findRemovedItem(newArr, oldArr);
-
-      expect(typeof delta).toEqual('object');
-      expect(delta.data.baz).toEqual('duh!');
-      expect(delta.position).toEqual(2);
+    describe('findUpdatedItem', function () {
+      it('should exist', function () {
+        expect(!!syncer.findUpdatedItem).toBe(true);
+      })
     });
 
-    it('should find the removed item from an array when comparing two arrays of mixed types', function () {
-      var newArr = ['foo', 'bar'];
-      var oldArr = ['foo', 'bar', {baz: 'duh!'}];
+    describe('findAddedString', function () {
+      it('should exist', function () {
+        expect(!!syncer.findAddedString).toBe(true);
+      });
 
-      var delta = syncer.findRemovedItem(newArr, oldArr);
+      it('should find the first new string when comparing two versions', function () {
+        var oldStr = "I'm a teapot.";
+        var newStr = "I'm a little teapot.";
+        var delta = syncer.findAddedString(newStr, oldStr);
 
-      expect(typeof delta).toEqual('object');
-      expect(delta.data.baz).toEqual('duh!');
-      expect(delta.position).toEqual(2);
-    });
+        expect(delta.data).toEqual('little ');
+        expect(delta.position).toEqual(6);
+      });
+    })
 
-    it('should find the added item from an array when comparing two arrays of strings', function () {
-      var newArr = ['baz', 'foo', 'bar'];
-      var oldArr = ['foo', 'bar'];
-      var delta = syncer.findAddedItem(newArr, oldArr);
+    describe('detemineDelta', function () {
+      it('should return an object with type, position, and data properties', function () {
+        var oldArr = ['foo'];
+        var newArr = ['foo', 'bar'];
+        var delta = syncer.determineDelta(newArr, oldArr);
 
-      expect(delta.data).toEqual('baz');
-      expect(delta.position).toEqual(0);
-    });
+        expect(delta.type).toEqual(syncer.events.CREATE);
+        expect(delta.position).toEqual(1);
+        expect(delta.data).toEqual('bar');
+      });
 
-    it('should find the added item from an array when comparing two arrays of objects', function () {
-      var newArr = [{foo: true}, {bar: 'yes'}, {baz: 'duh!'}];
-      var oldArr = [{foo: true}, {bar: 'yes'}];
-      
-      var delta = syncer.findAddedItem(newArr, oldArr);
+      it('should know when an array has removed an item', function () {
+        var oldArr = ['foo', 'baz', 'bar'];
+        var newArr = ['foo', 'bar'];
+        var delta = syncer.determineDelta(newArr, oldArr);
 
-      expect(typeof delta).toEqual('object');
-      expect(delta.data.baz).toEqual('duh!');
-      expect(delta.position).toEqual(2);
-    });
+        expect(delta.type).toEqual(syncer.events.REMOVE);
+        expect(delta.position).toEqual(1);
+        expect(delta.data).toEqual('baz');
+      });
 
-    it('should find the added item from an array when comparing two arrays of mixed types', function () {
-      var newArr = ['foo', {baz: 'duh!'}, 'bar'];
-      var oldArr = ['foo', 'bar'];
+      it('should know when an array has added an item', function () {
+        var oldArr = ['foo', 'bar'];
+        var newArr = ['foo', 'bar', 'baz'];
+        var delta = syncer.determineDelta(newArr, oldArr);
 
-      var delta = syncer.findAddedItem(newArr, oldArr);
+        expect(delta.type).toEqual(syncer.events.CREATE);
+        expect(delta.position).toEqual(2);
+        expect(delta.data).toEqual('baz');
+      });
 
-      expect(typeof delta).toEqual('object');
-      expect(delta.data.baz).toEqual('duh!');
-      expect(delta.position).toEqual(1);
+      it('should know when an array has an updated item', function () {
+        var oldArr = ['foo', 'bar'];
+        var newArr = ['foo', 'baze'];
+        var delta = syncer.determineDelta(newArr, oldArr);
+
+        expect(delta.type).toEqual(syncer.events.UPDATE);
+        expect(delta.position).toEqual(1);
+        expect(delta.data).toEqual('baze');
+      });
+
+      it('should handle situations with no oldData', function () {
+
+      });
+
+      it('should find the first diff in a string.', function () {
+        var oldStr = "I'm a teapot.";
+        var newStr = "I'm a little teapot.";
+        var delta = syncer.determineDelta(newStr, oldStr);
+
+        expect(delta.type).toEqual(syncer.events.ADD);
+        expect(delta.position).toEqual(6);
+        expect(delta.data).toEqual('little ');
+      });
     });
   });
 

@@ -343,17 +343,25 @@ ddescribe('Setup', function () {
     });
   });
 
-  describe('addFromProtocol', function () {
+  describe('addedFromProtocol', function () {
     it('should exist', function () {
-      expect(!!syncer.addFromProtocol).toBe(true);
+      expect(!!syncer.addedFromProtocol).toBe(true);
     });
 
     it('should add an item to a collection', function () {
       var model = ['foo'];
-      syncer.addFromProtocol(model, 'bar');
+      syncer.addedFromProtocol(model, 'bar');
 
       expect(model[1]).toEqual('bar');
     });
+  });
+
+  describe('removedFromProtocol', function () {
+    it('should exist', function () {
+      expect(!!syncer.removedFromProtocol).toBe(true);
+    });
+
+    
   });
 
   // it('should call "subscribe" on the protocol when calling bind() on the syncer', function () {

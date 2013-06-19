@@ -326,14 +326,22 @@ ddescribe('Setup', function () {
       scope.$digest();
     });
 
-    it('should update the model array after adding new data from the protocol', function () {
+    it('should update the model array after adding ADD event from the protocol', function () {
       scope.myModel = ['please'];
       syncer.onProtocolChange.call(syncer, syncer.events.ADD, 'readme', 'myModel');
       scope.$digest();
       expect(scope.myModel[0]).toEqual('please');
       expect(scope.myModel[1]).toEqual('readme');
     });
-  })
+
+    it('should update the model array after REMOVE event from the protocol', function () {
+      scope.myModel = ['please', 'readme'];
+      syncer.onProtocolChange.call(syncer, syncer.events.REMOVE, 'readme', 'myModel');
+      scope.$digest();
+      expect(scope.myModel[0]).toEqual('please');
+      expect(scope.myModel[1]).toEqual(undefined);
+    });
+  });
 
   // it('should call "subscribe" on the protocol when calling bind() on the syncer', function () {
   //   syncer.bind('documents');

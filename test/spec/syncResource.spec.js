@@ -343,6 +343,19 @@ ddescribe('Setup', function () {
     });
   });
 
+  describe('addFromProtocol', function () {
+    it('should exist', function () {
+      expect(!!syncer.addFromProtocol).toBe(true);
+    });
+
+    it('should add an item to a collection', function () {
+      var model = ['foo'];
+      syncer.addFromProtocol(model, 'bar');
+
+      expect(model[1]).toEqual('bar');
+    });
+  });
+
   // it('should call "subscribe" on the protocol when calling bind() on the syncer', function () {
   //   syncer.bind('documents');
   //   expect(protocol.bound[0].query).toEqual('documents');

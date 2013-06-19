@@ -1,4 +1,4 @@
-ddescribe('Setup', function () {
+describe('Setup', function () {
   var syncResource, scope, protocol, syncer, differ, syncEvents;
 
   beforeEach(module('SyncResource'));
@@ -256,13 +256,6 @@ ddescribe('Setup', function () {
           expect(delta.type).toEqual(syncEvents.UPDATE);
         });
       });
-    });
-  });
-
-  describe('SyncEvents', function () {
-    it('should have a dictionary of event constants', function () {
-      expect(syncEvents.GET).toBeDefined();
-      expect(syncEvents.NONE).toBeDefined();
     });
   });
 

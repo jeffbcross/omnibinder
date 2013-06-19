@@ -2,10 +2,11 @@ ddescribe('Setup', function () {
   var syncResource, scope, protocol, syncer;
 
   beforeEach(module('SyncResource'));
-  beforeEach(inject(function ($injector, $rootScope, $httpBackend, _$syncResource_) {
+  beforeEach(inject(function ($injector, $rootScope, $httpBackend, _$syncResource_, _$q_) {
     $syncResource = _$syncResource_;
     
     scope = $rootScope;
+    $q = _$q_;
 
     protocol = new VolatileProtocol({host: 'localhost'});
     syncer = $syncResource({
@@ -309,6 +310,30 @@ ddescribe('Setup', function () {
       expect(protocol.changed.model).toEqual('too');
     });
   });  
+
+  describe('onProtocolChange', function () {
+    it('should exist', function () {
+      expect(!!syncer.onProtocolChange).toBe(true);
+    });
+
+    it('should update the model after reading data from the protocol', function () {
+      var deferred = $q.defer();
+      deferred.promise.then(function (msg) {
+        expect(msg).toEqual('readme');
+      });
+      syncer.onProtocolChange.call(syncer, syncer.events.READ, 'readme', null, deferred);
+
+      scope.$digest();
+    });
+
+    it('should update the model array after adding new data from the protocol', function () {
+      scope.myModel = ['please'];
+      syncer.onProtocolChange.call(syncer, syncer.events.ADD, 'readme', 'myModel');
+      scope.$digest();
+      expect(scope.myModel[0]).toEqual('please');
+      expect(scope.myModel[1]).toEqual('readme');
+    });
+  })
 
   // it('should call "subscribe" on the protocol when calling bind() on the syncer', function () {
   //   syncer.bind('documents');

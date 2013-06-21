@@ -125,7 +125,7 @@ describe('Setup', function () {
   });
 
   
-
+  // it('should always unhash newVal before diffing it');
   // it('should call "subscribe" on the protocol when calling bind() on the syncer', function () {
   //   syncer.bind('documents');
   //   expect(protocol.bound[0].query).toEqual('documents');

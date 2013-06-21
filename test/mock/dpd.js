@@ -1,4 +1,4 @@
-angular.module('SyncDeployd', [])
+angular.module('SyncResource')
   .factory('dpd', function ($timeout) {
     return {
       documents: {

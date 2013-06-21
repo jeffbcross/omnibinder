@@ -244,6 +244,17 @@ describe('Differ', function () {
         expect(delta.data).toEqual('little');
         expect(delta.type).toEqual(syncEvents.UPDATE);
       });
+
+      it('should return an event type of NONE if no new or old input is provided', function () {
+        var msg;
+        try {
+          var delta = differ.determineDelta(null, null);  
+        }
+        catch (e) {
+          msg = e;
+        }
+        expect(delta.type).toEqual(syncEvents.NONE);
+      })
     });
   });
 

@@ -126,6 +126,17 @@ describe('Setup', function () {
         expect(model[0].id).toEqual(2);
       });
     });
+
+    describe('updatedFromProtocol', function () {
+      it('should replace the entire model if updated from the protocol', function () {
+        scope.model = ['foobar'];
+        syncer.updatedFromProtocol(scope, 'model', ['fooey']);
+        scope.$digest();
+
+        expect(scope.model[0]).toEqual('fooey');
+        expect(scope.model.length).toEqual(1);
+      });
+    });
   });
 
   describe('bind', function () {

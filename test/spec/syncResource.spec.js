@@ -124,6 +124,15 @@ describe('Setup', function () {
     });
   });
 
+  describe('bind', function () {
+    it('should return a binder object', function () {
+      var binder = syncer.bind({id: 'abc'}, 'model');
+      expect(typeof binder.then).not.toEqual('function');
+      expect(typeof binder.query).toEqual('object');
+      expect(binder.query.id).toEqual('abc');
+    });
+  });
+
   
   // it('should always unhash newVal before diffing it');
   // it('should call "subscribe" on the protocol when calling bind() on the syncer', function () {

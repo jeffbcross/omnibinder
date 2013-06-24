@@ -117,9 +117,13 @@ describe('Setup', function () {
       it('should exist', function () {
         expect(!!syncer.removedFromProtocol).toBe(true);
       });
-
+      
       it('should update the local model based on removal event from protocol', function () {
+        var model = [{id: 1}, {id: 2}];
+        syncer.removedFromProtocol(model, {id: 1});
 
+        expect(model.length).toEqual(1);
+        expect(model[0].id).toEqual(2);
       });
     });
   });

@@ -150,10 +150,11 @@ describe('Setup', function () {
 
   describe('bind', function () {
     it('should return a binder object', function () {
-      var binder = syncer.bind({id: 'abc'}, 'model');
+      var binder = syncer.bind(scope, 'model', {id: 'abc'});
       expect(typeof binder.then).not.toEqual('function');
       expect(typeof binder.query).toEqual('object');
       expect(binder.query.id).toEqual('abc');
+      expect(typeof binder.val).toEqual('function');
     });
   });
 

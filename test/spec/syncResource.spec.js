@@ -60,11 +60,20 @@ describe('Setup', function () {
 
         syncer.onModelChange.call(syncer, ['foo'], ['foo', 'remove'], {path: 'foo.bar'});
         scope.$digest();
-        expect(protocol.removed.model).toEqual('remove');
+        expect(protocol.removed.delta.data).toEqual('remove');
 
         syncer.onModelChange.call(syncer, ['too'], ['foo'], {path: 'foo.bar'});
         scope.$digest();
         expect(protocol.changed.model).toEqual('too');
+      });
+
+      it('should call protocol.remove when data is deleted or spliced', function () {
+        syncer.onModelChange.call(syncer, ['foo'], ['foo', 'removeme'], {path: 'foo.bar'});
+        scope.$digest();
+
+        expect(protocol.removed.delta.data).toEqual('removeme');
+        expect(protocol.removed.delta.type).toEqual(syncEvents.REMOVE);
+        expect(protocol.removed.delta.position).toEqual(1);
       });
     });  
 
@@ -106,10 +115,10 @@ describe('Setup', function () {
       });
 
       it('should add an item to a collection', function () {
-        var model = ['foo'];
-        syncer.addedFromProtocol(model, 'bar');
+        scope.model = ['foo'];
+        syncer.addedFromProtocol(scope, 'model', 'bar');
 
-        expect(model[1]).toEqual('bar');
+        expect(scope.model[1]).toEqual('bar');
       });
     });
 

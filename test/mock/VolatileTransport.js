@@ -13,10 +13,10 @@ VolatileProtocol.prototype.create = function (query, model, callback) {
   }
 };
 
-VolatileProtocol.prototype.remove = function (query, model, callback) {
+VolatileProtocol.prototype.remove = function (query, delta, callback) {
   this.removed = {
     query: query,
-    model: model
+    delta: delta
   }
 }
 

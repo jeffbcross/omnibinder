@@ -2,8 +2,8 @@ describe('Differ', function () {
   var differ, syncEvents;
 
   beforeEach(module('SyncResource'))
-  beforeEach(inject(function (_differ_, _syncEvents_) {
-    differ = _differ_;
+  beforeEach(inject(function (_$differ_, _syncEvents_) {
+    differ = _$differ_;
     syncEvents = _syncEvents_;
   }));
 

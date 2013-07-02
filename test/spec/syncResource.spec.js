@@ -1,10 +1,12 @@
 describe('Setup', function () {
-  var syncResource, scope, protocol, syncer, syncEvents;
+  var syncResource, scope, protocol, syncer, syncEvents, $differ, $binder;
 
   beforeEach(module('SyncResource'));
-  beforeEach(inject(function ($injector, $rootScope, $httpBackend, _$syncResource_, _$q_, _syncEvents_) {
+  beforeEach(inject(function ($injector, _$binder_, _$differ_, $rootScope, $httpBackend, _$syncResource_, _$q_, _syncEvents_) {
     $syncResource = _$syncResource_;
     syncEvents = _syncEvents_;
+    $differ = _$differ_;
+    $binder = _$binder_;
     
     scope = $rootScope;
     $q = _$q_;
@@ -54,21 +56,47 @@ describe('Setup', function () {
       });
 
       it('should call protocol.create when new data is added', function () {
-        syncer.onModelChange.call(syncer, ['foo', 'addme'], ['foo'], {path: 'foo.bar'});
+        var binder = $binder({
+          scope: scope,
+          model: 'model',
+          onModelChange: function (newVal, oldVal, delta, next) {
+            var newDelta = $differ.determineDelta(newVal, oldVal);
+            delta.data = newDelta.data;
+            delta.type = newDelta.type;
+            next();
+          },
+          query: {path: 'foo.bar'}
+        });
+
+        syncer.onModelChange.call(syncer, ['foo', 'addme'], ['foo'], binder);
         scope.$digest();
         expect(protocol.created.model).toEqual('addme');
 
-        syncer.onModelChange.call(syncer, ['foo'], ['foo', 'remove'], {path: 'foo.bar'});
+        syncer.onModelChange.call(syncer, ['foo'], ['foo', 'remove'], binder);
         scope.$digest();
         expect(protocol.removed.delta.data).toEqual('remove');
+        expect(protocol.removed.query.path).toEqual('foo.bar');
 
-        syncer.onModelChange.call(syncer, ['too'], ['foo'], {path: 'foo.bar'});
+        syncer.onModelChange.call(syncer, ['too'], ['foo'], binder);
         scope.$digest();
         expect(protocol.changed.model).toEqual('too');
       });
 
       it('should call protocol.remove when data is deleted or spliced', function () {
-        syncer.onModelChange.call(syncer, ['foo'], ['foo', 'removeme'], {path: 'foo.bar'});
+        var binder = $binder({
+          scope: scope,
+          model: 'model',
+          onModelChange: function (newVal, oldVal, delta, next) {
+            var newDelta = $differ.determineDelta(newVal, oldVal);
+            delta.data = newDelta.data;
+            delta.type = newDelta.type;
+            delta.position = newDelta.position;
+            next();
+          },
+          query: {path: 'foo.bar'}
+        });
+
+        syncer.onModelChange.call(syncer, ['foo'], ['foo', 'removeme'], binder);
         scope.$digest();
 
         expect(protocol.removed.delta.data).toEqual('removeme');
@@ -150,43 +178,34 @@ describe('Setup', function () {
 
   describe('bind', function () {
     it('should return a binder object', function () {
-      var binder = syncer.bind(scope, 'model', {id: 'abc'});
+      var binder = syncer.bind({
+        scope: scope,
+        model: 'model',
+        query: {id: 'abc'}
+      });
       expect(typeof binder.then).not.toEqual('function');
       expect(typeof binder.query).toEqual('object');
       expect(binder.query.id).toEqual('abc');
       expect(typeof binder.val).toEqual('function');
     });
+
+    it('should cause model changes to go through binder.onModelChange', function () {
+      var binder = syncer.bind({
+        scope: scope,
+        model: 'model',
+        onModelChange: function (newVal, oldVal, delta, next) {
+          delta.data = oldVal + newVal;
+          delta.type = syncEvents.UPDATE;
+          next();
+        }
+      });
+
+      syncer.onModelChange.call(syncer, 'Fooey', 'Booey', binder);
+      expect(protocol.changed.model).toEqual('BooeyFooey');
+    });
   });
 
-  
-  // it('should always unhash newVal before diffing it');
-  // it('should call "subscribe" on the protocol when calling bind() on the syncer', function () {
-  //   syncer.bind('documents');
-  //   expect(protocol.bound[0].query).toEqual('documents');
-  // });
-
-  // it("should assign the result of the protocol's get method to the appropriate model on the scope", function () {
-  //   syncer.bind('documents', 'myModel');
-  //   expect(typeof scope.myModel.then).toEqual('function');
-  // });
-
-  // it('should return a promise when calling bind, which should resolve to the initial data state', function () {
-  //   expect(false).toBe(true);
-  // });
-
-  // it('should maintain a unique binder object for each call to .bind', function () {
-  //   expect(false).toBe(true);
-  // });
-
-  // it('should not react to initial model change on initial read', function () {
-  //   expect(false).toBe(true);
-  // });
-
-  // it('should pluck an item', function () {
-  //   expect(false).toBe(true);
-  // });
-
-  // it('should update an item', function () {
-  //   expect(false).toBe(true);
-  // });
+  /*it('should not react to initial model change on initial read', function () {
+    expect(false).toBe(true);
+  });*/
 });

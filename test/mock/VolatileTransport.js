@@ -2,14 +2,20 @@ function VolatileProtocol (config) {
   this.host = config.host;
 };
 
+VolatileProtocol.prototype.change = function (query, delta) {
+  this.created = {
+    model: delta.data
+  };
+};
+
 VolatileProtocol.prototype.bind = function (query, callback) {
 
 };
 
-VolatileProtocol.prototype.create = function (query, model, callback) {
+VolatileProtocol.prototype.create = function (query, delta, callback) {
   this.created = {
     query: query,
-    model: model
+    model: delta.data
   }
 };
 
@@ -20,9 +26,9 @@ VolatileProtocol.prototype.remove = function (query, delta, callback) {
   }
 }
 
-VolatileProtocol.prototype.update = function (query, model, callback) {
+VolatileProtocol.prototype.update = function (query, delta, callback) {
   this.changed = {
-    model: model,
+    model: delta.data,
     query: query
   }
 }
@@ -32,5 +38,5 @@ VolatileProtocol.prototype.read = function (query) {
 }
 VolatileProtocol.prototype.subscribe = function (query) {
   this.bound = [];
-  this.bound.push({query: query}); 
+  this.bound.push({query: query});
 }

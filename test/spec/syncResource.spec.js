@@ -83,8 +83,8 @@ describe('Setup', function () {
         var binder = $binder({
           scope: scope,
           model: 'model',
-          onModelChange: function (newVal, oldVal, delta, next) {
-            var newDelta = $differ.determineDelta(newVal, oldVal);
+          onModelChange: function (binder, delta, next) {
+            var newDelta = $differ.determineDelta(delta.newVal, delta.oldVal);
             delta.data = newDelta.data;
             delta.type = newDelta.type;
             next();
@@ -110,8 +110,8 @@ describe('Setup', function () {
         var binder = $binder({
           scope: scope,
           model: 'model',
-          onModelChange: function (newVal, oldVal, delta, next) {
-            var newDelta = $differ.determineDelta(newVal, oldVal);
+          onModelChange: function (binder, delta, next) {
+            var newDelta = $differ.determineDelta(delta.newVal, delta.oldVal);
             delta.data = newDelta.data;
             delta.type = newDelta.type;
             delta.position = newDelta.position;
@@ -198,7 +198,7 @@ describe('Setup', function () {
       expect(args[1]).toEqual('delta');
       expect(args[2]).toBeUndefined();
     });
-  })
+  });
 
   describe('bind', function () {
     it('should return a binder object', function () {
@@ -217,8 +217,8 @@ describe('Setup', function () {
       var binder = syncer.bind({
         scope: scope,
         model: 'model',
-        onModelChange: function (newVal, oldVal, delta, next) {
-          delta.data = oldVal + newVal;
+        onModelChange: function (binder, delta, next) {
+          delta.data = delta.oldVal + delta.newVal;
           delta.type = syncEvents.UPDATE;
           next();
         }

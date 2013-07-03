@@ -1,12 +1,13 @@
 describe('Setup', function () {
-  var syncResource, scope, protocol, syncer, syncEvents, $differ, $binder;
+  var syncResource, scope, protocol, syncer, syncEvents, $differ, $binder, captureFunctionArgs;
 
   beforeEach(module('SyncResource'));
-  beforeEach(inject(function ($injector, _$binder_, _$differ_, $rootScope, $httpBackend, _$syncResource_, _$q_, _syncEvents_) {
+  beforeEach(inject(function ($injector, _$binder_, _$differ_, $rootScope, $httpBackend, _$syncResource_, _$q_, _syncEvents_, $captureFuncArgs) {
     $syncResource = _$syncResource_;
     syncEvents = _syncEvents_;
     $differ = _$differ_;
     $binder = _$binder_;
+    captureFunctionArgs = $captureFuncArgs;
     
     scope = $rootScope;
     $q = _$q_;
@@ -17,12 +18,6 @@ describe('Setup', function () {
       scope: scope
     });
   }));
-
-  function captureFunctionArgs (funcString) {
-    //Takes in a stringified function, returns array of arguments.
-    var captureArgs = /function[ ]*[a-zA-Z0-9]*[ ]*\(([a-zA-Z0-9, ]*)\)[ ]*{/;
-    return captureArgs.exec(funcString)[1].replace(/ /g, '').split(',');
-  }
 
   describe('SyncResource', function () {
     it('should exist', function () {

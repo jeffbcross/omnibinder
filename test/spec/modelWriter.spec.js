@@ -1,17 +1,12 @@
 describe('$modelWriter', function () {
-  var modelWriter, scope;
+  var modelWriter, scope, captureFunctionArgs;
 
   beforeEach(module('SyncResource'));
-  beforeEach(inject(function (_$modelWriter_, $rootScope) {
+  beforeEach(inject(function (_$modelWriter_, $rootScope, $captureFuncArgs) {
     $modelWriter = _$modelWriter_;
     scope = $rootScope;
+    captureFunctionArgs = $captureFuncArgs;
   }));
-
-  function captureFunctionArgs (funcString) {
-    //Takes in a stringified function, returns array of arguments.
-    var captureArgs = /function[ ]*[a-zA-Z0-9]*[ ]*\(([a-zA-Z0-9, ]*)\)[ ]*{/;
-    return captureArgs.exec(funcString)[1].replace(/ /g, '').split(',');
-  }
 
   describe('addedFromProtocol', function () {
     it('should exist', function () {

@@ -1,17 +1,12 @@
 describe('Differ', function () {
-  var differ, syncEvents;
+  var differ, syncEvents, captureFunctionArgs;
 
   beforeEach(module('SyncResource'))
-  beforeEach(inject(function (_$differ_, _syncEvents_) {
+  beforeEach(inject(function (_$differ_, _syncEvents_, $captureFuncArgs) {
     differ = _$differ_;
     syncEvents = _syncEvents_;
+    captureFunctionArgs = $captureFuncArgs;
   }));
-
-  function captureFunctionArgs (funcString) {
-    //Takes in a stringified function, returns array of arguments.
-    var captureArgs = /function[ ]*[a-zA-Z0-9]*[ ]*\(([a-zA-Z0-9, ]*)\)[ ]*{/;
-    return captureArgs.exec(funcString)[1].replace(/ /g, '').split(',');
-  }
 
   describe('Delta Parsing', function () {
     describe('findRemovedItem', function () {

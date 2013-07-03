@@ -18,6 +18,12 @@ describe('Setup', function () {
     });
   }));
 
+  function captureFunctionArgs (funcString) {
+    //Takes in a stringified function, returns array of arguments.
+    var captureArgs = /function[ ]*[a-zA-Z0-9]*[ ]*\(([a-zA-Z0-9, ]*)\)[ ]*{/;
+    return captureArgs.exec(funcString)[1].replace(/ /g, '').split(',');
+  }
+
   describe('SyncResource', function () {
     it('should exist', function () {
       expect(!!angular).toBe(true);
@@ -30,6 +36,16 @@ describe('Setup', function () {
     });
 
     describe('unHash', function () {
+      it('should exist', function () {
+        expect(!!syncer.unHash).toBe(true);
+      });
+
+      it('should have the correct signature', function () {
+        var args = captureFunctionArgs(syncer.unHash.toString());
+        expect(args[0]).toEqual('array');
+        expect(args[1]).toBeUndefined();
+      });
+
       it('should remove $$hashKey from objects in an array', function () {
         var unHashed = syncer.unHash([{$$hashKey: '1', id: '2'}]);
         expect(unHashed[0].$$hashKey).toBeUndefined();
@@ -54,6 +70,14 @@ describe('Setup', function () {
       it('should exist', function () {
         expect(!!syncer.onModelChange).toBe(true);
       });
+
+      it('should have the correct signature', function () {
+        var args = captureFunctionArgs(syncer.onModelChange.toString());
+        expect(args[0]).toEqual('newVal');
+        expect(args[1]).toEqual('oldVal');
+        expect(args[2]).toEqual('binder');
+        expect(args[3]).toBeUndefined();
+      })
 
       it('should call protocol.create when new data is added', function () {
         var binder = $binder({
@@ -106,8 +130,23 @@ describe('Setup', function () {
     });  
 
     describe('onProtocolChange', function () {
+      var binder;
+
+      beforeEach(function () {
+        binder = $binder({
+          scope: scope,
+          model: 'myModel'
+        })
+      });
       it('should exist', function () {
         expect(!!syncer.onProtocolChange).toBe(true);
+      });
+
+      it('should have the correct function signature', function () {
+        var args = captureFunctionArgs(syncer.onProtocolChange.toString());
+        expect(args[0]).toEqual('binder');
+        expect(args[1]).toEqual('delta');
+        expect(args[2]).toBeUndefined();
       });
 
       it('should update the model after reading data from the protocol', function () {
@@ -115,14 +154,21 @@ describe('Setup', function () {
         deferred.promise.then(function (msg) {
           expect(msg).toEqual('readme');
         });
-        syncer.onProtocolChange.call(syncer, syncEvents.READ, 'readme', null, deferred);
+
+        syncer.onProtocolChange.call(syncer, binder, {
+          type: syncEvents.READ,
+          data: 'readme'
+        });
 
         scope.$digest();
       });
 
       it('should update the model array after adding ADD event from the protocol', function () {
         scope.myModel = ['please'];
-        syncer.onProtocolChange.call(syncer, syncEvents.ADD, 'readme', 'myModel');
+        syncer.onProtocolChange.call(syncer, binder, {
+          type: syncEvents.ADD,
+          data: 'readme'
+        });
         scope.$digest();
         expect(scope.myModel[0]).toEqual('please');
         expect(scope.myModel[1]).toEqual('readme');
@@ -130,51 +176,29 @@ describe('Setup', function () {
 
       it('should update the model array after REMOVE event from the protocol', function () {
         scope.myModel = ['please', 'readme'];
-        syncer.onProtocolChange.call(syncer, syncEvents.REMOVE, 'readme', 'myModel');
+        syncer.onProtocolChange.call(syncer, binder, {
+          type: syncEvents.REMOVE,
+          data: 'readme'
+        });
         scope.$digest();
         expect(scope.myModel[0]).toEqual('please');
         expect(scope.myModel[1]).toEqual(undefined);
       });
     });
-
-    describe('addedFromProtocol', function () {
-      it('should exist', function () {
-        expect(!!syncer.addedFromProtocol).toBe(true);
-      });
-
-      it('should add an item to a collection', function () {
-        scope.model = ['foo'];
-        syncer.addedFromProtocol(scope, 'model', 'bar');
-
-        expect(scope.model[1]).toEqual('bar');
-      });
-    });
-
-    describe('removedFromProtocol', function () {
-      it('should exist', function () {
-        expect(!!syncer.removedFromProtocol).toBe(true);
-      });
-      
-      it('should update the local model based on removal event from protocol', function () {
-        var model = [{id: 1}, {id: 2}];
-        syncer.removedFromProtocol(model, {id: 1});
-
-        expect(model.length).toEqual(1);
-        expect(model[0].id).toEqual(2);
-      });
-    });
-
-    describe('updatedFromProtocol', function () {
-      it('should replace the entire model if updated from the protocol', function () {
-        scope.model = ['foobar'];
-        syncer.updatedFromProtocol(scope, 'model', ['fooey']);
-        scope.$digest();
-
-        expect(scope.model[0]).toEqual('fooey');
-        expect(scope.model.length).toEqual(1);
-      });
-    });
   });
+
+  describe('sendToModel', function () {
+    it('should exist', function () {
+      expect(!!syncer.sendToModel).toBe(true);
+    });
+
+    it('should have the correct function signature', function () {
+      var args = captureFunctionArgs(syncer.sendToModel.toString());
+      expect(args[0]).toEqual('binder');
+      expect(args[1]).toEqual('delta');
+      expect(args[2]).toBeUndefined();
+    });
+  })
 
   describe('bind', function () {
     it('should return a binder object', function () {

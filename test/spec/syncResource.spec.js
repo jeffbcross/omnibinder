@@ -84,10 +84,7 @@ describe('Setup', function () {
           scope: scope,
           model: 'model',
           onModelChange: function (binder, delta, next) {
-            var newDelta = $differ.determineDelta(delta.newVal, delta.oldVal);
-            delta.data = newDelta.data;
-            delta.type = newDelta.type;
-            next();
+            $differ.determineDelta(binder, delta, next);
           },
           query: {path: 'foo.bar'}
         });
@@ -111,11 +108,7 @@ describe('Setup', function () {
           scope: scope,
           model: 'model',
           onModelChange: function (binder, delta, next) {
-            var newDelta = $differ.determineDelta(delta.newVal, delta.oldVal);
-            delta.data = newDelta.data;
-            delta.type = newDelta.type;
-            delta.position = newDelta.position;
-            next();
+            $differ.determineDelta(binder, delta, next);
           },
           query: {path: 'foo.bar'}
         });

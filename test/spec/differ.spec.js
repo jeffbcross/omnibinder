@@ -7,36 +7,67 @@ describe('Differ', function () {
     syncEvents = _syncEvents_;
   }));
 
+  function captureFunctionArgs (funcString) {
+    //Takes in a stringified function, returns array of arguments.
+    var captureArgs = /function[ ]*[a-zA-Z0-9]*[ ]*\(([a-zA-Z0-9, ]*)\)[ ]*{/;
+    return captureArgs.exec(funcString)[1].replace(/ /g, '').split(',');
+  }
+
   describe('Delta Parsing', function () {
     describe('findRemovedItem', function () {
-      it('should find the removed item from an array when comparing two arrays of strings', function () {
-        var newArr = ['foo', 'bar'];
-        var oldArr = ['foo', 'bar', 'baz'];
-        var delta = differ.findRemovedItem(newArr, oldArr);
+      it('should implement proper middleware signature', function () {
+        var args = captureFunctionArgs(differ.findRemovedItem.toString());
+        expect(args[0]).toEqual('binder');
+        expect(args[1]).toEqual('delta');
+        expect(args[2]).toEqual('next');
+        expect(args[3]).toBeUndefined();
+      });
 
-        expect(delta.data).toEqual('baz');
-        expect(delta.position).toEqual(2);
+      it('should find the removed item from an array when comparing two arrays of strings', function () {
+        var delta = {
+          newVal: ['foo', 'bar'],
+          oldVal: ['foo', 'bar', 'baz']
+        }, callback;
+
+        differ.findRemovedItem({}, delta, function () {
+          expect(delta.data).toEqual('baz');
+          expect(delta.position).toEqual(2);
+          callback = true;
+        });
+
+        expect(callback).toBe(true);
       });
 
       it('should find the removed item from an array when comparing two arrays of objects', function () {
-        var newArr = [{foo: true}, {bar: 'yes'}];
-        var oldArr = [{foo: true}, {bar: 'yes'}, {baz: 'duh!'}];
-        var delta = differ.findRemovedItem(newArr, oldArr);
+        var delta = {
+          newVal: [{foo: true}, {bar: 'yes'}],
+          oldVal: [{foo: true}, {bar: 'yes'}, {baz: 'duh!'}]
+        }, callback;
+        
+        differ.findRemovedItem({}, delta, function () {
+          expect(typeof delta).toEqual('object');
+          expect(delta.data.baz).toEqual('duh!');
+          expect(delta.position).toEqual(2);
+          callback = true;
+        });
 
-        expect(typeof delta).toEqual('object');
-        expect(delta.data.baz).toEqual('duh!');
-        expect(delta.position).toEqual(2);
+        expect(callback).toBe(true);
       });
 
       it('should find the removed item from an array when comparing two arrays of mixed types', function () {
-        var newArr = ['foo', 'bar'];
-        var oldArr = ['foo', 'bar', {baz: 'duh!'}];
+        var delta = {
+          newVal: ['foo', 'bar'],
+          oldVal: ['foo', 'bar', {baz: 'duh!'}]
+        }, callback;
 
-        var delta = differ.findRemovedItem(newArr, oldArr);
+        differ.findRemovedItem({}, delta, function () {
+          expect(typeof delta).toEqual('object');
+          expect(delta.data.baz).toEqual('duh!');
+          expect(delta.position).toEqual(2);
+          callback = true;
+        });
 
-        expect(typeof delta).toEqual('object');
-        expect(delta.data.baz).toEqual('duh!');
-        expect(delta.position).toEqual(2);
+        expect(callback).toBe(true);
       });
     });
 
@@ -45,49 +76,114 @@ describe('Differ', function () {
         expect(!!differ.compareStrings).toBe(true);
       });
 
+      it('should implement proper middleware signature', function () {
+        var args = captureFunctionArgs(differ.compareStrings.toString());
+        expect(args[0]).toEqual('binder');
+        expect(args[1]).toEqual('delta');
+        expect(args[2]).toEqual('next');
+        expect(args[3]).toBeUndefined();
+      });
+
       it('should determine the correct type of comparison to make', function () {
-        expect(differ.compareStrings('long', 'l').type).toEqual(syncEvents.ADD);
-        expect(differ.compareStrings('s', 'short').type).toEqual(syncEvents.REMOVE);
-        expect(differ.compareStrings('same', 'same').type).toEqual(syncEvents.UPDATE);
+        var delta = {
+          newVal: 'long',
+          oldVal: 'l'
+        }, callback = 0;
+        differ.compareStrings({}, delta, function () {
+          expect(delta.type).toEqual(syncEvents.ADD);
+          callback++;
+        });
+
+        delta = {
+          newVal: 's',
+          oldVal: 'short'
+        };
+
+        differ.compareStrings({}, delta, function () {
+          expect(delta.type).toEqual(syncEvents.REMOVE);
+          callback++;
+        });
+
+        delta = {
+          newVal: 'same',
+          oldVal: 'same'
+        };
+
+        differ.compareStrings({}, delta, function () {
+          expect(delta.type).toEqual(syncEvents.NONE);
+          callback++;
+        });
+
+        expect(callback).toEqual(3);
       });
     });
     
     describe('findAddedItem', function () {
-      it('should find the added item from an array when comparing two arrays of strings', function () {
-        var newArr = ['baz', 'foo', 'bar'];
-        var oldArr = ['foo', 'bar'];
-        var delta = differ.findAddedItem(newArr, oldArr);
+      it('should implement proper middleware signature', function () {
+        var args = captureFunctionArgs(differ.findAddedItem.toString());
+        expect(args[0]).toEqual('binder');
+        expect(args[1]).toEqual('delta');
+        expect(args[2]).toEqual('next');
+        expect(args[3]).toBeUndefined();
+      });
 
-        expect(delta.data).toEqual('baz');
-        expect(delta.position).toEqual(0);
+      it('should find the added item from an array when comparing two arrays of strings', function () {
+        var delta = {
+          newVal: ['baz', 'foo', 'bar'],
+          oldVal: ['foo', 'bar']
+        }, callback;
+
+        differ.findAddedItem({}, delta, function () {
+          expect(delta.data).toEqual('baz');
+          expect(delta.position).toEqual(0);
+          expect(delta.type).toEqual(syncEvents.ADD);
+          callback = true;
+        });
+
+        expect(callback).toBe(true);
       });
 
       it('should find the added item from an array when comparing two arrays of objects', function () {
-        var newArr = [{foo: true}, {bar: 'yes'}, {baz: 'duh!'}];
-        var oldArr = [{foo: true}, {bar: 'yes'}];
-        
-        var delta = differ.findAddedItem(newArr, oldArr);
+        var delta = {
+          newVal: [{foo: true}, {bar: 'yes'}, {baz: 'duh!'}],
+          oldVal: [{foo: true}, {bar: 'yes'}]
+        }, callback;
 
-        expect(typeof delta).toEqual('object');
-        expect(delta.data.baz).toEqual('duh!');
-        expect(delta.position).toEqual(2);
+        differ.findAddedItem({}, delta, function () {
+          expect(delta.data.baz).toEqual('duh!');
+          expect(delta.position).toEqual(2);
+          callback = true;
+        });
+        expect(callback).toBe(true);
       });
 
       it('should find the added item from an array when comparing two arrays of mixed types', function () {
-        var newArr = ['foo', {baz: 'duh!'}, 'bar'];
-        var oldArr = ['foo', 'bar'];
+        var delta = {
+          newVal: ['foo', {baz: 'duh!'}, 'bar'],
+          oldVal: ['foo', 'bar']
+        }, callback;
 
-        var delta = differ.findAddedItem(newArr, oldArr);
+        differ.findAddedItem({}, delta, function () {
+          expect(delta.data.baz).toEqual('duh!');
+          expect(delta.position).toEqual(1);  
+          callback = true;
+        });
 
-        expect(typeof delta).toEqual('object');
-        expect(delta.data.baz).toEqual('duh!');
-        expect(delta.position).toEqual(1);
+        expect(callback).toBe(true);
       });
     });
 
     describe('findUpdatedItem', function () {
       it('should exist', function () {
         expect(!!differ.findUpdatedItem).toBe(true);
+      });
+
+      it('should implement proper middleware signature', function () {
+        var args = captureFunctionArgs(differ.findUpdatedItem.toString());
+        expect(args[0]).toEqual('binder');
+        expect(args[1]).toEqual('delta');
+        expect(args[2]).toEqual('next');
+        expect(args[3]).toBeUndefined();
       });
 
       //TODO: More tests
@@ -98,13 +194,28 @@ describe('Differ', function () {
         expect(!!differ.findAddedString).toBe(true);
       });
 
-      it('should find the first new string when comparing two versions', function () {
-        var oldStr = "I'm a teapot.";
-        var newStr = "I'm a little teapot.";
-        var delta = differ.findAddedString(newStr, oldStr);
+      it('should implement proper middleware signature', function () {
+        var args = captureFunctionArgs(differ.findAddedString.toString());
+        expect(args[0]).toEqual('binder');
+        expect(args[1]).toEqual('delta');
+        expect(args[2]).toEqual('next');
+        expect(args[3]).toBeUndefined();
+      });
 
-        expect(delta.data).toEqual('little ');
-        expect(delta.position).toEqual(6);
+      it('should find the first new string when comparing two versions', function () {
+        var delta = {
+          oldVal: "I'm a teapot.",
+          newVal: "I'm a little teapot."
+        }, callback;
+
+        differ.findAddedString({}, delta, function () {
+          expect(delta.data).toEqual('little ');
+          expect(delta.position).toEqual(6);
+          expect(delta.type).toEqual(syncEvents.ADD);
+          callback = true;
+        });
+        
+        expect(callback).toBe(true);
       });
     });
 
@@ -113,20 +224,39 @@ describe('Differ', function () {
         expect(!!differ.findRemovedString).toBe(true);
       });
 
+      it('should implement proper middleware signature', function () {
+        var args = captureFunctionArgs(differ.findRemovedString.toString());
+        expect(args[0]).toEqual('binder');
+        expect(args[1]).toEqual('delta');
+        expect(args[2]).toEqual('next');
+        expect(args[3]).toBeUndefined();
+      });
+
       it('should find the removed string', function () {
-        var oldStr = "I'm a little teapot.";
-        var newStr = "I'm a teapot.";
-        var delta = differ.findRemovedString(newStr, oldStr);
+        var delta = {
+          oldVal: "I'm a little teapot.",
+          newVal: "I'm a teapot."
+        }, callback = 0;
+        
+        differ.findRemovedString({}, delta, function (){
+          expect(delta.data).toEqual('little ');
+          expect(delta.position).toEqual(6);
+          expect(delta.type).toEqual(syncEvents.REMOVE);
+          callback++;
+        });
 
-        expect(delta.data).toEqual('little ');
-        expect(delta.position).toEqual(6);
-
-        var oldStr = "I sure am a little teapot.";
-        var newStr = "You're a little teapot.";
-        var delta = differ.findRemovedString(newStr, oldStr);
-
-        expect(delta.data).toEqual("You're");
-        expect(delta.position).toEqual(0);
+        delta = {
+          oldVal: "I sure am a little teapot.",
+          newVal: "You're a little teapot."
+        };
+        
+        differ.findRemovedString({}, delta, function () {
+          expect(delta.data).toEqual("You're");
+          expect(delta.position).toEqual(0);
+          expect(delta.type).toEqual(syncEvents.UPDATE);
+          callback++;
+        });
+        expect(callback).toEqual(2);
       });
     });
 
@@ -135,13 +265,27 @@ describe('Differ', function () {
         expect(!!differ.findChangedString).toBe(true);
       });
 
-      it('should find a single difference between two strings of the same length', function () {
-        var oldStr = "Can you find the needle in this haystack?";
-        var newStr = "Can you find the peanut in this haystack?";
-        var delta = differ.findChangedString(newStr, oldStr);
+      it('should implement proper middleware signature', function () {
+        var args = captureFunctionArgs(differ.findChangedString.toString());
+        expect(args[0]).toEqual('binder');
+        expect(args[1]).toEqual('delta');
+        expect(args[2]).toEqual('next');
+        expect(args[3]).toBeUndefined();
+      });
 
-        expect(delta.data).toEqual('peanut');
-        expect(delta.position).toEqual(17);
+      it('should find a single difference between two strings of the same length', function () {
+        var delta = {
+          oldVal: "Can you find the needle in this haystack?",
+          newVal: "Can you find the peanut in this haystack?"
+        }, callback;
+
+        differ.findChangedString({}, delta, function () {
+          expect(delta.data).toEqual('peanut');
+          expect(delta.position).toEqual(17);
+          callback = true;
+        });
+
+        expect(callback).toBe(true);
       });
     });
 
@@ -150,110 +294,204 @@ describe('Differ', function () {
         expect(!!differ.compareArrays).toBe(true);
       });
 
+      it('should implement proper middleware signature', function () {
+        var args = captureFunctionArgs(differ.compareArrays.toString());
+        expect(args[0]).toEqual('binder');
+        expect(args[1]).toEqual('delta');
+        expect(args[2]).toEqual('next');
+        expect(args[3]).toBeUndefined();
+      });
+
       it('should determine the correct type of comparison to make', function () {
-        expect(differ.compareArrays(['1'], ['1','2']).type).toEqual(syncEvents.REMOVE);
-        expect(differ.compareArrays(['1','2'], ['1']).type).toEqual(syncEvents.ADD);
-        expect(differ.compareArrays(['1'],['2']).type).toEqual(syncEvents.UPDATE);
+        var delta = {
+          newVal: ['1'],
+          oldVal: ['1','2']
+        }, callback = 0;
+
+        differ.compareArrays({}, delta, function () {
+          expect(delta.type).toEqual(syncEvents.REMOVE);
+          callback++;
+        });
+
+        delta = {
+          newVal: ['1','2'],
+          oldVal: ['1']
+        };
+        differ.compareArrays({}, delta, function () {
+          expect(delta.type).toEqual(syncEvents.ADD);
+          callback++;
+        });
+        
+        delta = {
+          newVal: ['1'],
+          oldVal: ['2']
+        };
+        differ.compareArrays({}, delta, function () {
+          expect(delta.type).toEqual(syncEvents.UPDATE);
+          callback++;
+        });
+        
+        expect(callback).toEqual(3);
       });
     })
 
     describe('determineDelta', function () {
-      it('should return an object with type, position, and data properties', function () {
-        var oldArr = ['foo'];
-        var newArr = ['foo', 'bar'];
-        var delta = differ.determineDelta(newArr, oldArr);
+      it('should implement proper middleware signature', function () {
+        var args = captureFunctionArgs(differ.determineDelta.toString());
+        expect(args[0]).toEqual('binder');
+        expect(args[1]).toEqual('delta');
+        expect(args[2]).toEqual('next');
+        expect(args[3]).toBeUndefined();
+      });
 
-        expect(delta.type).toEqual(syncEvents.ADD);
-        expect(delta.position).toEqual(1);
-        expect(delta.data).toEqual('bar');
+      it('should return an object with type, position, and data properties', function () {
+        var delta = {
+          oldVal: ['foo'],
+          newVal: ['foo', 'bar']
+        }, callback;
+        
+        differ.determineDelta({}, delta, function () {
+          expect(delta.type).toEqual(syncEvents.ADD);
+          expect(delta.position).toEqual(1);
+          expect(delta.data).toEqual('bar');
+          callback = true;
+        });
+
+        expect(callback).toBe(true);
       });
 
       it('should know when an array has removed an item', function () {
-        var oldArr = ['foo', 'baz', 'bar'];
-        var newArr = ['foo', 'bar'];
-        var delta = differ.determineDelta(newArr, oldArr);
+        var delta = {
+          oldVal: ['foo', 'baz', 'bar'],
+          newVal: ['foo', 'bar']
+        }, callback;
+        
+        differ.determineDelta({}, delta, function () {
+          expect(delta.type).toEqual(syncEvents.REMOVE);
+          expect(delta.position).toEqual(1);
+          expect(delta.data).toEqual('baz');
+          callback = true;
+        });
 
-        expect(delta.type).toEqual(syncEvents.REMOVE);
-        expect(delta.position).toEqual(1);
-        expect(delta.data).toEqual('baz');
+        expect(callback).toBe(true);
       });
 
       it('should know when an array has added an item', function () {
-        var oldArr = ['foo', 'bar'];
-        var newArr = ['foo', 'bar', 'baz'];
-        var delta = differ.determineDelta(newArr, oldArr);
+        var delta = {
+          oldVal: ['foo', 'bar'],
+          newVal: ['foo', 'bar', 'baz']
+        }, callback;
 
-        expect(delta.type).toEqual(syncEvents.ADD);
-        expect(delta.position).toEqual(2);
-        expect(delta.data).toEqual('baz');
+        differ.determineDelta({}, delta, function () {
+          expect(delta.type).toEqual(syncEvents.ADD);
+          expect(delta.position).toEqual(2);
+          expect(delta.data).toEqual('baz');
+          callback = true;
+        });
+
+        expect(callback).toBe(true);
       });
 
       it('should know when an array has an updated item', function () {
-        var oldArr = ['foo', 'bar'];
-        var newArr = ['foo', 'baze'];
-        var delta = differ.determineDelta(newArr, oldArr);
+        var delta = {
+          oldVal: ['foo', 'bar'],
+          newVal: ['foo', 'baze']
+        }, callback;
+        
+        differ.determineDelta({}, delta, function () {
+          expect(delta.type).toEqual(syncEvents.UPDATE);
+          expect(delta.position).toEqual(1);
+          expect(delta.data).toEqual('baze');
+          callback = true;
+        });
 
-        expect(delta.type).toEqual(syncEvents.UPDATE);
-        expect(delta.position).toEqual(1);
-        expect(delta.data).toEqual('baze');
+        expect(callback).toBe(true);
       });
 
       it('should handle situations with no oldData', function () {
-        var newStr = "I'm a teapot.";
-        var delta = differ.determineDelta(newStr);
+        var delta = {
+          newVal: "I'm a teapot."
+        }, callback;
 
-        expect(delta.data).toEqual("I'm a teapot.");
-        expect(delta.type).toEqual(syncEvents.CREATE);
+        differ.determineDelta({}, delta, function () {
+          expect(delta.data).toEqual("I'm a teapot.");
+          expect(delta.type).toEqual(syncEvents.CREATE);
+          callback = true;
+        });
+
+        expect(callback).toBe(true);
       });
 
       it('should find the first diff in an added-to string.', function () {
-        var oldStr = "I'm a teapot.";
-        var newStr = "I'm a little teapot.";
-        var delta = differ.determineDelta(newStr, oldStr);
+        var delta = {
+          newVal: "I'm a little teapot.",
+          oldVal: "I'm a teapot."
+        }, callback;
+        
+        differ.determineDelta({}, delta, function () {
+          expect(delta.type).toEqual(syncEvents.ADD);
+          expect(delta.position).toEqual(6);
+          expect(delta.data).toEqual('little ');
+          callback = true;
+        });
 
-        expect(delta.type).toEqual(syncEvents.ADD);
-        expect(delta.position).toEqual(6);
-        expect(delta.data).toEqual('little ');
+        expect(callback).toBe(true);
       });
 
       it('should find the first diff in a removed-from string', function () {
-        var oldStr = "I'm a little teapot.";
-        var newStr = "I'm a teapot.";
-        var delta = differ.determineDelta(newStr, oldStr);
+        var delta = {
+          oldVal: "I'm a little teapot.",
+          newVal: "I'm a teapot."
+        }, callback;
+        
+        differ.determineDelta({}, delta, function () {
+          expect(delta.data).toEqual('little ');
+          expect(delta.type).toEqual(syncEvents.REMOVE);
+          expect(delta.position).toEqual(6);
+          callback = true;
+        });
 
-        expect(delta.data).toEqual('little ');
-        expect(delta.type).toEqual(syncEvents.REMOVE);
-        expect(delta.position).toEqual(6);
+        expect(callback).toBe(true);
       });
 
       it('should treat a diff as an update when the diff length is greater than the length delta between old and new strings', function () {
-        var oldStr = "I'm a little teapot.";
-        var newStr = "I'm a big teapot.";
-        var delta = differ.determineDelta(newStr, oldStr);
+        var delta = {
+          oldVal: "I'm a little teapot.",
+          newVal: "I'm a big teapot."
+        }, callback;
+        
+        differ.determineDelta({}, delta, function () {
+          expect(delta.data).toEqual('big');
+          expect(delta.type).toEqual(syncEvents.UPDATE);
+          expect(delta.position).toEqual(6);
 
-        expect(delta.data).toEqual('big');
-        expect(delta.type).toEqual(syncEvents.UPDATE);
-        expect(delta.position).toEqual(6);
+          callback = true;
+        });
+
+        expect(callback).toBe(true);
       });
 
       it('should find the first diff in an equal-length string', function () {
-        var oldStr = "I'm a stupid teapot.";
-        var newStr = "I'm a little teapot.";
-        var delta = differ.determineDelta(newStr, oldStr);
+        var delta = {
+          oldVal: "I'm a stupid teapot.",
+          newVal: "I'm a little teapot."
+        }, callback;
+        
+        differ.determineDelta({}, delta, function () {
+          expect(delta.data).toEqual('little');
+          expect(delta.type).toEqual(syncEvents.UPDATE);
+          callback = true;
+        });
 
-        expect(delta.data).toEqual('little');
-        expect(delta.type).toEqual(syncEvents.UPDATE);
+        expect(callback).toBe(true);
       });
 
       it('should return an event type of NONE if no new or old input is provided', function () {
-        var msg;
-        try {
-          var delta = differ.determineDelta(null, null);  
-        }
-        catch (e) {
-          msg = e;
-        }
-        expect(delta.type).toEqual(syncEvents.NONE);
+        
+        var delta = {};
+        differ.determineDelta({}, delta, function () {
+          expect(delta.type).toEqual(syncEvents.NONE);
+        });
       })
     });
   });

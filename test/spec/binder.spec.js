@@ -60,4 +60,47 @@ describe('$binder', function () {
 
     expect(msg).toEqual('model is required');
   });
+
+  describe('onModelChange', function () {
+    it('should throw an error if I pass in something other than function or array', function () {
+      var msg, binder;
+      try {
+        binder = $binder({
+          scope: scope,
+          model: 'foo',
+          onModelChange: {change: this}
+        })
+      }
+      catch (e) {
+        msg = e.message;
+      }
+
+      expect(msg).toEqual('onModelChange must be a function or array');
+    });
+
+    it('should execute a series of functions for onModelChange', function () {
+      var data;
+      
+      var binder = $binder({
+        scope: scope,
+        model: 'foo',
+        onModelChange: [
+          function (binder, delta, next) {
+            delta.data += "bar";
+            next();
+          },
+          function (binder, delta, next) {
+            delta.data += "baz";
+            next();
+          }
+        ]
+      });
+
+      binder.onModelChange({}, {data: 'foo'}, function (binder, delta) {
+        data = delta.data;
+      });
+    
+      expect(data).toEqual('foobarbaz');
+    });
+  });
 });

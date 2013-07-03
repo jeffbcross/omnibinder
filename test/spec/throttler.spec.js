@@ -14,8 +14,16 @@ describe('$throttler', function () {
   });
 
   it('should throw an error if delay is not a number', function () {
-
-  })
+    var msg;
+    try {
+      throttler = $throttler('j');
+    }
+    catch (e) {
+      msg = e.message;
+    }
+    
+    expect(msg).toEqual('delay must be a number');
+  });
 
   it('should let me delay execution of write for 250 milliseconds', function () {
     var time, binder, done;

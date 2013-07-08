@@ -12,4 +12,8 @@ describe('$binderTypes', function () {
   it('should have collection type constant', function () {
     expect($binderTypes.COLLECTION).toEqual('collection');
   });
+
+  it('should have object type constant', function () {
+    expect($binderTypes.OBJECT).toEqual('object');
+  })
 });

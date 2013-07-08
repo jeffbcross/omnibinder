@@ -1,11 +1,12 @@
 describe('$modelWriter', function () {
-  var modelWriter, scope, captureFunctionArgs;
+  var modelWriter, scope, captureFunctionArgs, $binderTypes;
 
   beforeEach(module('SyncResource'));
-  beforeEach(inject(function (_$modelWriter_, $rootScope, $captureFuncArgs) {
+  beforeEach(inject(function (_$modelWriter_, _$binderTypes_, $rootScope, $captureFuncArgs) {
     $modelWriter = _$modelWriter_;
     scope = $rootScope;
     captureFunctionArgs = $captureFuncArgs;
+    $binderTypes = _$binderTypes_;
   }));
 
   describe('addedFromProtocol', function () {
@@ -25,12 +26,25 @@ describe('$modelWriter', function () {
       $modelWriter.addedFromProtocol({
         scope: scope,
         model: 'model',
-        type: 'collection'
+        type: $binderTypes.COLLECTION
       }, {
         data: 'bar'
       });
 
       expect(scope.model[1]).toEqual('bar');
+    });
+
+    it('should extend an existing object', function () {
+      scope.model = {foo: 'bar'};
+      $modelWriter.addedFromProtocol({
+        scope: scope,
+        model: 'model',
+        type: $binderTypes.OBJECT
+      }, {
+        data: {foo: 'baz'}
+      });
+
+      expect(scope.model.foo).toEqual('baz');
     });
   });
 

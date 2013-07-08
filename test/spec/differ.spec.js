@@ -328,6 +328,16 @@ describe('Differ', function () {
         
         expect(callback).toEqual(3);
       });
+
+      it('should account for newly created arrays', function () {
+        var delta = {
+          newVal: ['foo', 'bar']
+        };
+        
+        differ.compareArrays({}, delta, function () {
+          expect(delta.data).toEqual(['foo', 'bar']);
+        });
+      });
     })
 
     describe('determineDelta', function () {

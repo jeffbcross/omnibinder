@@ -15,5 +15,5 @@ describe('$binderTypes', function () {
 
   it('should have object type constant', function () {
     expect($binderTypes.OBJECT).toEqual('object');
-  })
+  });
 });

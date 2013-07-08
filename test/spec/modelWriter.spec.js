@@ -24,7 +24,8 @@ describe('$modelWriter', function () {
       scope.model = ['foo'];
       $modelWriter.addedFromProtocol({
         scope: scope,
-        model: 'model'
+        model: 'model',
+        type: 'collection'
       }, {
         data: 'bar'
       });

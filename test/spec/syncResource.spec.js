@@ -153,6 +153,7 @@ describe('Setup', function () {
 
       it('should update the model array after adding ADD event from the protocol', function () {
         scope.myModel = ['please'];
+        binder.type = 'collection';
         syncer.onProtocolChange.call(syncer, binder, {
           type: syncEvents.ADD,
           data: 'readme'

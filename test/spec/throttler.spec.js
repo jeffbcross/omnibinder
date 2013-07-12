@@ -1,9 +1,11 @@
 describe('$throttler', function () {
-  var $throttler, scope, $binder;
+  var $throttler, scope, $binder, $q, $timeout;
 
   beforeEach(module('SyncResource'));
-  beforeEach(inject(function (_$throttler_, $rootScope, _$binder_) {
+  beforeEach(inject(function (_$throttler_, $rootScope, _$binder_, _$q_, _$timeout_) {
     $throttler = _$throttler_;
+    $q = _$q_;
+    $timeout = _$timeout_;
     $binder = _$binder_;
     scope = $rootScope;
   }));
@@ -31,13 +33,27 @@ describe('$throttler', function () {
       binder = $binder({
         scope: scope,
         model: 'model',
-        onModelChange: [$throttler(250)]
+        onModelChange: function  (binder, delta) {
+          var deferred = $q.defer();
+          $timeout(function () {
+            $throttler(250)(binder, delta, function () {
+              deferred.resolve(delta);
+              scope.$apply();
+            });
+          }, 0);
+
+          return deferred.promise;
+        }
+          
       });
       
       time = new Date().getTime();
-      binder.onModelChange({}, {}, function(){
+      binder.onModelChange({}, {}).then(function (delta) {
         done = true;
       });
+
+      scope.$apply();
+      $timeout.flush();
     });
 
     waitsFor(function () {
@@ -56,20 +72,34 @@ describe('$throttler', function () {
       binder = $binder({
         scope: scope,
         model: 'model',
-        onModelChange: [$throttler(250)]
+        onModelChange: function (binder, delta) {
+          var deferred = $q.defer();
+          $timeout(function () {
+            $throttler(250)(binder, delta, function () {
+              deferred.resolve(delta);
+              scope.$apply();
+            });
+          }, 0)
+          return deferred.promise;
+        }
       });
 
       var delta = {data: 'foo'};
 
-      binder.onModelChange(binder, delta, function (binder, delta) {
+      binder.onModelChange(binder, delta).then(function (delta) {
         var finishedFirst = delta.data;
       });
+      scope.$apply();
+      $timeout.flush();
 
       delta.data = 'bar';
 
-      binder.onModelChange(binder, delta, function (binder, delta) {
+      binder.onModelChange(binder, delta).then(function (delta) {
         finishedSecond = delta.data;
       });
+      
+      scope.$apply();
+      $timeout.flush();
     });
 
     waitsFor(function () {

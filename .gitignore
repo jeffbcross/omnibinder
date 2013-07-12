@@ -1,2 +1,4 @@
 components/
 .DS_Store
+libpeerconnection.log
+npm-debug.log

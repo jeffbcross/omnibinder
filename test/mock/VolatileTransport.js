@@ -19,9 +19,9 @@ VolatileProtocol.prototype.create = function (query, delta, callback) {
   }
 };
 
-VolatileProtocol.prototype.remove = function (query, delta, callback) {
+VolatileProtocol.prototype.remove = function (binder, delta, callback) {
   this.removed = {
-    query: query,
+    query: binder.query,
     delta: delta
   }
 }

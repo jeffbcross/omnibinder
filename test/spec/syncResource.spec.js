@@ -1,9 +1,10 @@
 describe('Setup', function () {
-  var syncResource, scope, protocol, syncer, syncEvents, $differ, $binder, captureFunctionArgs;
+  var syncResource, scope, protocol, syncer, syncEvents, $differ, $binder, captureFunctionArgs, $timeout;
 
   beforeEach(module('SyncResource'));
-  beforeEach(inject(function ($injector, _$binder_, _$differ_, $rootScope, $httpBackend, _$syncResource_, _$q_, _syncEvents_, $captureFuncArgs) {
+  beforeEach(inject(function ($injector, _$binder_, _$differ_, $rootScope, $httpBackend, _$syncResource_, _$q_, _syncEvents_, $captureFuncArgs, _$timeout_) {
     $syncResource = _$syncResource_;
+    $timeout = _$timeout_;
     syncEvents = _syncEvents_;
     $differ = _$differ_;
     $binder = _$binder_;
@@ -78,22 +79,34 @@ describe('Setup', function () {
         var binder = $binder({
           scope: scope,
           model: 'model',
-          onModelChange: function (binder, delta, next) {
-            $differ.determineDelta(binder, delta, next);
+          onModelChange: function (binder, delta) {
+            var deferred = $q.defer();
+            $timeout(function () {
+              $differ.determineDelta(binder, delta, function () {
+                deferred.resolve(delta);  
+              });
+              
+            }, 0);
+
+            return deferred.promise;
           },
           query: {path: 'foo.bar'}
         });
 
         syncer.onModelChange.call(syncer, ['foo', 'addme'], ['foo'], binder);
+        $timeout.flush();
         scope.$digest();
+
         expect(protocol.created.model).toEqual('addme');
 
         syncer.onModelChange.call(syncer, ['foo'], ['foo', 'remove'], binder);
+        $timeout.flush();
         scope.$digest();
         expect(protocol.removed.delta.data).toEqual('remove');
         expect(protocol.removed.query.path).toEqual('foo.bar');
 
         syncer.onModelChange.call(syncer, ['too'], ['foo'], binder);
+        $timeout.flush();
         scope.$digest();
         expect(protocol.changed.model).toEqual('too');
       });

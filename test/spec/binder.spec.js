@@ -1,9 +1,11 @@
 describe('$binder', function () {
-  var $binder, scope;
+  var $binder, $q, scope, $timeout;
 
   beforeEach(module('SyncResource'));
-  beforeEach(inject(function (_$binder_, $rootScope) {
+  beforeEach(inject(function (_$binder_, $rootScope, _$q_, _$timeout_) {
     $binder = _$binder_;
+    $timeout = _$timeout_;
+    $q = _$q_;
     scope = $rootScope;
   }));
 
@@ -62,7 +64,7 @@ describe('$binder', function () {
   });
 
   describe('onModelChange', function () {
-    it('should throw an error if I pass in something other than function or array', function () {
+    it('should throw an error if I pass in something other than function', function () {
       var msg, binder;
       try {
         binder = $binder({
@@ -75,32 +77,80 @@ describe('$binder', function () {
         msg = e.message;
       }
 
-      expect(msg).toEqual('onModelChange must be a function or array');
+      expect(msg).toEqual('onModelChange must be a function');
     });
 
-    it('should execute a series of functions for onModelChange', function () {
-      var data;
-      
-      var binder = $binder({
+    it('should execute the function and return a promise for onModelChange', function () {
+      var data
+        , binder
+        , delta = {data: 'foo'}
+        , called;
+
+      binder = $binder({
         scope: scope,
         model: 'foo',
-        onModelChange: [
-          function (binder, delta, next) {
+        onModelChange: function (binder, delta) {
+          var deferred = $q.defer();
+          
+          $timeout(function () {
             delta.data += "bar";
-            next();
-          },
-          function (binder, delta, next) {
-            delta.data += "baz";
-            next();
-          }
-        ]
+            deferred.resolve(delta);
+          }, 0);
+
+          return deferred.promise;
+        }
+      });
+      
+      var promise = binder.onModelChange({}, delta);
+      promise.then(function (delta) {
+        called = true;
       });
 
-      binder.onModelChange({}, {data: 'foo'}, function (binder, delta) {
-        data = delta.data;
+      $timeout.flush()
+      scope.$apply();
+
+      expect(delta.data).toEqual('foobar');
+      expect(called).toBe(true);
+    });
+
+    it('should use a default no-op if no onModelChange function is provided', function () {
+      var delta = {data: {foo: 'bar'}};
+      var called;
+      var binder = $binder({
+        scope: scope,
+        model: 'foo'
       });
-    
-      expect(data).toEqual('foobarbaz');
+
+      var promise = binder.onModelChange({}, delta);
+      promise.then(function (delta) {
+        called = true;
+      });
+
+      $timeout.flush();
+      scope.$apply();
+      
+      expect(delta.data.foo).toEqual('bar');
+      expect(called).toBe(true);
+    });
+
+    it('should use a default no-op if no onPrototolChange function is provided', function () {
+      var delta = {data: {foo: 'bar'}};
+      var called;
+      var binder = $binder({
+        scope: scope,
+        model: 'foo'
+      });
+
+      var promise = binder.onProtocolChange({}, delta);
+      promise.then(function (delta) {
+        called = true;
+      });
+
+      $timeout.flush();
+      scope.$apply();
+      
+      expect(delta.data.foo).toEqual('bar');
+      expect(called).toBe(true);
     });
   });
 });

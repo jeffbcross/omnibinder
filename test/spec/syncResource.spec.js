@@ -116,12 +116,20 @@ describe('Setup', function () {
           scope: scope,
           model: 'model',
           onModelChange: function (binder, delta, next) {
-            $differ.determineDelta(binder, delta, next);
+            var deferred = $q.defer();
+            $timeout(function () {
+              $differ.determineDelta(binder, delta, function () {
+                deferred.resolve(delta);
+              });
+            }, 0);
+            return deferred.promise;
+            
           },
           query: {path: 'foo.bar'}
         });
 
         syncer.onModelChange.call(syncer, ['foo'], ['foo', 'removeme'], binder);
+        $timeout.flush();
         scope.$digest();
 
         expect(protocol.removed.delta.data).toEqual('removeme');
@@ -171,7 +179,10 @@ describe('Setup', function () {
           type: syncEvents.ADD,
           data: 'readme'
         });
+        
         scope.$digest();
+        $timeout.flush();
+        
         expect(scope.myModel[0]).toEqual('please');
         expect(scope.myModel[1]).toEqual('readme');
       });
@@ -183,6 +194,7 @@ describe('Setup', function () {
           data: 'readme'
         });
         scope.$digest();
+        $timeout.flush();
         expect(scope.myModel[0]).toEqual('please');
         expect(scope.myModel[1]).toEqual(undefined);
       });
@@ -219,14 +231,23 @@ describe('Setup', function () {
       var binder = syncer.bind({
         scope: scope,
         model: 'model',
-        onModelChange: function (binder, delta, next) {
-          delta.data = delta.oldVal + delta.newVal;
-          delta.type = syncEvents.UPDATE;
-          next();
+        onModelChange: function (binder, delta) {
+          var deferred = $q.defer();
+          $timeout(function () {
+            delta.data = delta.oldVal + delta.newVal;
+            delta.type = syncEvents.UPDATE;
+            deferred.resolve(delta);
+          }, 0);
+          return deferred.promise;
         }
       });
 
+      scope.$apply();
       syncer.onModelChange.call(syncer, 'Fooey', 'Booey', binder);
+      
+      $timeout.flush();
+      scope.$apply();
+
       expect(protocol.changed.model).toEqual('BooeyFooey');
     });
   });

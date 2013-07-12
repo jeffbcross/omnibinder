@@ -2,7 +2,7 @@ function VolatileProtocol (config) {
   this.host = config.host;
 };
 
-VolatileProtocol.prototype.change = function (query, delta) {
+VolatileProtocol.prototype.change = function (binder, delta) {
   this.created = {
     model: delta.data
   };
@@ -26,10 +26,10 @@ VolatileProtocol.prototype.remove = function (binder, delta, callback) {
   }
 }
 
-VolatileProtocol.prototype.update = function (query, delta, callback) {
+VolatileProtocol.prototype.update = function (binder, delta, callback) {
   this.changed = {
     model: delta.data,
-    query: query
+    query: binder.query
   }
 }
 

@@ -82,10 +82,8 @@ describe('Setup', function () {
           onModelChange: function (binder, delta) {
             var deferred = $q.defer();
             $timeout(function () {
-              $differ.determineDelta(binder, delta, function () {
-                deferred.resolve(delta);  
-              });
-              
+              delta = $differ.determineDelta(binder, delta);
+              deferred.resolve(delta);
             }, 0);
 
             return deferred.promise;
@@ -118,9 +116,8 @@ describe('Setup', function () {
           onModelChange: function (binder, delta, next) {
             var deferred = $q.defer();
             $timeout(function () {
-              $differ.determineDelta(binder, delta, function () {
-                deferred.resolve(delta);
-              });
+              delta = $differ.determineDelta(binder, delta);
+              deferred.resolve(delta);
             }, 0);
             return deferred.promise;
             

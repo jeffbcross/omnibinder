@@ -119,7 +119,8 @@ describe('$modelWriter', function () {
       scope.model = [{}, {foo:'bar'}];
       $modelWriter.updatedFromProtocol({
         scope: scope,
-        model: 'model'
+        model: 'model',
+        type: $binderTypes.COLLECTION
       }, {
         position: 1,
         data: {
@@ -132,11 +133,35 @@ describe('$modelWriter', function () {
     });
 
     it('should not care about updating at correct position if the binder.type is not "collection"', function () {
+      scope.model = [{}, {foo:'bar'}];
+      $modelWriter.updatedFromProtocol({
+        scope: scope,
+        model: 'model'
+      }, {
+        position: 1,
+        data: [{
+          foo: 'baz'
+        }]
+      });
+      scope.$digest();
 
+      expect(scope.model).toEqual([{foo:'baz'}]);
     });
 
     it('should merge objects instead of overwriting', function () {
+      scope.model = {foo:'bar'};
+      $modelWriter.updatedFromProtocol({
+        scope: scope,
+        model: 'model'
+      }, {
+        position: 1,
+        data: {
+          newer: 'property'
+        }
+      });
+      scope.$digest();
 
+      expect(scope.model).toEqual({foo: 'bar', newer: 'property'});
     });
 
 

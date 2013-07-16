@@ -115,7 +115,32 @@ describe('$modelWriter', function () {
       expect(args[2]).toBeUndefined();
     });
 
-    it('should replace the entire model if updated from the protocol', function () {
+    it('should replace a model at the correct position, if delta.position is available', function () {
+      scope.model = [{}, {foo:'bar'}];
+      $modelWriter.updatedFromProtocol({
+        scope: scope,
+        model: 'model'
+      }, {
+        position: 1,
+        data: {
+          foo: 'baz'
+        }
+      });
+      scope.$digest();
+
+      expect(scope.model[1]).toEqual({foo:'baz'});
+    });
+
+    it('should not care about updating at correct position if the binder.type is not "collection"', function () {
+
+    });
+
+    it('should merge objects instead of overwriting', function () {
+
+    });
+
+
+    it('should replace the entire model if updated from the protocol without any more information', function () {
       scope.model = ['foobar'];
       $modelWriter.updatedFromProtocol({
         scope: scope,

@@ -46,6 +46,21 @@ describe('$modelWriter', function () {
 
       expect(scope.model.foo).toEqual('baz');
     });
+
+    it('should update the binder.data with the new data', function () {
+      scope.model = {foo: 'bar'};
+      var binder = {
+        scope: scope,
+        model: 'model',
+        type: $binderTypes.OBJECT
+      };
+
+      $modelWriter.addedFromProtocol(binder, {
+        data: {foo: 'baz'}
+      });
+
+      expect(binder.data).toEqual({foo: 'baz'});
+    });
   });
 
   describe('removedFromProtocol', function () {
@@ -71,6 +86,20 @@ describe('$modelWriter', function () {
 
       expect(scope.model.length).toEqual(1);
       expect(scope.model[0].id).toEqual(2);
+    });
+
+    it('should update the binder.data with the new data', function () {
+      var binder = {
+        scope: scope,
+        model: 'model'
+      };
+      scope.model = [{id: 1}, {id: 2}];
+
+      $modelWriter.removedFromProtocol(binder, {
+        data: {id: 1}
+      });
+
+      expect(binder.data).toEqual([{id: 2}]);
     });
   });
 
@@ -100,5 +129,19 @@ describe('$modelWriter', function () {
       expect(scope.model[0]).toEqual('fooey');
       expect(scope.model.length).toEqual(1);
     });
+
+    it('should update the binder.data with the new model', function () {
+      var binder = {
+        scope: scope,
+        model: 'model'
+      };
+      scope.model = ['foobar'];
+
+      $modelWriter.updatedFromProtocol(binder, {
+        data: ['fooey']
+      });
+
+      expect(binder.data).toEqual(['fooey']);
+    })
   });
 })

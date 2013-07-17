@@ -277,11 +277,11 @@ describe('Differ', function () {
 
       it('should account for newly created arrays', function () {
         var delta = {
-          newVal: ['foo', 'bar']
+          newVal: ['foo']
         };
 
         delta = differ.compareArrays({}, delta);
-        expect(delta.data).toEqual(['foo', 'bar']);
+        expect(delta.data).toEqual('foo');
       });
     })
 

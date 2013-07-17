@@ -15,7 +15,8 @@ files = [
   'lib/syncResource.js',
   'lib/*.js',
   'test/mock/*.js',
-  'test/spec/*.js'
+  'test/spec/*.js',
+  'test/integration/*.js'
 ];
 
 

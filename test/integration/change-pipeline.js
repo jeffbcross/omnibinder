@@ -9,7 +9,7 @@ describe('Change Pipeline', function () {
     syncer = $syncResource({protocol: new VolatileProtocol({host: 'foobar'})})
   }));
 
-  iit('should not have hashKey in any delta property when binder.onModelChange is called', function () {
+  it('should not have hashKey in any delta property when binder.onModelChange is called', function () {
     var deferred = $q.defer();
     spyOn(deferred.promise, 'then');
     

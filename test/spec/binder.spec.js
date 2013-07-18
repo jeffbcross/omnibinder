@@ -153,4 +153,32 @@ describe('$binder', function () {
       expect(called).toBe(true);
     });
   });
+  
+  describe('key', function () {
+    it('should allow setting of a `key` property, which should be used to uniquely identify elements', function () {
+      var binder = $binder({
+        scope: scope,
+        model: 'foo',
+        key: 'id'
+      });
+
+      expect(binder.key).toEqual('id');
+    });
+
+    it('should throw an error when anything other than a string is passed as key', function () {
+      var message;
+      try {
+        var binder = $binder({
+          scope: scope,
+          model: 'foo',
+          key: {"true" : 'that'}
+        });  
+      }
+      catch (e) {
+        message = e.message;
+      }
+
+      expect(message).toEqual('key must be a string');
+    });
+  });
 });

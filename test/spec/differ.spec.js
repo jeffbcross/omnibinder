@@ -439,5 +439,13 @@ describe('Differ', function () {
       delta = differ.checkArrayForDupe(binder, delta);
       expect(!delta.duplicate).toBe(true);
     });
+
+    it('should use binder.key to check for dupes if present', function () {
+      var binder = {data: [{id: 1}], key: 'id'}
+        , delta = {data: {id: 1, foo:'bar'}};
+
+      delta = differ.checkArrayForDupe(binder, delta);
+      expect(delta.duplicate).toBe(true);
+    });
   });
 });

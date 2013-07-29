@@ -22,11 +22,13 @@ SyncResource provides the following tools to make two-way data binding simple:
 _Simple Example_
 
     app.controller('MyCtrl', function ($scope, $syncResource, someProtocol) {
+      $scope.myProducts = [{title: 'Widget'}, {title: 'Doodad'}];
+
       var myProtocol = someProtocol({url: 'http://myhost'});
-      var mySyncer = $syncResource({protocol: myProtocol});
-      var binder = mySyncer.bind({
+      var mySyncResource = $syncResource({protocol: myProtocol});
+      var binder = mySyncResource.bind({
         scope: $scope,
-        model: 'myModel'
+        model: 'myProducts'
       });
     });
 

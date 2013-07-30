@@ -13,7 +13,7 @@ The module is built to be flexible enough to support arbitrary protocols to reac
 
 `SyncResource` provides the following tools to make two-way data binding simple:
 
- * Bind scope models directly to a protocol, based on an optional protocol-specific [query](#query).
+ * Bind scope models directly to a protocol, based on an optional protocol-specific [query](#binder).
  * [Change Pipelining](#change-pipeline): Bi-directional change pipelining supports writing of middleware-like functions to operate on a [`delta`](#delta) object in order after a change is registered from a local model or a protocol.
  * Small libraries with utility methods to add common processing to [Change Pipelines](#change-pipeline), such as [throttling](#throttler), [delta analysis](#differ), change batching (not yet implemented).
 
@@ -99,8 +99,7 @@ The protocol interface is still being actively developed, and will  change.
 
  * __scope__ (scope instance: required) - The scope in which to watch the model.
  * __model__ (string: required) - Name of the model to watch on the provided scope.
-
- * <a id="query"></a> __query__ (*: optional) - A query, if necessary. This is available as `binder.query` in any [Change Pipeline](#change-pipeline) functions, but is otherwise only used by some protocols.
+ * __query__ (*: optional) - A query, if necessary. This is available as `binder.query` in any [Change Pipeline](#change-pipeline) functions, but is otherwise only used by some protocols.
  * __type__ (string: optional) - Should be one of constants available in `binderTypes` service. This is useful to help protocols know how to analyze changes, but should be used as a best practice to take advantage of future enhancements to the `SyncResource` module.
  * __onModelChange__ (function or array of functions: optional) - Function(s) to be executed in order after a model change has occurred. Should implement signature `function (binder, delta, next) {}` and should call `next()` when complete.
  * __onProtocolChange__ (function or array of functions: optional) - Same as `onModelChange` but reverse direction.

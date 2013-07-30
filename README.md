@@ -85,8 +85,11 @@ If a protocol would like to take advantage of opt-in policies provided by `SyncR
  * __read__ - Used to retrieve a full model representation from a protocol. (__Use case?__)
  * __update__ - Update an existing model in a protocol.
  * __remove__ - Remove a model from the protocol.
- * __subscribe__ - Implements signature `function (binder, callback) {}`, and calls `callback` each time a relevant update occurs. Ideally, the protocol will be able to provide some initial data on the `delta`, such as the type of change, and of course, some representation of the changed data.
+ * __subscribe__ - This method is called as soon as `$syncResource.bind` is called, in order to get an initial value for the model and to automatically update the model upon further changes in the persistence layer. Implements signature `function (binder, callback) {}`, and calls `callback` each time a relevant update occurs. Ideally, the protocol will be able to provide some initial data on the `delta`, such as the type of change, and of course, some representation of the changed data.
  * __unsubscribe__ - Implements signature `function (binder, callback) {}`, called when a bound scope is destroyed or when `$syncResource.unbind()` is called.
+ * __change__ - A catch-all method if no methods have been added to the Change Pipeline to set `delta.type` to the appropriate type of change. This method leaves it up to the protocol to figure out how to persist a change. Some protocols may prefer to not perform any analysis on a `delta` before giving it to the protocol, so a protocol can decide the best strategy for persisting and merging objects.
+
+It's important to note that unless an [`onModelChange`](#change-pipeline) pipeline provides functions to analyze model changes and set `delta.type`, it's up to the protocol to figure out how to handle a change by looking at the `newVal` and `oldVal` of the `delta`.
 
 Protocols make use of the `query` object attached to a `binder` when calling syncResource.bind() to ensure that the data is being persisted properly. Queries may contain a URL path to a resource on a server, an id of a particular object, or filters to restrict changes to certain items. `$syncResource` has no policy on what type of object a query is, or what properties it contains. The extent of the policy is that if different models should be treated differently by a protocol, the place to store the instructions is on `binder.query`.
 

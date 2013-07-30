@@ -238,6 +238,21 @@ A static dictionary service of event constants to be applied to `deltas` as they
  * __NONE__ - Nothing to see here.
  * __UNKNOWN__ - Something has happened, but it's not clear what.
 
+```javascript
+...
+var binder = mySyncResource.bind({
+  scope: $scope,
+  model: 'myModel',
+  type: binderTypes.COLLECTION,
+  onModelChange: [function (binder, delta, next) {
+    if (delta.newVal.length > delta.oldVal.length) {
+      delta.type = syncEvents.ADD;
+    }
+    next();
+  }]
+})
+```
+
 <a id="binderTypes"></a>
 ### binderTypes
 
@@ -250,3 +265,12 @@ A static dictionary of model types which can be optionally be added to the confi
  * __NUMBER__
  * __BINARY__ - For binary data such as an image, video, audio clip.
  * __BINARY_STREAM__ - For streaming binary data such as video chat or audio call.
+
+```javascript
+...
+var binder = mySyncResource.bind({
+  scope: $scope,
+  model: 'myModel',
+  type: binderTypes.COLLECTION
+})
+```

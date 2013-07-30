@@ -100,7 +100,7 @@ The protocol interface is still being actively developed, and will  change.
  * __scope__ (scope instance: required) - The scope in which to watch the model.
  * __model__ (string: required) - Name of the model to watch on the provided scope.
  * __query__ (*: optional) - A query, if necessary. This is available as `binder.query` in any [Change Pipeline](#change-pipeline) functions, but is otherwise only used by some protocols.
- * __type__ (string: optional) - Should be one of constants available in `binderTypes` service. This is useful to help protocols know how to analyze changes, but should be used as a best practice to take advantage of future enhancements to the `SyncResource` module.
+ * __type__ (string: optional) - Should be one of constants available in [`binderTypes`](#binderTypes) service. This is useful to help protocols know how to analyze changes, but should be used as a best practice to take advantage of future enhancements to the `SyncResource` module.
  * __onModelChange__ (function or array of functions: optional) - Function(s) to be executed in order after a model change has occurred. Should implement signature `function (binder, delta, next) {}` and should call `next()` when complete.
  * __onProtocolChange__ (function or array of functions: optional) - Same as `onModelChange` but reverse direction.
  * __key__ (string: optional) - If the model is a collection of objects, the key helps methods in the [Change Pipeline](#change-pipeline) by confirming which property in the collection should be unique.
@@ -237,3 +237,16 @@ A static dictionary service of event constants to be applied to `deltas` as they
  * __UPDATE__ - An existing item has changed one or more values.
  * __NONE__ - Nothing to see here.
  * __UNKNOWN__ - Something has happened, but it's not clear what.
+
+<a id="binderTypes"></a>
+### binderTypes
+
+A static dictionary of model types which can be optionally be added to the config object passed into [`binder`](#binder) in order to provide an opportunity to reduce ambiguity in [Change Pipeline](#change-pipeline) methods, and potentially the protocol. This value can help SyncResource know how to create or update models in ambiguous circumstances. The service currently contains the following constants:
+
+ * __COLLECTION__ - For lists of any type of data.
+ * __OBJECT__ - For plain old objects.
+ * __BOOLEAN__
+ * __STRING__
+ * __NUMBER__
+ * __BINARY__ - For binary data such as an image, video, audio clip.
+ * __BINARY_STREAM__ - For streaming binary data such as video chat or audio call.

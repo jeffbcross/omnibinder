@@ -118,6 +118,7 @@ A new `delta` object is created each time a change is registered from a local mo
  * __newVal__ (*: optional) - If the change originates from a local model, the `$syncResource` will assign `newVal` and `oldVal` directly from the `scope.$watch` callback.
  * __oldVal__ (*: optional) - See `newVal`.
  * __type__ (string: optional) - Represents the type of change, such as add/remove/update. Should be a constant from the `syncEvents` service, unless there's some newfangled event that isn't part of that dictionary, which the protocol would know how to support.
+ * __silent__ (boolean: optional) - Can be set from the [protocol](#protocol) at the beginning of the [onProtocolChange pipeline](#change-pipeline) to prevent the onModelChange pipeline from immediately responding to the updated model. This will only prevent a single occurence of the `onModelChange` pipeline, and will not stop the model change from propagating elsewhere in the Angular application.
 
 ## Services
 

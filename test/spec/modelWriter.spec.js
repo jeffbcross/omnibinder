@@ -1,13 +1,39 @@
 describe('$modelWriter', function () {
-  var modelWriter, scope, captureFunctionArgs, $binderTypes;
+  var modelWriter, scope, captureFunctionArgs, $binderTypes, $syncResource, $timeout;
 
   beforeEach(module('SyncResource'));
-  beforeEach(inject(function (_$modelWriter_, _$binderTypes_, $rootScope, $captureFuncArgs) {
+  beforeEach(inject(function (_$modelWriter_, _$binderTypes_, $rootScope, $captureFuncArgs, _$syncResource_, _$timeout_) {
     $modelWriter = _$modelWriter_;
+    $syncResource = _$syncResource_;
     scope = $rootScope;
     captureFunctionArgs = $captureFuncArgs;
     $binderTypes = _$binderTypes_;
+    $timeout = _$timeout_;
   }));
+
+  describe('roundTripPrevention', function () {
+    it('should tell $syncResource to ignore changes that only come from the protocol if delta.silent is set to true', function () {
+      var called = 0
+        , mySyncResource = $syncResource({protocol: {
+          change: function () {
+          called++;
+        }, subscribe: function (blah, callback) {
+          callback({data: 'barbaz', silent: true})
+        }}});
+
+      mySyncResource.bind({
+        scope: scope,
+        model: 'myModel',
+        type: $binderTypes.COLLECTION
+      });
+      
+      scope.myModel = ['foobar'];
+      scope.$apply();
+      $timeout.flush();
+      
+      expect(called).toEqual(1);
+    });
+  });
 
   describe('addedFromProtocol', function () {
     it('should exist', function () {

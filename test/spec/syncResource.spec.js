@@ -9,7 +9,7 @@ describe('Setup', function () {
     $differ = _$differ_;
     $binder = _$binder_;
     captureFunctionArgs = $captureFuncArgs;
-    
+
     scope = $rootScope;
     $q = _$q_;
 
@@ -24,42 +24,6 @@ describe('Setup', function () {
     it('should exist', function () {
       expect(!!angular).toBe(true);
       expect(!!$syncResource).toBe(true);
-    });
-
-    it('should accept a configured transport when generating a syncer', function () {
-      expect(typeof syncer.config.protocol).toEqual('object');
-      expect(syncer.config.protocol.host).toEqual('localhost');
-    });
-
-    describe('unHash', function () {
-      it('should exist', function () {
-        expect(!!syncer.unHash).toBe(true);
-      });
-
-      it('should have the correct signature', function () {
-        var args = captureFunctionArgs(syncer.unHash.toString());
-        expect(args[0]).toEqual('array');
-        expect(args[1]).toBeUndefined();
-      });
-
-      it('should remove $$hashKey from objects in an array', function () {
-        var unHashed = syncer.unHash([{$$hashKey: '1', id: '2'}]);
-        expect(unHashed[0].$$hashKey).toBeUndefined();
-        expect(unHashed[0].id).toEqual('2');
-      });
-
-      it('should remove $$hashKey from a single object', function () {
-        var unHashed = syncer.unHash({$$hashKey: '3', id:'4'});
-        expect(unHashed.id).toEqual('4');
-        expect(unHashed.$$hashKey).toBeUndefined();
-      });
-
-      it('should not change an object at all if the object has no $$hashKey', function () {
-        var unHashed = syncer.unHash({foo: 'bar', baz: 'foo'});
-        expect(unHashed.foo).toEqual('bar');
-        expect(unHashed.baz).toEqual('foo');
-        expect(Object.keys(unHashed).length).toEqual(2);
-      });
     });
 
     describe('onModelChange', function () {
@@ -120,7 +84,7 @@ describe('Setup', function () {
               deferred.resolve(delta);
             }, 0);
             return deferred.promise;
-            
+
           },
           query: {path: 'foo.bar'}
         });
@@ -133,7 +97,7 @@ describe('Setup', function () {
         expect(protocol.removed.delta.type).toEqual(syncEvents.REMOVE);
         expect(protocol.removed.delta.position).toEqual(1);
       });
-    });  
+    });
 
     describe('onProtocolChange', function () {
       var binder;
@@ -176,10 +140,10 @@ describe('Setup', function () {
           type: syncEvents.ADD,
           data: 'readme'
         });
-        
+
         scope.$digest();
         $timeout.flush();
-        
+
         expect(scope.myModel[0]).toEqual('please');
         expect(scope.myModel[1]).toEqual('readme');
       });
@@ -241,7 +205,7 @@ describe('Setup', function () {
 
       scope.$apply();
       syncer.onModelChange.call(syncer, 'Fooey', 'Booey', binder);
-      
+
       $timeout.flush();
       scope.$apply();
 

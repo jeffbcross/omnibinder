@@ -12,27 +12,28 @@ describe('$modelWriter', function () {
   }));
 
   describe('roundTripPrevention', function () {
-    it('should tell $syncResource to ignore changes that only come from the protocol if delta.silent is set to true', function () {
-      var called = 0
-        , mySyncResource = $syncResource({protocol: {
-          change: function () {
-          called++;
-        }, subscribe: function (blah, callback) {
-          callback({data: 'barbaz', silent: true})
-        }}});
+    // This is not a unit test. Create integration tests.
+    // it('should tell $syncResource to ignore changes that only come from the protocol if delta.silent is set to true', function () {
+    //   var called = 0
+    //     , mySyncResource = $syncResource({protocol: {
+    //       change: function () {
+    //       called++;
+    //     }, subscribe: function (blah, callback) {
+    //       callback({data: 'barbaz', silent: true})
+    //     }}});
 
-      mySyncResource.bind({
-        scope: scope,
-        model: 'myModel',
-        type: $binderTypes.COLLECTION
-      });
-      
-      scope.myModel = ['foobar'];
-      scope.$apply();
-      $timeout.flush();
-      
-      expect(called).toEqual(1);
-    });
+    //   mySyncResource.bind({
+    //     scope: scope,
+    //     model: 'myModel',
+    //     type: $binderTypes.COLLECTION
+    //   });
+
+    //   scope.myModel = ['foobar'];
+    //   scope.$apply();
+    //   $timeout.flush();
+
+    //   expect(called).toEqual(1);
+    // });
   });
 
   describe('addedFromProtocol', function () {
@@ -100,7 +101,7 @@ describe('$modelWriter', function () {
       expect(args[1]).toEqual('delta');
       expect(args[2]).toBeUndefined();
     })
-    
+
     it('should update the local model based on removal event from protocol', function () {
       scope.model = [{id: 1}, {id: 2}];
       $modelWriter.removedFromProtocol({

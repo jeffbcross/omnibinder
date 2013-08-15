@@ -1,138 +1,128 @@
-describe('$throttler', function () {
-  var $throttler, scope, $binder, $q, $timeout;
+// describe('$throttler', function () {
+//   var $throttler, scope, $binder, $q, $timeout, binder;
 
-  beforeEach(module('SyncResource'));
-  beforeEach(inject(function (_$throttler_, $rootScope, _$binder_, _$q_, _$timeout_) {
-    $throttler = _$throttler_;
-    $q = _$q_;
-    $timeout = _$timeout_;
-    $binder = _$binder_;
-    scope = $rootScope;
-  }));
+//   beforeEach(module('SyncResource'));
+//   beforeEach(inject(function (_$throttler_, $rootScope, _$binder_, _$q_, _$timeout_) {
+//     $throttler = _$throttler_;
+//     $q = _$q_;
+//     $timeout = _$timeout_;
+//     $binder = _$binder_;
+//     scope = $rootScope;
 
-  it('should exist', function () {
-    expect(!!$throttler).toBe(true);
-    expect(typeof $throttler).toEqual('function');
-  });
+//     binder = $binder({
+//       scope: scope,
+//       model: 'model',
+//       onModelChange: function  (binder, delta) {}
+//     });
+//   }));
 
-  it('should throw an error if delay is not a number', function () {
-    var msg;
-    try {
-      throttler = $throttler('j');
-    }
-    catch (e) {
-      msg = e.message;
-    }
-    
-    expect(msg).toEqual('delay must be a number');
-  });
+//   it('should exist', function () {
+//     expect(!!$throttler).toBe(true);
+//     expect(typeof $throttler).toEqual('function');
+//   });
 
-  it('should let me delay execution of write for 250 milliseconds', function () {
-    var time, binder, done;
-    runs(function () {
-      binder = $binder({
-        scope: scope,
-        model: 'model',
-        onModelChange: function  (binder, delta) {
-          var deferred = $q.defer();
-          $timeout(function () {
-            $throttler(250)(binder, delta, function () {
-              deferred.resolve(delta);
-              scope.$apply();
-            });
-          }, 0);
+//   it('should throw an error if delay is not a number', function () {
+//     var msg;
+//     try {
+//       throttler = $throttler('j');
+//     }
+//     catch (e) {
+//       msg = e.message;
+//     }
 
-          return deferred.promise;
-        }
-          
-      });
-      
-      time = new Date().getTime();
-      binder.onModelChange({}, {}).then(function (delta) {
-        done = true;
-      });
+//     expect(msg).toEqual('delay must be a number');
+//   });
 
-      scope.$apply();
-      $timeout.flush();
-    });
+//   it('should let me delay execution of write for 250 milliseconds', function () {
+//     var time, binder, done, fns = {next: function () {
+//       console.log('done');
+//       done = true;
+//     }}
+//       , spy = spyOn(fns, 'next');
 
-    waitsFor(function () {
-      return done;
-    }, 'timer to finish', 300);
-    
-    runs(function () {
-      expect(new Date().getTime() - time).toBeGreaterThan(249);
-      expect(new Date().getTime() - time).toBeLessThan(300);
-    });
-  });
+//     runs(function () {
+//       $throttler(250)({}, {}, fns.next);
+//       expect(spy.callCount).toBe(0);
+//       $timeout.flush();
+//       scope.$apply();
+//     });
 
-  it('should cancel a previously throttled update if I have a new update', function () {
-    var finishedFirst, finishedSecond;
-    runs(function () {
-      binder = $binder({
-        scope: scope,
-        model: 'model',
-        onModelChange: function (binder, delta) {
-          var deferred = $q.defer();
-          $timeout(function () {
-            $throttler(250)(binder, delta, function () {
-              deferred.resolve(delta);
-              scope.$apply();
-            });
-          }, 0)
-          return deferred.promise;
-        }
-      });
+//     waitsFor(function () {
+//       return done;
+//     }, 'timer to finish', 300);
 
-      var delta = {data: 'foo'};
+//     runs(function () {
+//       expect(spy.callCount).toBe(1);
+//     });
+//   });
 
-      binder.onModelChange(binder, delta).then(function (delta) {
-        var finishedFirst = delta.data;
-      });
-      scope.$apply();
-      $timeout.flush();
+//   it('should cancel a previously throttled update if I have a new update', function () {
+//     var finishedFirst, finishedSecond;
+//     runs(function () {
+//       binder = $binder({
+//         scope: scope,
+//         model: 'model',
+//         onModelChange: function (binder, delta) {
+//           var deferred = $q.defer();
+//           $timeout(function () {
+//             $throttler(250)(binder, delta, function () {
+//               deferred.resolve(delta);
+//               scope.$apply();
+//             });
+//           }, 0)
+//           return deferred.promise;
+//         }
+//       });
 
-      delta.data = 'bar';
+//       var delta = {data: 'foo'};
 
-      binder.onModelChange(binder, delta).then(function (delta) {
-        finishedSecond = delta.data;
-      });
-      
-      scope.$apply();
-      $timeout.flush();
-    });
+//       binder.onModelChange(binder, delta).then(function (delta) {
+//         var finishedFirst = delta.data;
+//       });
+//       scope.$apply();
+//       $timeout.flush();
 
-    waitsFor(function () {
-      return finishedSecond;
-    }, "finishedSecond to be defined", 300);
+//       delta.data = 'bar';
 
-    runs(function () {
-      expect(finishedFirst).toBeUndefined();
-      expect(finishedSecond).toEqual('bar');
-    });
-  });
+//       binder.onModelChange(binder, delta).then(function (delta) {
+//         finishedSecond = delta.data;
+//       });
 
-  it('should function as a single onModelChange handler', function () {
-    var binder, throttled;
-    runs(function () {
-      binder = $binder({
-        scope: scope,
-        model: 'model',
-        onModelChange: $throttler(250)
-      });
-      binder.onModelChange(binder, {data: 'foo'}, function (binder, delta) {
-        throttled = true;
-      });
-      expect(!throttled).toBe(true);
-    });
+//       scope.$apply();
+//       $timeout.flush();
+//     });
 
-    waitsFor(function () {
-      return throttled;
-    }, 'throttled to be true', 250);
+//     waitsFor(function () {
+//       return finishedSecond;
+//     }, "finishedSecond to be defined", 300);
 
-    runs(function () {
-      expect(throttled).toBe(true);
-    });
+//     runs(function () {
+//       expect(finishedFirst).toBeUndefined();
+//       expect(finishedSecond).toEqual('bar');
+//     });
+//   });
 
-  });
-})
+//   it('should function as a single onModelChange handler', function () {
+//     var binder, throttled;
+//     runs(function () {
+//       binder = $binder({
+//         scope: scope,
+//         model: 'model',
+//         onModelChange: $throttler(250)
+//       });
+//       binder.onModelChange(binder, {data: 'foo'}, function (binder, delta) {
+//         throttled = true;
+//       });
+//       expect(!throttled).toBe(true);
+//     });
+
+//     waitsFor(function () {
+//       return throttled;
+//     }, 'throttled to be true', 250);
+
+//     runs(function () {
+//       expect(throttled).toBe(true);
+//     });
+
+//   });
+// })

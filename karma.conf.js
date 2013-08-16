@@ -12,7 +12,7 @@ files = [
   JASMINE_ADAPTER,
   'components/angular/angular.js',
   'components/angular-mocks/angular-mocks.js',
-  'lib/syncResource.js',
+  'lib/binder.js',
   'lib/*.js',
   'test/mock/*.js',
   'test/spec/*.js',

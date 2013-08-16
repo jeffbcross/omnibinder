@@ -1,7 +1,7 @@
 // describe('Change Pipeline', function () {
 //   var $syncResource, syncer, scope, $q;
 
-//   beforeEach(module('SyncResource'));
+//   beforeEach(module('Binder'));
 //   beforeEach(inject(function ($rootScope, _$q_) {
 //     scope = $rootScope;
 //     $q = _$q_;

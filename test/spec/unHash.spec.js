@@ -1,7 +1,7 @@
 describe('unHash', function () {
   var unHash, captureFunctionArgs;
 
-  beforeEach(module('SyncResource'));
+  beforeEach(module('Binder'));
   beforeEach(inject(function (_unHash_, $captureFuncArgs) {
     unHash = _unHash_;
     captureFunctionArgs = $captureFuncArgs;

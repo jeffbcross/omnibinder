@@ -1,10 +1,10 @@
-angular.module('SyncResource')
+angular.module('Binder')
   .factory('dpd', function ($timeout) {
     return {
       documents: {
         get: function (id, callback) {
           if (typeof id === 'function') {
-            callback = id;  
+            callback = id;
           }
           callback('doc!');
         },

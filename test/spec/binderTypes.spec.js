@@ -1,6 +1,6 @@
 describe('$binderTypes', function () {
   var $binderTypes;
-  beforeEach(module('SyncResource'));
+  beforeEach(module('Binder'));
   beforeEach(inject(function (_$binderTypes_) {
     $binderTypes = _$binderTypes_;
   }));

@@ -1,7 +1,7 @@
 // describe('$throttler', function () {
 //   var $throttler, scope, $binder, $q, $timeout, binder;
 
-//   beforeEach(module('SyncResource'));
+//   beforeEach(module('Binder'));
 //   beforeEach(inject(function (_$throttler_, $rootScope, _$binder_, _$q_, _$timeout_) {
 //     $throttler = _$throttler_;
 //     $q = _$q_;

@@ -1,15 +1,47 @@
-describe('$modelWriter', function () {
-  var modelWriter, scope, captureFunctionArgs, $binderTypes, $syncResource, $timeout;
+describe('modelWriter', function () {
+  var modelWriter, scope, captureFunctionArgs, $binderTypes, $timeout, binder;
 
-  beforeEach(module('SyncResource'));
-  beforeEach(inject(function (_$modelWriter_, _$binderTypes_, $rootScope, $captureFuncArgs, _$syncResource_, _$timeout_) {
-    $modelWriter = _$modelWriter_;
-    $syncResource = _$syncResource_;
+  beforeEach(module('Binder'));
+  beforeEach(inject(function (_modelWriter_, _$binderTypes_, $rootScope, $captureFuncArgs, _$timeout_) {
+    modelWriter = _modelWriter_;
     scope = $rootScope;
     captureFunctionArgs = $captureFuncArgs;
     $binderTypes = _$binderTypes_;
     $timeout = _$timeout_;
+    binder = {
+      scope: scope,
+      model: 'myModel',
+
+    }
   }));
+
+  describe('array methods', function () {
+    describe('push', function () {
+      it('should have a push method', function () {
+        expect(typeof modelWriter.push).toBe('function');
+      });
+
+      it('should add an element to an existing array', function () {
+        binder.scope[binder.model] = [];
+        modelWriter.push(binder, {data: 'foo'})
+        scope.$apply();
+        expect(binder.scope[binder.model]).toEqual(['foo']);
+      });
+
+      it('should throw an error if the existing model is something other than array or undefined', function () {
+        binder.scope[binder.model] = {};
+        expect(function () {
+          modelWriter.push(binder, {data: 'foo'});
+        }).toThrow(new Error("Cannot call 'push' on a model that is not array or undefined."));
+      });
+
+      it('should return the position of the inserted element', function () {
+        binder.scope[binder.model] = [];
+        expect(modelWriter.push(binder, {data: 'foo'})).toBe(0);
+      });
+    })
+
+  });
 
   describe('roundTripPrevention', function () {
     // This is not a unit test. Create integration tests.
@@ -38,11 +70,11 @@ describe('$modelWriter', function () {
 
   describe('addedFromProtocol', function () {
     it('should exist', function () {
-      expect(!!$modelWriter.addedFromProtocol).toBe(true);
+      expect(!!modelWriter.addedFromProtocol).toBe(true);
     });
 
     it('should have the correct function signature', function () {
-      var args = captureFunctionArgs($modelWriter.addedFromProtocol.toString());
+      var args = captureFunctionArgs(modelWriter.addedFromProtocol.toString());
       expect(args[0]).toEqual('binder');
       expect(args[1]).toEqual('delta');
       expect(args[2]).toBeUndefined();
@@ -50,7 +82,7 @@ describe('$modelWriter', function () {
 
     it('should add an item to a collection', function () {
       scope.model = ['foo'];
-      $modelWriter.addedFromProtocol({
+      modelWriter.addedFromProtocol({
         scope: scope,
         model: 'model',
         type: $binderTypes.COLLECTION
@@ -63,7 +95,7 @@ describe('$modelWriter', function () {
 
     it('should extend an existing object', function () {
       scope.model = {foo: 'bar'};
-      $modelWriter.addedFromProtocol({
+      modelWriter.addedFromProtocol({
         scope: scope,
         model: 'model',
         type: $binderTypes.OBJECT
@@ -82,7 +114,7 @@ describe('$modelWriter', function () {
         type: $binderTypes.OBJECT
       };
 
-      $modelWriter.addedFromProtocol(binder, {
+      modelWriter.addedFromProtocol(binder, {
         data: {foo: 'baz'}
       });
 
@@ -92,11 +124,11 @@ describe('$modelWriter', function () {
 
   describe('removedFromProtocol', function () {
     it('should exist', function () {
-      expect(!!$modelWriter.removedFromProtocol).toBe(true);
+      expect(!!modelWriter.removedFromProtocol).toBe(true);
     });
 
     it('should have the correct function signature', function () {
-      var args = captureFunctionArgs($modelWriter.removedFromProtocol.toString());
+      var args = captureFunctionArgs(modelWriter.removedFromProtocol.toString());
       expect(args[0]).toEqual('binder');
       expect(args[1]).toEqual('delta');
       expect(args[2]).toBeUndefined();
@@ -104,7 +136,7 @@ describe('$modelWriter', function () {
 
     it('should update the local model based on removal event from protocol', function () {
       scope.model = [{id: 1}, {id: 2}];
-      $modelWriter.removedFromProtocol({
+      modelWriter.removedFromProtocol({
         scope: scope,
         model: 'model'
       }, {
@@ -122,7 +154,7 @@ describe('$modelWriter', function () {
       };
       scope.model = [{id: 1}, {id: 2}];
 
-      $modelWriter.removedFromProtocol(binder, {
+      modelWriter.removedFromProtocol(binder, {
         data: {id: 1}
       });
 
@@ -132,11 +164,11 @@ describe('$modelWriter', function () {
 
   describe('updatedFromProtocol', function () {
     it('should exist', function () {
-      expect(!!$modelWriter.updatedFromProtocol).toBe(true);
+      expect(!!modelWriter.updatedFromProtocol).toBe(true);
     });
 
     it('should have the correct function signature', function () {
-      var args = captureFunctionArgs($modelWriter.updatedFromProtocol.toString());
+      var args = captureFunctionArgs(modelWriter.updatedFromProtocol.toString());
       expect(args[0]).toEqual('binder');
       expect(args[1]).toEqual('delta');
       expect(args[2]).toBeUndefined();
@@ -144,7 +176,7 @@ describe('$modelWriter', function () {
 
     it('should replace a model at the correct position, if delta.position is available', function () {
       scope.model = [{}, {foo:'bar'}];
-      $modelWriter.updatedFromProtocol({
+      modelWriter.updatedFromProtocol({
         scope: scope,
         model: 'model',
         type: $binderTypes.COLLECTION
@@ -161,7 +193,7 @@ describe('$modelWriter', function () {
 
     it('should not care about updating at correct position if the binder.type is not "collection"', function () {
       scope.model = [{}, {foo:'bar'}];
-      $modelWriter.updatedFromProtocol({
+      modelWriter.updatedFromProtocol({
         scope: scope,
         model: 'model'
       }, {
@@ -177,7 +209,7 @@ describe('$modelWriter', function () {
 
     it('should merge objects instead of overwriting', function () {
       scope.model = {foo:'bar'};
-      $modelWriter.updatedFromProtocol({
+      modelWriter.updatedFromProtocol({
         scope: scope,
         model: 'model'
       }, {
@@ -194,7 +226,7 @@ describe('$modelWriter', function () {
 
     it('should replace the entire model if updated from the protocol without any more information', function () {
       scope.model = ['foobar'];
-      $modelWriter.updatedFromProtocol({
+      modelWriter.updatedFromProtocol({
         scope: scope,
         model: 'model'
       },
@@ -214,7 +246,7 @@ describe('$modelWriter', function () {
       };
       scope.model = ['foobar'];
 
-      $modelWriter.updatedFromProtocol(binder, {
+      modelWriter.updatedFromProtocol(binder, {
         data: ['fooey']
       });
 

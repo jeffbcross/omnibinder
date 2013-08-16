@@ -1,25 +1,26 @@
 describe('$binder', function () {
-  var $binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, syncEvents, modelWriter;
+  var $binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, syncEvents, modelWriter, myBinder;
 
-  beforeEach(module('SyncResource'));
-  beforeEach(inject(function (_$binder_, $rootScope, _$q_, _$timeout_, _$syncResource_, $captureFuncArgs, _syncEvents_, $modelWriter) {
-    modelWriter = $modelWriter;
+  beforeEach(module('Binder'));
+  beforeEach(inject(function (_$binder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _syncEvents_, _modelWriter_) {
+    modelWriter = _modelWriter_;
     syncEvents = _syncEvents_;
     captureFunctionArgs = $captureFuncArgs;
     protocol = {
       host: 'localhost',
       change: function () {},
+      add: function () {},
       remove: function () {}
     };
     $binder = _$binder_;
     $timeout = _$timeout_;
     $q = _$q_;
     scope = $rootScope;
-    binder = $binder({
+    binder = $binder(protocol);
+    myBinder = binder.bind({
       scope: scope,
       model: 'model',
-      query: {id: 'abc', path: 'foo.bar'},
-      protocol: protocol
+      query: {id: 'abc', path: 'foo.bar'}
     });
   }));
 
@@ -27,6 +28,24 @@ describe('$binder', function () {
     expect(!!$binder).toBe(true);
   });
 
+  it('should accept a protocol and return a binder', function () {
+  })
+
+  describe('.bind()', function () {
+    it('should return a prototypically inherited instance of binder', function () {
+      var binder = $binder(protocol);
+      binder.foo = 'bar';
+      binder.model = 'baz';
+      var myBinder = binder.bind({
+        scope: scope,
+        model: 'myModel'
+      });
+
+      expect(typeof myBinder.onProtocolChange).toBe('function');
+      expect(myBinder.model).toBe('myModel');
+      expect(myBinder.foo).toBe('bar');
+    });
+  })
 
   describe('onModelChange', function () {
     it('should exist', function () {
@@ -53,6 +72,40 @@ describe('$binder', function () {
 
       expect(spy.callCount).toBe(3);
     });
+  });
+
+  describe('Array Methods', function () {
+    describe('push', function () {
+      it('should throw an error if the binder does not have "collection" type', function () {
+        expect(function () {
+          myBinder.push('foobar');
+        }).toThrow(new Error("Cannot call push on non-collection binder. Binder must be instantiated with type: binderTypes.COLLECTION"));
+      });
+
+      it('should call modelWriter.push when calling binder.push', function () {
+        var spy = spyOn(modelWriter, 'push');
+        myBinder.type = 'collection';
+        myBinder.push('foo');
+        scope.$apply();
+        expect(spy).toHaveBeenCalled();
+      });
+
+      it('should immediately invoke the change pipeline to the protocol', function () {
+        var spy = spyOn(protocol, 'add');
+        myBinder.type = 'collection';
+        myBinder.push('foo');
+        scope.$apply();
+        expect(spy).toHaveBeenCalled();
+      });
+
+      it('should add the model to the queue of unsynced changes in the binder', function () {
+        myBinder.type = 'collection';
+        myBinder.push('foo');
+        scope.$apply();
+        expect(myBinder.unsyncedChanges.length).toBe(1);
+        expect(myBinder.unsyncedChanges[0].data).toBe('foo');
+      })
+    })
   });
 
   describe('onProtocolChange', function () {

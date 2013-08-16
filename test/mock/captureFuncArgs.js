@@ -1,4 +1,4 @@
-angular.module('SyncResource')
+angular.module('Binder')
   .factory('$captureFuncArgs', function () {
     return function captureFunctionArgs (funcString) {
       //Takes in a stringified function, returns array of arguments.

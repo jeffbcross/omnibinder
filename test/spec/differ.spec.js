@@ -1,7 +1,7 @@
 describe('Differ', function () {
   var differ, syncEvents, captureFunctionArgs;
 
-  beforeEach(module('SyncResource'))
+  beforeEach(module('Binder'))
   beforeEach(inject(function (_$differ_, _syncEvents_, $captureFuncArgs) {
     differ = _$differ_;
     syncEvents = _syncEvents_;
@@ -33,7 +33,7 @@ describe('Differ', function () {
           newVal: [{foo: true}, {bar: 'yes'}],
           oldVal: [{foo: true}, {bar: 'yes'}, {baz: 'duh!'}]
         };
-        
+
         delta = differ.findRemovedItem({}, delta);
         expect(typeof delta).toEqual('object');
         expect(delta.data.baz).toEqual('duh!');
@@ -70,7 +70,7 @@ describe('Differ', function () {
           newVal: 'long',
           oldVal: 'l'
         };
-        
+
         delta = differ.compareStrings({}, delta);
         expect(delta.type).toEqual(syncEvents.ADD);
 
@@ -81,7 +81,7 @@ describe('Differ', function () {
 
         delta = differ.compareStrings({}, delta);
         expect(delta.type).toEqual(syncEvents.REMOVE);
-        
+
         delta = {
           newVal: 'same',
           oldVal: 'same'
@@ -91,7 +91,7 @@ describe('Differ', function () {
         expect(delta.type).toEqual(syncEvents.NONE);
       });
     });
-    
+
     describe('findAddedItem', function () {
       it('should implement proper middleware signature', function () {
         var args = captureFunctionArgs(differ.findAddedItem.toString());
@@ -121,7 +121,7 @@ describe('Differ', function () {
         delta = differ.findAddedItem({}, delta);
         expect(delta.data.baz).toEqual('duh!');
         expect(delta.position).toEqual(2);
-        
+
       });
 
       it('should find the added item from an array when comparing two arrays of mixed types', function () {
@@ -193,18 +193,18 @@ describe('Differ', function () {
           oldVal: "I'm a little teapot.",
           newVal: "I'm a teapot."
         };
-        
+
         delta = differ.findRemovedString({}, delta);
         expect(delta.data).toEqual('little ');
         expect(delta.position).toEqual(6);
         expect(delta.type).toEqual(syncEvents.REMOVE);
-          
+
 
         delta = {
           oldVal: "I sure am a little teapot.",
           newVal: "You're a little teapot."
         };
-        
+
         delta = differ.findRemovedString({}, delta);
         expect(delta.data).toEqual("You're");
         expect(delta.position).toEqual(0);
@@ -256,16 +256,16 @@ describe('Differ', function () {
 
         differ.compareArrays({}, delta);
         expect(delta.type).toEqual(syncEvents.REMOVE);
-        
+
 
         delta = {
           newVal: ['1','2'],
           oldVal: ['1']
         };
-        
+
         delta = differ.compareArrays({}, delta);
         expect(delta.type).toEqual(syncEvents.ADD);
-        
+
         delta = {
           newVal: ['1'],
           oldVal: ['2']
@@ -298,7 +298,7 @@ describe('Differ', function () {
           oldVal: ['foo'],
           newVal: ['foo', 'bar']
         };
-        
+
         delta = differ.determineDelta({}, delta);
         expect(delta.type).toEqual(syncEvents.ADD);
         expect(delta.position).toEqual(1);
@@ -310,7 +310,7 @@ describe('Differ', function () {
           oldVal: ['foo', 'baz', 'bar'],
           newVal: ['foo', 'bar']
         };
-        
+
         delta = differ.determineDelta({}, delta);
         expect(delta.type).toEqual(syncEvents.REMOVE);
         expect(delta.position).toEqual(1);
@@ -334,7 +334,7 @@ describe('Differ', function () {
           oldVal: ['foo', 'bar'],
           newVal: ['foo', 'baze']
         };
-        
+
         delta = differ.determineDelta({}, delta);
         expect(delta.type).toEqual(syncEvents.UPDATE);
         expect(delta.position).toEqual(1);
@@ -356,7 +356,7 @@ describe('Differ', function () {
           newVal: "I'm a little teapot.",
           oldVal: "I'm a teapot."
         };
-        
+
         delta = differ.determineDelta({}, delta);
         expect(delta.type).toEqual(syncEvents.ADD);
         expect(delta.position).toEqual(6);
@@ -368,7 +368,7 @@ describe('Differ', function () {
           oldVal: "I'm a little teapot.",
           newVal: "I'm a teapot."
         };
-        
+
         delta = differ.determineDelta({}, delta);
         expect(delta.data).toEqual('little ');
         expect(delta.type).toEqual(syncEvents.REMOVE);
@@ -380,7 +380,7 @@ describe('Differ', function () {
           oldVal: "I'm a little teapot.",
           newVal: "I'm a big teapot."
         };
-        
+
         delta = differ.determineDelta({}, delta);
         expect(delta.data).toEqual('big');
         expect(delta.type).toEqual(syncEvents.UPDATE);
@@ -392,7 +392,7 @@ describe('Differ', function () {
           oldVal: "I'm a stupid teapot.",
           newVal: "I'm a little teapot."
         };
-        
+
         delta = differ.determineDelta({}, delta);
         expect(delta.data).toEqual('little');
         expect(delta.type).toEqual(syncEvents.UPDATE);

@@ -43,7 +43,7 @@ describe('binder', function () {
       expect(args[2]).toBeUndefined();
     })
 
-    it('should call protocol.create when new data is added', function () {
+    it('should call protocol.change when new data is added', function () {
       var spy = spyOn(protocol, 'change');
       myBinder.onModelChange(['foo', 'addme'], ['foo']);
       scope.$digest();

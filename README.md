@@ -40,7 +40,7 @@ app.controller('MyCtrl', function ($scope, $binder, someJSONAPI) {
 _Robust Example_
 ```javascript
 var app = angular.module('myApp', ['Binder']);
-app.controller('MyCtrl', function ($scope, $binder, $differ, $throttler, someJSONAPI) {
+app.controller('MyCtrl', function ($scope, $binder, differ, $throttler, someJSONAPI) {
   var myProtocol = someJSONAPI({url: 'http://myhost'});
   var mySyncer = $binder({protocol: myProtocol});
   var myQuery = {
@@ -53,7 +53,7 @@ app.controller('MyCtrl', function ($scope, $binder, $differ, $throttler, someJSO
     query: myQuery,
     key: 'id',
     type: 'collection',
-    onModelChange: [$throttler(250), $differ.compareArrays],
+    onModelChange: [$throttler(250), differ.compareArrays],
     onProtocolChange: [function (binder, delta, next) {
       delta.random = Math.random();
       next();
@@ -170,11 +170,11 @@ myApp.controller('FriendCtrl', function ($scope, myBinder) {
 ```
 
 <a id="differ"></a>
-### $differ
+### differ
 
-The `$differ` service provides simple utility methods to do simple diff analysis between the newVal and oldVal of a `delta` object. Its purpose is to support common needs for analyzing changes, in order to send _only_ changes to protocols that can support this, unlike protocols that require sending full model representations with updates.
+The `differ` service provides simple utility methods to do simple diff analysis between the newVal and oldVal of a `delta` object. Its purpose is to support common needs for analyzing changes, in order to send _only_ changes to protocols that can support this, unlike protocols that require sending full model representations with updates.
 
-Each public method of `$differ` implements the proper signature for middleware chaining in the [Change Pipeline](#change-pipeline): `function (binder, delta, next) {}`.
+Each public method of `differ` implements the proper signature for middleware chaining in the [Change Pipeline](#change-pipeline): `function (binder, delta, next) {}`.
 
 Currently this utility is in a very basic state, with limited usefulness. For example, it is only able to find one change in any type of object, instead of multiple changes or batches of changes. It presently only implements methods for arrays and strings.
 
@@ -189,7 +189,7 @@ Currently this utility is in a very basic state, with limited usefulness. For ex
  * __findRemovedString__ - Similar to `findRemovedItem`, but finds where a string was removed, and what the removed contents are.
  * __findChangedString__ - Similar to `findChangedItem`, but finds where a change begins in a string, and sets the entire changed portion to `delta.data`.
 
-The example below shows how the `$differ.compareArrays` method would be implemented in the `onModelChange` [Change Pipeline](#change-pipeline). The result of this would be that the [Change Pipeline](#change-pipeline) would commence after pushing the new post to `$scope.posts`, with the `delta` being given to the protocol with the `type`, `data`, and `position` properties being set to "add", {title: 'How to Email'}, and 1 respectively.
+The example below shows how the `differ.compareArrays` method would be implemented in the `onModelChange` [Change Pipeline](#change-pipeline). The result of this would be that the [Change Pipeline](#change-pipeline) would commence after pushing the new post to `$scope.posts`, with the `delta` being given to the protocol with the `type`, `data`, and `position` properties being set to "add", {title: 'How to Email'}, and 1 respectively.
 
 ```javascript
 var myApp = angular.module('myApp', ['Binder']);
@@ -199,12 +199,12 @@ myApp.factory('myBinder', function ($binder, someJSONAPI) {
   return myBinder;
 });
 
-myApp.controller('ProfileCtrl', function ($scope, $differ, myBinder) {
+myApp.controller('ProfileCtrl', function ($scope, differ, myBinder) {
   $scope.posts = [{title: 'How to Search the Web'}];
   var binder = myBinder.bind({
     scope: $scope,
     model: 'posts',
-    onModelChange: [$differ.compareArrays]
+    onModelChange: [differ.compareArrays]
   });
   $scope.posts.push({title: 'How to Email'});
 });

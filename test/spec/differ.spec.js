@@ -2,8 +2,8 @@ describe('Differ', function () {
   var differ, syncEvents, captureFunctionArgs;
 
   beforeEach(module('Binder'))
-  beforeEach(inject(function (_$differ_, _syncEvents_, $captureFuncArgs) {
-    differ = _$differ_;
+  beforeEach(inject(function (_differ_, _syncEvents_, $captureFuncArgs) {
+    differ = _differ_;
     syncEvents = _syncEvents_;
     captureFunctionArgs = $captureFuncArgs;
   }));

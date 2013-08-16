@@ -2,11 +2,11 @@
 //   var $throttler, scope, $binder, $q, $timeout, binder;
 
 //   beforeEach(module('Binder'));
-//   beforeEach(inject(function (_$throttler_, $rootScope, _$binder_, _$q_, _$timeout_) {
+//   beforeEach(inject(function (_$throttler_, $rootScope, _binder_, _$q_, _$timeout_) {
 //     $throttler = _$throttler_;
 //     $q = _$q_;
 //     $timeout = _$timeout_;
-//     $binder = _$binder_;
+//     $binder = _binder_;
 //     scope = $rootScope;
 
 //     binder = $binder({

@@ -1,8 +1,8 @@
-describe('$binder', function () {
-  var $binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, syncEvents, modelWriter, myBinder;
+describe('binder', function () {
+  var binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, syncEvents, modelWriter, myBinder;
 
   beforeEach(module('Binder'));
-  beforeEach(inject(function (_$binder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _syncEvents_, _modelWriter_) {
+  beforeEach(inject(function (_binder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _syncEvents_, _modelWriter_) {
     modelWriter = _modelWriter_;
     syncEvents = _syncEvents_;
     captureFunctionArgs = $captureFuncArgs;
@@ -12,11 +12,11 @@ describe('$binder', function () {
       add: function () {},
       remove: function () {}
     };
-    $binder = _$binder_;
+    binder = _binder_;
     $timeout = _$timeout_;
     $q = _$q_;
     scope = $rootScope;
-    myBinder = $binder({
+    myBinder = binder({
       protocol: protocol,
       scope: scope,
       model: 'model',
@@ -25,7 +25,7 @@ describe('$binder', function () {
   }));
 
   it('should exist', function () {
-    expect(!!$binder).toBe(true);
+    expect(!!binder).toBe(true);
   });
 
   it('should accept a protocol and return a binder', function () {
@@ -95,10 +95,10 @@ describe('$binder', function () {
   });
 
   describe('onProtocolChange', function () {
-    var binder;
+    var myBinder;
 
     beforeEach(function () {
-      binder = $binder({
+      myBinder = binder({
         scope: scope,
         model: 'myModel',
         protocol: protocol
@@ -106,11 +106,11 @@ describe('$binder', function () {
     });
 
     it('should exist', function () {
-      expect(!!binder.onProtocolChange).toBe(true);
+      expect(typeof myBinder.onProtocolChange).toBe('function');
     });
 
     it('should have the correct function signature', function () {
-      var args = captureFunctionArgs(binder.onProtocolChange.toString());
+      var args = captureFunctionArgs(myBinder.onProtocolChange.toString());
       expect(args[0]).toBe('delta');
       expect(args[1]).toBeUndefined();
     });
@@ -118,8 +118,8 @@ describe('$binder', function () {
     it('should update the model array after adding ADD event from the protocol', function () {
       var spy = spyOn(modelWriter, 'addedFromProtocol');
       scope.myModel = ['please'];
-      binder.type = 'collection';
-      binder.onProtocolChange({
+      myBinder.type = 'collection';
+      myBinder.onProtocolChange({
         type: syncEvents.ADD,
         data: 'readme'
       });
@@ -132,7 +132,7 @@ describe('$binder', function () {
     it('should update the model array after REMOVE event from the protocol', function () {
       var spy = spyOn(modelWriter, 'removedFromProtocol');
       scope.myModel = ['please', 'readme'];
-      binder.onProtocolChange({
+      myBinder.onProtocolChange({
         type: syncEvents.REMOVE,
         data: 'readme'
       });
@@ -157,7 +157,7 @@ describe('$binder', function () {
 
   describe('Constructor', function () {
     it('should return a binder object', function () {
-      var binder = $binder({
+      var myBinder = binder({
         protocol: protocol,
         scope: scope,
         model: 'myModel',
@@ -166,14 +166,14 @@ describe('$binder', function () {
         }
       });
 
-      expect(typeof binder.query).toBe('object');
-      expect(binder.query.id).toBe('abc');
-      expect(typeof binder.val).toBe('function');
+      expect(typeof myBinder.query).toBe('object');
+      expect(myBinder.query.id).toBe('abc');
+      expect(typeof myBinder.val).toBe('function');
     });
 
     it('should complain if no protocol is provided', function () {
       expect(function () {
-        $binder({
+        binder({
           model: 'myModel',
           scope: scope,
           query: {}
@@ -197,13 +197,13 @@ describe('$binder', function () {
 
   it('should accept scope as the first argument', function () {
     scope.hello = 'world';
-    var binder = $binder({
+    var myBinder = binder({
       scope: scope,
       model: 'hello',
       protocol: protocol
     });
 
-    expect(binder.scope.hello).toBe('world');
+    expect(myBinder.scope.hello).toBe('world');
   });
 
   it('should accept a model name as the second argument', function () {
@@ -216,7 +216,7 @@ describe('$binder', function () {
 
   it('should throw an error when scope is not provided', function () {
     expect(function () {
-      $binder({
+      binder({
         scope: null,
         model: 'super',
         protocol: protocol
@@ -226,7 +226,7 @@ describe('$binder', function () {
 
   it('should throw an error when model is not provided', function () {
     expect(function () {
-      $binder({
+      binder({
         scope: scope,
         protocol: protocol
       });
@@ -236,7 +236,7 @@ describe('$binder', function () {
   // describe('onModelChange', function () {
   //   it('should throw an error if I pass in something other than function', function () {
   //     expect(function () {
-  //       $binder({
+  //       binder({
   //         scope: scope,
   //         model: 'foo',
   //         protocol: protocol,
@@ -248,19 +248,19 @@ describe('$binder', function () {
 
   describe('key', function () {
     it('should allow setting of a `key` property, which should be used to uniquely identify elements', function () {
-      var binder = $binder({
+      var myBinder = binder({
         protocol: protocol,
         scope: scope,
         model: 'foo',
         key: 'id'
       });
 
-      expect(binder.key).toBe('id');
+      expect(myBinder.key).toBe('id');
     });
 
     it('should throw an error when anything other than a string is passed as key', function () {
       expect(function () {
-        $binder({
+        binder({
           scope: scope,
           model: 'foo',
           key: {"true" : 'that'},

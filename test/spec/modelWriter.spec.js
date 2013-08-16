@@ -46,6 +46,11 @@ describe('modelWriter', function () {
 
 
     describe('pop', function () {
+      beforeEach(function () {
+        binder.type = binderTypes.COLLECTION;
+      });
+
+
       it('should exist', function () {
         expect(typeof modelWriter.pop).toBe('function');
       });
@@ -63,6 +68,25 @@ describe('modelWriter', function () {
         expect(function () {
           modelWriter.pop(binder, {});
         }).toThrow(new Error("Cannot call 'pop' on a non-array object."));
+      });
+
+
+      it("should complain when popping a model on a binder without 'collection' type", function () {
+        binder.scope[binder.model] = ['foo'];
+        binder.type = undefined;
+        expect(function () {
+          modelWriter.pop(binder, {});
+        }).toThrow(new Error('Cannot call pop on a non-collection binder type.'));
+
+        binder.type = binderTypes.OBJECT;
+        expect(function () {
+          modelWriter.pop(binder, {});
+        }).toThrow(new Error('Cannot call pop on a non-collection binder type.'));
+
+        binder.type = binderTypes.COLLECTION;
+        expect(function () {
+          modelWriter.pop(binder, {});
+        }).not.toThrow(new Error('Cannot call pop on a non-collection binder type.'));
       });
 
 

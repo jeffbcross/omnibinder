@@ -1,8 +1,11 @@
 describe('binder', function () {
-  var binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, syncEvents, modelWriter, myBinder;
+  var binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, syncEvents, modelWriter, myBinder, binderTypes;
 
   beforeEach(module('Binder'));
-  beforeEach(inject(function (_binder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _syncEvents_, _modelWriter_) {
+
+
+  beforeEach(inject(function (_binder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _syncEvents_, _modelWriter_, _binderTypes_) {
+    binderTypes = _binderTypes_;
     modelWriter = _modelWriter_;
     syncEvents = _syncEvents_;
     captureFunctionArgs = $captureFuncArgs;
@@ -24,17 +27,17 @@ describe('binder', function () {
     });
   }));
 
+
   it('should exist', function () {
     expect(!!binder).toBe(true);
   });
 
-  it('should accept a protocol and return a binder', function () {
-  })
 
   describe('onModelChange', function () {
     it('should exist', function () {
       expect(!!myBinder.onModelChange).toBe(true);
     });
+
 
     it('should have the correct signature', function () {
       var args = captureFunctionArgs(myBinder.onModelChange.toString());
@@ -42,6 +45,7 @@ describe('binder', function () {
       expect(args[1]).toBe('oldVal');
       expect(args[2]).toBeUndefined();
     })
+
 
     it('should call protocol.change when new data is added', function () {
       var spy = spyOn(protocol, 'change');
@@ -58,6 +62,7 @@ describe('binder', function () {
     });
   });
 
+
   describe('Array Methods', function () {
     describe('push', function () {
       it('should throw an error if the binder does not have "collection" type', function () {
@@ -66,6 +71,7 @@ describe('binder', function () {
         }).toThrow(new Error("Cannot call push on non-collection binder. Binder must be instantiated with type: binderTypes.COLLECTION"));
       });
 
+
       it('should call modelWriter.push when calling binder.push', function () {
         var spy = spyOn(modelWriter, 'push');
         myBinder.type = 'collection';
@@ -73,6 +79,7 @@ describe('binder', function () {
         scope.$apply();
         expect(spy).toHaveBeenCalled();
       });
+
 
       it('should immediately invoke the change pipeline to the protocol', function () {
         var spy = spyOn(myBinder, 'sendToProtocol');
@@ -84,14 +91,46 @@ describe('binder', function () {
         expect(spy).toHaveBeenCalled();
       });
 
+
       it('should add the model to the queue of unsynced changes in the binder', function () {
         myBinder.type = 'collection';
         myBinder.push('foo');
         scope.$apply();
         expect(myBinder.unsyncedChanges.length).toBe(1);
         expect(myBinder.unsyncedChanges[0].data).toBe('foo');
-      })
-    })
+      });
+    });
+
+
+    describe('pop', function () {
+      beforeEach(function () {
+        myBinder.scope[myBinder.model] = ['foo', 'bar'];
+        myBinder.type = binderTypes.COLLECTION;
+      });
+
+
+      it('should exist', function () {
+        expect(typeof myBinder.pop).toBe('function');
+      });
+
+
+      it('should call protocol.pop if method exists', function () {
+        protocol.pop = function () {};
+        var spy = spyOn(protocol, 'pop');
+
+        myBinder.pop();
+
+        expect(spy).toHaveBeenCalled();
+      });
+
+
+      it('should complain if calling pop on a non-collection type binder', function () {
+        myBinder.type = null;
+        expect(function () {
+          myBinder.pop();
+        }).toThrow(new Error('Cannot call pop on a non-collection binder.'));
+      });
+    });
   });
 
   describe('onProtocolChange', function () {
@@ -105,15 +144,18 @@ describe('binder', function () {
       });
     });
 
+
     it('should exist', function () {
       expect(typeof myBinder.onProtocolChange).toBe('function');
     });
+
 
     it('should have the correct function signature', function () {
       var args = captureFunctionArgs(myBinder.onProtocolChange.toString());
       expect(args[0]).toBe('delta');
       expect(args[1]).toBeUndefined();
     });
+
 
     it('should update the model array after adding ADD event from the protocol', function () {
       var spy = spyOn(modelWriter, 'addedFromProtocol');
@@ -128,6 +170,7 @@ describe('binder', function () {
 
       expect(spy).toHaveBeenCalled();
     });
+
 
     it('should update the model array after REMOVE event from the protocol', function () {
       var spy = spyOn(modelWriter, 'removedFromProtocol');
@@ -148,12 +191,14 @@ describe('binder', function () {
       expect(!!myBinder.sendToModel).toBe(true);
     });
 
+
     it('should have the correct function signature', function () {
       var args = captureFunctionArgs(myBinder.sendToModel.toString());
       expect(args[0]).toBe('delta');
       expect(args[1]).toBeUndefined();
     });
   });
+
 
   describe('Constructor', function () {
     it('should return a binder object', function () {
@@ -171,6 +216,7 @@ describe('binder', function () {
       expect(typeof myBinder.val).toBe('function');
     });
 
+
     it('should complain if no protocol is provided', function () {
       expect(function () {
         binder({
@@ -180,6 +226,7 @@ describe('binder', function () {
         });
       }).toThrow(new Error("protocol is required"))
     })
+
 
     it('should cause model changes to go through binder.onModelChange', function () {
       var spy = spyOn(protocol, 'change');
@@ -195,6 +242,7 @@ describe('binder', function () {
     expect(myBinder.protocol.host).toBe('localhost');
   });
 
+
   it('should accept scope as the first argument', function () {
     scope.hello = 'world';
     var myBinder = binder({
@@ -206,6 +254,7 @@ describe('binder', function () {
     expect(myBinder.scope.hello).toBe('world');
   });
 
+
   it('should accept a model name as the second argument', function () {
     scope.super = 'heroic';
     myBinder.model = 'super';
@@ -213,6 +262,7 @@ describe('binder', function () {
     expect(myBinder.model).toBe('super');
     expect(myBinder.val()).toBe('heroic');
   });
+
 
   it('should throw an error when scope is not provided', function () {
     expect(function () {
@@ -224,6 +274,7 @@ describe('binder', function () {
     }).toThrow(new Error('scope is required'));
   });
 
+
   it('should throw an error when model is not provided', function () {
     expect(function () {
       binder({
@@ -232,6 +283,7 @@ describe('binder', function () {
       });
     }).toThrow(new Error('model is required'));
   });
+
 
   // describe('onModelChange', function () {
   //   it('should throw an error if I pass in something other than function', function () {
@@ -246,6 +298,7 @@ describe('binder', function () {
   //   });
   // });
 
+
   describe('key', function () {
     it('should allow setting of a `key` property, which should be used to uniquely identify elements', function () {
       var myBinder = binder({
@@ -257,6 +310,7 @@ describe('binder', function () {
 
       expect(myBinder.key).toBe('id');
     });
+
 
     it('should throw an error when anything other than a string is passed as key', function () {
       expect(function () {
@@ -270,10 +324,12 @@ describe('binder', function () {
     });
   });
 
+
   describe('.change()', function () {
     it('should exist', function () {
       expect(typeof myBinder.change).toBe('function');
     });
+
 
     it('should only invoke one change pipeline when calling change', function () {
       scope.products = [];

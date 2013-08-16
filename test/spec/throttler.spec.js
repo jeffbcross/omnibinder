@@ -1,9 +1,9 @@
-// describe('$throttler', function () {
-//   var $throttler, scope, $binder, $q, $timeout, binder;
+// describe('throttler', function () {
+//   var throttler, scope, $binder, $q, $timeout, binder;
 
 //   beforeEach(module('Binder'));
-//   beforeEach(inject(function (_$throttler_, $rootScope, _binder_, _$q_, _$timeout_) {
-//     $throttler = _$throttler_;
+//   beforeEach(inject(function (_throttler_, $rootScope, _binder_, _$q_, _$timeout_) {
+//     throttler = _throttler_;
 //     $q = _$q_;
 //     $timeout = _$timeout_;
 //     $binder = _binder_;
@@ -17,14 +17,14 @@
 //   }));
 
 //   it('should exist', function () {
-//     expect(!!$throttler).toBe(true);
-//     expect(typeof $throttler).toEqual('function');
+//     expect(!!throttler).toBe(true);
+//     expect(typeof throttler).toEqual('function');
 //   });
 
 //   it('should throw an error if delay is not a number', function () {
 //     var msg;
 //     try {
-//       throttler = $throttler('j');
+//       throttler = throttler('j');
 //     }
 //     catch (e) {
 //       msg = e.message;
@@ -41,7 +41,7 @@
 //       , spy = spyOn(fns, 'next');
 
 //     runs(function () {
-//       $throttler(250)({}, {}, fns.next);
+//       throttler(250)({}, {}, fns.next);
 //       expect(spy.callCount).toBe(0);
 //       $timeout.flush();
 //       scope.$apply();
@@ -65,7 +65,7 @@
 //         onModelChange: function (binder, delta) {
 //           var deferred = $q.defer();
 //           $timeout(function () {
-//             $throttler(250)(binder, delta, function () {
+//             throttler(250)(binder, delta, function () {
 //               deferred.resolve(delta);
 //               scope.$apply();
 //             });
@@ -108,7 +108,7 @@
 //       binder = $binder({
 //         scope: scope,
 //         model: 'model',
-//         onModelChange: $throttler(250)
+//         onModelChange: throttler(250)
 //       });
 //       binder.onModelChange(binder, {data: 'foo'}, function (binder, delta) {
 //         throttled = true;

@@ -40,7 +40,7 @@ app.controller('MyCtrl', function ($scope, $binder, someJSONAPI) {
 _Robust Example_
 ```javascript
 var app = angular.module('myApp', ['Binder']);
-app.controller('MyCtrl', function ($scope, $binder, differ, $throttler, someJSONAPI) {
+app.controller('MyCtrl', function ($scope, $binder, differ, throttler, someJSONAPI) {
   var myProtocol = someJSONAPI({url: 'http://myhost'});
   var mySyncer = $binder({protocol: myProtocol});
   var myQuery = {
@@ -53,7 +53,7 @@ app.controller('MyCtrl', function ($scope, $binder, differ, $throttler, someJSON
     query: myQuery,
     key: 'id',
     type: 'collection',
-    onModelChange: [$throttler(250), differ.compareArrays],
+    onModelChange: [throttler(250), differ.compareArrays],
     onProtocolChange: [function (binder, delta, next) {
       delta.random = Math.random();
       next();
@@ -211,17 +211,17 @@ myApp.controller('ProfileCtrl', function ($scope, differ, myBinder) {
 ```
 
 <a id="throttler"></a>
-### $throttler
+### throttler
 
-The `$throttler` service provides a simple factory that accepts one argument, a number of milliseconds by which to delay the [Change Pipeline](#change-pipeline), and returns a middleware function to be added to the [Change Pipeline](#change-pipeline), usually at the first step. If another change is fired before the `$throttler` has executed, the previous [Change Pipeline](#change-pipeline) will be cancelled.
+The `throttler` service provides a simple factory that accepts one argument, a number of milliseconds by which to delay the [Change Pipeline](#change-pipeline), and returns a middleware function to be added to the [Change Pipeline](#change-pipeline), usually at the first step. If another change is fired before the `throttler` has executed, the previous [Change Pipeline](#change-pipeline) will be cancelled.
 
 ```javascript
 ...
-app.controller('MyCtrl', function ($scope, $throttler, myBinder) {
+app.controller('MyCtrl', function ($scope, throttler, myBinder) {
   var binder = myBinder.bind({
     scope: $scope,
     model: 'myModel',
-    onModelChange: [$throttler(250)]
+    onModelChange: [throttler(250)]
   });
 });
 ```

@@ -1,12 +1,12 @@
 describe('modelWriter', function () {
-  var modelWriter, scope, captureFunctionArgs, $binderTypes, $timeout, binder;
+  var modelWriter, scope, captureFunctionArgs, binderTypes, $timeout, binder;
 
   beforeEach(module('Binder'));
-  beforeEach(inject(function (_modelWriter_, _$binderTypes_, $rootScope, $captureFuncArgs, _$timeout_) {
+  beforeEach(inject(function (_modelWriter_, _binderTypes_, $rootScope, $captureFuncArgs, _$timeout_) {
     modelWriter = _modelWriter_;
     scope = $rootScope;
     captureFunctionArgs = $captureFuncArgs;
-    $binderTypes = _$binderTypes_;
+    binderTypes = _binderTypes_;
     $timeout = _$timeout_;
     binder = {
       scope: scope,
@@ -57,7 +57,7 @@ describe('modelWriter', function () {
     //   mySyncResource.bind({
     //     scope: scope,
     //     model: 'myModel',
-    //     type: $binderTypes.COLLECTION
+    //     type: binderTypes.COLLECTION
     //   });
 
     //   scope.myModel = ['foobar'];
@@ -85,7 +85,7 @@ describe('modelWriter', function () {
       modelWriter.addedFromProtocol({
         scope: scope,
         model: 'model',
-        type: $binderTypes.COLLECTION
+        type: binderTypes.COLLECTION
       }, {
         data: 'bar'
       });
@@ -98,7 +98,7 @@ describe('modelWriter', function () {
       modelWriter.addedFromProtocol({
         scope: scope,
         model: 'model',
-        type: $binderTypes.OBJECT
+        type: binderTypes.OBJECT
       }, {
         data: {foo: 'baz'}
       });
@@ -111,7 +111,7 @@ describe('modelWriter', function () {
       var binder = {
         scope: scope,
         model: 'model',
-        type: $binderTypes.OBJECT
+        type: binderTypes.OBJECT
       };
 
       modelWriter.addedFromProtocol(binder, {
@@ -179,7 +179,7 @@ describe('modelWriter', function () {
       modelWriter.updatedFromProtocol({
         scope: scope,
         model: 'model',
-        type: $binderTypes.COLLECTION
+        type: binderTypes.COLLECTION
       }, {
         position: 1,
         data: {

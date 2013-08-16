@@ -6,7 +6,7 @@ describe('SyncEvents', function () {
   }));
 
   it('should have a dictionary of event constants', function () {
-    expect(syncEvents.GET).toBeDefined();
+    expect(syncEvents.READ).toBeDefined();
     expect(syncEvents.NONE).toBeDefined();
   });
 });

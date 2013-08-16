@@ -120,7 +120,7 @@ describe('binder', function () {
       scope.myModel = ['please'];
       myBinder.type = 'collection';
       myBinder.onProtocolChange({
-        type: syncEvents.ADD,
+        type: syncEvents.PUSH,
         data: 'readme'
       });
 
@@ -133,7 +133,7 @@ describe('binder', function () {
       var spy = spyOn(modelWriter, 'removedFromProtocol');
       scope.myModel = ['please', 'readme'];
       myBinder.onProtocolChange({
-        type: syncEvents.REMOVE,
+        type: syncEvents.DELETE,
         data: 'readme'
       });
       scope.$digest();

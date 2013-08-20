@@ -115,8 +115,7 @@ describe('binder', function () {
 
 
       it('should call protocol.pop if method exists', function () {
-        protocol.pop = function () {};
-        var spy = spyOn(protocol, 'pop');
+        var spy = spyOn(protocol, 'remove');
 
         myBinder.pop();
 
@@ -158,11 +157,11 @@ describe('binder', function () {
 
 
     it('should update the model array after adding ADD event from the protocol', function () {
-      var spy = spyOn(modelWriter, 'addedFromProtocol');
+      var spy = spyOn(modelWriter, 'createdFromProtocol');
       scope.myModel = ['please'];
       myBinder.type = 'collection';
       myBinder.onProtocolChange({
-        type: syncEvents.PUSH,
+        type: syncEvents.NEW,
         data: 'readme'
       });
 
@@ -176,7 +175,7 @@ describe('binder', function () {
       var spy = spyOn(modelWriter, 'removedFromProtocol');
       scope.myModel = ['please', 'readme'];
       myBinder.onProtocolChange({
-        type: syncEvents.DELETE,
+        type: syncEvents.DELETED,
         data: 'readme'
       });
       scope.$digest();

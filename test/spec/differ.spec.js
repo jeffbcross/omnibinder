@@ -72,7 +72,7 @@ describe('Differ', function () {
         };
 
         delta = differ.compareStrings({}, delta);
-        expect(delta.type).toEqual(syncEvents.PUSH);
+        expect(delta.type).toEqual(syncEvents.NEW);
 
         delta = {
           newVal: 's',
@@ -80,7 +80,7 @@ describe('Differ', function () {
         };
 
         delta = differ.compareStrings({}, delta);
-        expect(delta.type).toEqual(syncEvents.DELETE);
+        expect(delta.type).toEqual(syncEvents.DELETED);
 
         delta = {
           newVal: 'same',
@@ -109,7 +109,7 @@ describe('Differ', function () {
         delta = differ.findAddedItem({}, delta);
         expect(delta.data).toEqual('baz');
         expect(delta.position).toEqual(0);
-        expect(delta.type).toEqual(syncEvents.PUSH);
+        expect(delta.type).toEqual(syncEvents.NEW);
       });
 
       it('should find the added item from an array when comparing two arrays of objects', function () {
@@ -172,7 +172,7 @@ describe('Differ', function () {
         differ.findAddedString({}, delta);
         expect(delta.data).toEqual('little ');
         expect(delta.position).toEqual(6);
-        expect(delta.type).toEqual(syncEvents.PUSH);
+        expect(delta.type).toEqual(syncEvents.NEW);
       });
     });
 
@@ -197,7 +197,7 @@ describe('Differ', function () {
         delta = differ.findRemovedString({}, delta);
         expect(delta.data).toEqual('little ');
         expect(delta.position).toEqual(6);
-        expect(delta.type).toEqual(syncEvents.DELETE);
+        expect(delta.type).toEqual(syncEvents.DELETED);
 
 
         delta = {
@@ -208,7 +208,7 @@ describe('Differ', function () {
         delta = differ.findRemovedString({}, delta);
         expect(delta.data).toEqual("You're");
         expect(delta.position).toEqual(0);
-        expect(delta.type).toEqual(syncEvents.UPDATE);
+        expect(delta.type).toEqual(syncEvents.UPDATED);
       });
     });
 
@@ -255,7 +255,7 @@ describe('Differ', function () {
         };
 
         differ.compareArrays({}, delta);
-        expect(delta.type).toEqual(syncEvents.DELETE);
+        expect(delta.type).toEqual(syncEvents.DELETED);
 
 
         delta = {
@@ -264,7 +264,7 @@ describe('Differ', function () {
         };
 
         delta = differ.compareArrays({}, delta);
-        expect(delta.type).toEqual(syncEvents.PUSH);
+        expect(delta.type).toEqual(syncEvents.NEW);
 
         delta = {
           newVal: ['1'],
@@ -272,7 +272,7 @@ describe('Differ', function () {
         };
 
         delta = differ.compareArrays({}, delta);
-        expect(delta.type).toEqual(syncEvents.UPDATE);
+        expect(delta.type).toEqual(syncEvents.UPDATED);
       });
 
       it('should account for newly created arrays', function () {
@@ -300,7 +300,7 @@ describe('Differ', function () {
         };
 
         delta = differ.determineDelta({}, delta);
-        expect(delta.type).toEqual(syncEvents.PUSH);
+        expect(delta.type).toEqual(syncEvents.NEW);
         expect(delta.position).toEqual(1);
         expect(delta.data).toEqual('bar');
       });
@@ -312,7 +312,7 @@ describe('Differ', function () {
         };
 
         delta = differ.determineDelta({}, delta);
-        expect(delta.type).toEqual(syncEvents.DELETE);
+        expect(delta.type).toEqual(syncEvents.DELETED);
         expect(delta.position).toEqual(1);
         expect(delta.data).toEqual('baz');
       });
@@ -324,7 +324,7 @@ describe('Differ', function () {
         };
 
         delta = differ.determineDelta({}, delta);
-        expect(delta.type).toEqual(syncEvents.PUSH);
+        expect(delta.type).toEqual(syncEvents.NEW);
         expect(delta.position).toEqual(2);
         expect(delta.data).toEqual('baz');
       });
@@ -336,7 +336,7 @@ describe('Differ', function () {
         };
 
         delta = differ.determineDelta({}, delta);
-        expect(delta.type).toEqual(syncEvents.UPDATE);
+        expect(delta.type).toEqual(syncEvents.UPDATED);
         expect(delta.position).toEqual(1);
         expect(delta.data).toEqual('baze');
       });
@@ -358,7 +358,7 @@ describe('Differ', function () {
         };
 
         delta = differ.determineDelta({}, delta);
-        expect(delta.type).toEqual(syncEvents.PUSH);
+        expect(delta.type).toEqual(syncEvents.NEW);
         expect(delta.position).toEqual(6);
         expect(delta.data).toEqual('little ');
       });
@@ -371,7 +371,7 @@ describe('Differ', function () {
 
         delta = differ.determineDelta({}, delta);
         expect(delta.data).toEqual('little ');
-        expect(delta.type).toEqual(syncEvents.DELETE);
+        expect(delta.type).toEqual(syncEvents.DELETED);
         expect(delta.position).toEqual(6);
       });
 
@@ -383,7 +383,7 @@ describe('Differ', function () {
 
         delta = differ.determineDelta({}, delta);
         expect(delta.data).toEqual('big');
-        expect(delta.type).toEqual(syncEvents.UPDATE);
+        expect(delta.type).toEqual(syncEvents.UPDATED);
         expect(delta.position).toEqual(6);
       });
 
@@ -395,7 +395,7 @@ describe('Differ', function () {
 
         delta = differ.determineDelta({}, delta);
         expect(delta.data).toEqual('little');
-        expect(delta.type).toEqual(syncEvents.UPDATE);
+        expect(delta.type).toEqual(syncEvents.UPDATED);
       });
 
       it('should return an event type of NONE if no new or old input is provided', function () {
@@ -407,7 +407,7 @@ describe('Differ', function () {
   });
 
   it('should have a dictionary of event constants', function () {
-    expect(syncEvents.READ).toBeDefined();
+    expect(syncEvents.UPDATED).toBeDefined();
     expect(syncEvents.NONE).toBeDefined();
   });
 

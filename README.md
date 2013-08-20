@@ -249,7 +249,7 @@ var binder = myBinder.bind({
   type: binderTypes.COLLECTION,
   onModelChange: [function (binder, delta, next) {
     if (delta.newVal.length > delta.oldVal.length) {
-      delta.type = syncEvents.PUSH;
+      delta.type = syncEvents.NEW;
     }
     next();
   }]

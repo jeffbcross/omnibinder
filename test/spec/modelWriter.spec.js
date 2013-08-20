@@ -1,8 +1,9 @@
 describe('modelWriter', function () {
-  var modelWriter, scope, captureFunctionArgs, binderTypes, $timeout, binder;
+  var modelWriter, scope, captureFunctionArgs, binderTypes, $timeout, binder, syncEvents;
 
   beforeEach(module('Binder'));
-  beforeEach(inject(function (_modelWriter_, _binderTypes_, $rootScope, $captureFuncArgs, _$timeout_) {
+  beforeEach(inject(function (_modelWriter_, _binderTypes_, $rootScope, $captureFuncArgs, _$timeout_, _syncEvents_) {
+    syncEvents = _syncEvents_;
     modelWriter = _modelWriter_;
     scope = $rootScope;
     captureFunctionArgs = $captureFuncArgs;
@@ -125,61 +126,84 @@ describe('modelWriter', function () {
   });
 
 
-  describe('addedFromProtocol', function () {
+  describe('processChanges', function () {
     it('should exist', function () {
-      expect(!!modelWriter.addedFromProtocol).toBe(true);
+      expect(typeof modelWriter.processChanges).toBe('function');
+    });
+
+
+    it('should accept an array of changes from the protocol', function () {
+      var args = captureFunctionArgs(modelWriter.processChanges);
+      expect(args[0]).toBe('binder');
+      expect(args[1]).toBe('changes');
+      expect(args[2]).toBeUndefined();
+    });
+
+
+    it('should execute changes in order', function () {
+      scope.myModel = [];
+      binder.type = binderTypes.COLLECTION;
+      modelWriter.processChanges(binder, [{
+        type: syncEvents.NEW,
+        name: '0',
+        object: ['foo']
+      }]);
+
+      expect(scope.myModel).toEqual(['foo']);
+
+      modelWriter.processChanges(binder, [{
+        type: syncEvents.NEW,
+        name: '1',
+        object: ['foo', 'bar']
+      }]);
+
+      expect(scope.myModel).toEqual(['foo', 'bar']);
+
+      modelWriter.processChanges(binder, [{
+        type: syncEvents.DELETED,
+        name: '0',
+        object: ['foo']
+      }]);
+
+      expect(scope.myModel).toEqual(['bar']);
+
+      modelWriter.processChanges(binder, [{
+        type: syncEvents.UPDATED,
+        name: '0',
+        object: [{foo: 'barrrr'}]
+      }]);
+
+      expect(scope.myModel).toEqual([{foo: 'barrrr'}]);
+    });
+  });
+
+
+  describe('newFromProtocol', function () {
+    it('should exist', function () {
+      expect(!!modelWriter.newFromProtocol).toBe(true);
     });
 
 
     it('should have the correct function signature', function () {
-      var args = captureFunctionArgs(modelWriter.addedFromProtocol.toString());
+      var args = captureFunctionArgs(modelWriter.newFromProtocol.toString());
       expect(args[0]).toEqual('binder');
-      expect(args[1]).toEqual('delta');
+      expect(args[1]).toEqual('change');
       expect(args[2]).toBeUndefined();
     });
 
 
     it('should add an item to a collection', function () {
       scope.model = ['foo'];
-      modelWriter.addedFromProtocol({
+      modelWriter.newFromProtocol({
         scope: scope,
         model: 'model',
         type: binderTypes.COLLECTION
       }, {
-        data: 'bar'
+        name: "1",
+        object: ['foo', 'bar']
       });
 
       expect(scope.model[1]).toEqual('bar');
-    });
-
-
-    it('should extend an existing object', function () {
-      scope.model = {foo: 'bar'};
-      modelWriter.addedFromProtocol({
-        scope: scope,
-        model: 'model',
-        type: binderTypes.OBJECT
-      }, {
-        data: {foo: 'baz'}
-      });
-
-      expect(scope.model.foo).toEqual('baz');
-    });
-
-
-    it('should update the binder.data with the new data', function () {
-      scope.model = {foo: 'bar'};
-      var binder = {
-        scope: scope,
-        model: 'model',
-        type: binderTypes.OBJECT
-      };
-
-      modelWriter.addedFromProtocol(binder, {
-        data: {foo: 'baz'}
-      });
-
-      expect(binder.data).toEqual({foo: 'baz'});
     });
   });
 
@@ -227,52 +251,60 @@ describe('modelWriter', function () {
     });
   });
 
+
+
   describe('updatedFromProtocol', function () {
     it('should exist', function () {
       expect(!!modelWriter.updatedFromProtocol).toBe(true);
     });
 
 
+    it('should complain if it does not get a valid change object', function () {
+      expect(function () {
+        modelWriter.updatedFromProtocol({type: binderTypes.OBJECT}, {object: "foobar"})
+      }).toThrow(new Error("Change object must contain a name"));
+    });
+
+
+    it('should extend an existing object', function () {
+      scope.model = {foo: 'bar'};
+      modelWriter.updatedFromProtocol({
+        scope: scope,
+        model: 'model',
+        type: binderTypes.OBJECT
+      }, {
+        type: syncEvents.UPDATED,
+        name: 'foo',
+        object: {foo: 'baz'}
+      });
+
+      expect(scope.model.foo).toEqual('baz');
+    });
+
+
     it('should have the correct function signature', function () {
       var args = captureFunctionArgs(modelWriter.updatedFromProtocol.toString());
       expect(args[0]).toEqual('binder');
-      expect(args[1]).toEqual('delta');
+      expect(args[1]).toEqual('change');
       expect(args[2]).toBeUndefined();
     });
 
 
-    it('should replace a model at the correct position, if delta.position is available', function () {
+    it('should replace a model at the correct position', function () {
       scope.model = [{}, {foo:'bar'}];
       modelWriter.updatedFromProtocol({
         scope: scope,
         model: 'model',
         type: binderTypes.COLLECTION
       }, {
-        position: 1,
-        data: {
-          foo: 'baz'
-        }
-      });
-      scope.$digest();
-
-      expect(scope.model[1]).toEqual({foo:'baz'});
-    });
-
-
-    it('should not care about updating at correct position if the binder.type is not "collection"', function () {
-      scope.model = [{}, {foo:'bar'}];
-      modelWriter.updatedFromProtocol({
-        scope: scope,
-        model: 'model'
-      }, {
-        position: 1,
-        data: [{
+        name: "1",
+        type: syncEvents.UPDATED,
+        object: [{}, {
           foo: 'baz'
         }]
       });
-      scope.$digest();
 
-      expect(scope.model).toEqual([{foo:'baz'}]);
+      expect(scope.model[1]).toEqual({foo:'baz'});
     });
 
 
@@ -280,47 +312,18 @@ describe('modelWriter', function () {
       scope.model = {foo:'bar'};
       modelWriter.updatedFromProtocol({
         scope: scope,
-        model: 'model'
+        model: 'model',
+        type: binderTypes.OBJECT
       }, {
-        position: 1,
-        data: {
+        name: "newer",
+        type: syncEvents.NEW,
+        object: {
+          foo: 'bar',
           newer: 'property'
         }
       });
-      scope.$digest();
 
       expect(scope.model).toEqual({foo: 'bar', newer: 'property'});
     });
-
-
-    it('should replace the entire model if updated from the protocol without any more information', function () {
-      scope.model = ['foobar'];
-      modelWriter.updatedFromProtocol({
-        scope: scope,
-        model: 'model'
-      },
-      {
-        data: ['fooey']
-      });
-      scope.$digest();
-
-      expect(scope.model[0]).toEqual('fooey');
-      expect(scope.model.length).toEqual(1);
-    });
-
-
-    it('should update the binder.data with the new model', function () {
-      var binder = {
-        scope: scope,
-        model: 'model'
-      };
-      scope.model = ['foobar'];
-
-      modelWriter.updatedFromProtocol(binder, {
-        data: ['fooey']
-      });
-
-      expect(binder.data).toEqual(['fooey']);
-    })
   });
 })

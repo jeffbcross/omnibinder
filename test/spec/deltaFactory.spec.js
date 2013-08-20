@@ -1,8 +1,9 @@
 describe('Delta Factory', function () {
-  var deltaFactory, sampleChange, sampleDelta, syncEvents;
+  var deltaFactory, sampleChange, sampleDelta, syncEvents, captureFuncArgs;
 
   beforeEach(module('Binder'));
-  beforeEach(inject(function (_deltaFactory_, _syncEvents_) {
+  beforeEach(inject(function (_deltaFactory_, _syncEvents_, $captureFuncArgs) {
+    captureFuncArgs = $captureFuncArgs;
     syncEvents = _syncEvents_;
     deltaFactory = _deltaFactory_;
     sampleDelta = deltaFactory();
@@ -16,6 +17,13 @@ describe('Delta Factory', function () {
 
   it('should return a basic delta object if no arguments are passed', function () {
     expect(Array.isArray(sampleDelta.changes)).toBe(true);
+  });
+
+
+  it('should accept a single change in the constructor', function () {
+    expect(captureFuncArgs(deltaFactory)[0]).toBe('change');
+    var delta = deltaFactory(sampleChange);
+    expect(delta.changes[0]).toEqual(sampleChange);
   });
 
 

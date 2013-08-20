@@ -50,7 +50,7 @@ describe('binder', function () {
 
 
     it('should call protocol.change when new data is added', function () {
-      var spy = spyOn(protocol, 'change');
+      var spy = spyOn(protocol, 'processChanges');
       myBinder.onModelChange(['foo', 'addme'], ['foo']);
       scope.$digest();
 
@@ -136,9 +136,11 @@ describe('binder', function () {
 
 
       it('should remove the last item from the model', function () {
-        scope.myModel = ['foo', 'bar'];
+        myBinder.type = binderTypes.COLLECTION;
+        scope.model = ['foo', 'bar'];
         myBinder.pop();
-        expect(scope.myModel).toEqual(['foo']);
+
+        expect(scope.model).toEqual(['foo']);
       });
     });
   });
@@ -236,7 +238,7 @@ describe('binder', function () {
 
 
     it('should cause model changes to go through binder.onModelChange', function () {
-      var spy = spyOn(protocol, 'change');
+      var spy = spyOn(protocol, 'processChanges');
       myBinder.onModelChange('Fooey', 'Booey');
       scope.$apply();
 

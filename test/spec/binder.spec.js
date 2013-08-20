@@ -82,13 +82,15 @@ describe('binder', function () {
 
 
       it('should immediately invoke the change pipeline to the protocol', function () {
-        var spy = spyOn(myBinder, 'sendToProtocol');
+        var spy = spyOn(myBinder, 'sendToProtocol'), hasChangesArray, typeofChange;
 
         myBinder.type = 'collection';
         myBinder.push('foo');
         scope.$apply();
 
         expect(spy).toHaveBeenCalled();
+        expect(hasChangesArray = Array.isArray(spy.mostRecentCall.args[0].changes)).toBe(true);
+        expect(typeofChange = spy.mostRecentCall.args[0].changes[0].type).toBe(syncEvents.NEW);
       });
 
 
@@ -97,7 +99,7 @@ describe('binder', function () {
         myBinder.push('foo');
         scope.$apply();
         expect(myBinder.unsyncedChanges.length).toBe(1);
-        expect(myBinder.unsyncedChanges[0].data).toBe('foo');
+        expect(myBinder.unsyncedChanges[0].object).toEqual(['foo']);
       });
     });
 

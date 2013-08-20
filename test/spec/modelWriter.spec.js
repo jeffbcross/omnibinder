@@ -25,7 +25,7 @@ describe('modelWriter', function () {
 
       it('should add an element to an existing array', function () {
         binder.scope[binder.model] = [];
-        modelWriter.push(binder, {data: 'foo'})
+        modelWriter.push(binder, {changes: [{object: ['foo'], type: syncEvents.NEW, name: "0"}]})
         scope.$apply();
         expect(binder.scope[binder.model]).toEqual(['foo']);
       });
@@ -39,9 +39,9 @@ describe('modelWriter', function () {
       });
 
 
-      it('should return the position of the inserted element', function () {
+      it('should return a reference to the model', function () {
         binder.scope[binder.model] = [];
-        expect(modelWriter.push(binder, {data: 'foo'})).toBe(0);
+        expect(modelWriter.push(binder, {changes: [{object: ['foo'], name: 0}]})).toBe(0);
       });
     });
 

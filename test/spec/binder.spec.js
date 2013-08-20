@@ -4,7 +4,8 @@ describe('binder', function () {
   beforeEach(module('Binder'));
 
 
-  beforeEach(inject(function (_binder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _syncEvents_, _modelWriter_, _binderTypes_) {
+  beforeEach(inject(function (_binder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _syncEvents_, _modelWriter_, _binderTypes_, _deltaFactory_) {
+    deltaFactory = _deltaFactory_;
     binderTypes = _binderTypes_;
     modelWriter = _modelWriter_;
     syncEvents = _syncEvents_;
@@ -159,44 +160,41 @@ describe('binder', function () {
 
 
     it('should update the model array after adding ADD event from the protocol', function () {
-      var spy = spyOn(modelWriter, 'createdFromProtocol');
+      var spy = spyOn(modelWriter, 'processChanges');
+      var delta = deltaFactory();
+      delta.addChange({
+        object: ['readme'],
+        type: syncEvents.NEW,
+        name: "1"
+      });
+
       scope.myModel = ['please'];
       myBinder.type = 'collection';
-      myBinder.onProtocolChange({
-        type: syncEvents.NEW,
-        data: 'readme'
-      });
+
+      myBinder.onProtocolChange(delta);
 
       scope.$digest();
 
       expect(spy).toHaveBeenCalled();
+      expect(spy.mostRecentCall.args[1].changes[0].type).toBe(syncEvents.NEW);
     });
 
 
     it('should update the model array after REMOVE event from the protocol', function () {
-      var spy = spyOn(modelWriter, 'removedFromProtocol');
+      myBinder.type = binderTypes.COLLECTION;
       scope.myModel = ['please', 'readme'];
-      myBinder.onProtocolChange({
+
+      var delta = deltaFactory();
+      delta.addChange({
         type: syncEvents.DELETED,
-        data: 'readme'
+        object: ['readme'],
+        name: '1'
       });
+
+      myBinder.onProtocolChange(delta);
       scope.$digest();
 
-      expect(spy).toHaveBeenCalled();
-    });
-  });
-
-
-  describe('sendToModel', function () {
-    it('should exist', function () {
-      expect(!!myBinder.sendToModel).toBe(true);
-    });
-
-
-    it('should have the correct function signature', function () {
-      var args = captureFunctionArgs(myBinder.sendToModel.toString());
-      expect(args[0]).toBe('delta');
-      expect(args[1]).toBeUndefined();
+      expect(scope.myModel).toEqual(['please']);
     });
   });
 

@@ -172,7 +172,7 @@ describe('modelWriter', function () {
     it('should accept an array of changes from the protocol', function () {
       var args = captureFunctionArgs(modelWriter.processChanges);
       expect(args[0]).toBe('binder');
-      expect(args[1]).toBe('changes');
+      expect(args[1]).toBe('delta');
       expect(args[2]).toBeUndefined();
     });
 
@@ -180,35 +180,35 @@ describe('modelWriter', function () {
     it('should execute changes in order', function () {
       scope.myModel = [];
       binder.type = binderTypes.COLLECTION;
-      modelWriter.processChanges(binder, [{
+      modelWriter.processChanges(binder, {changes: [{
         type: syncEvents.NEW,
         name: '0',
         object: ['foo']
-      }]);
+      }]});
 
       expect(scope.myModel).toEqual(['foo']);
 
-      modelWriter.processChanges(binder, [{
+      modelWriter.processChanges(binder, {changes: [{
         type: syncEvents.NEW,
         name: '1',
         object: ['foo', 'bar']
-      }]);
+      }]});
 
       expect(scope.myModel).toEqual(['foo', 'bar']);
 
-      modelWriter.processChanges(binder, [{
+      modelWriter.processChanges(binder, {changes: [{
         type: syncEvents.DELETED,
         name: '0',
         object: ['foo']
-      }]);
+      }]});
 
       expect(scope.myModel).toEqual(['bar']);
 
-      modelWriter.processChanges(binder, [{
+      modelWriter.processChanges(binder, {changes: [{
         type: syncEvents.UPDATED,
         name: '0',
         object: [{foo: 'barrrr'}]
-      }]);
+      }]});
 
       expect(scope.myModel).toEqual([{foo: 'barrrr'}]);
     });

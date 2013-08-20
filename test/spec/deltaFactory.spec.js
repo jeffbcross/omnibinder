@@ -37,13 +37,5 @@ describe('Delta Factory', function () {
         sampleDelta.addChange(sampleChange)
       }).toThrow(new Error('Change must contain a type'));
     });
-
-
-    it('should complain if the change object does not have a name', function () {
-      delete sampleChange.name;
-      expect(function () {
-        sampleDelta.addChange(sampleChange);
-      }).toThrow(new Error('Change must contain a string property of "name"'));
-    });
   });
 });

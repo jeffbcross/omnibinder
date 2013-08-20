@@ -12,6 +12,7 @@ describe('binder', function () {
     captureFunctionArgs = $captureFuncArgs;
     protocol = {
       host: 'localhost',
+      processChanges: function (binder, delta) {},
       change: function () {},
       add: function () {},
       remove: function () {}
@@ -83,15 +84,15 @@ describe('binder', function () {
 
 
       it('should immediately invoke the change pipeline to the protocol', function () {
-        var spy = spyOn(myBinder, 'sendToProtocol'), hasChangesArray, typeofChange;
+        var spy = spyOn(protocol, 'processChanges'), hasChangesArray, typeofChange;
 
         myBinder.type = 'collection';
         myBinder.push('foo');
         scope.$apply();
 
         expect(spy).toHaveBeenCalled();
-        expect(hasChangesArray = Array.isArray(spy.mostRecentCall.args[0].changes)).toBe(true);
-        expect(typeofChange = spy.mostRecentCall.args[0].changes[0].type).toBe(syncEvents.NEW);
+        expect(hasChangesArray = Array.isArray(spy.mostRecentCall.args[1].changes)).toBe(true);
+        expect(typeofChange = spy.mostRecentCall.args[1].changes[0].type).toBe(syncEvents.NEW);
       });
 
 
@@ -118,7 +119,7 @@ describe('binder', function () {
 
 
       it('should call protocol.pop if method exists', function () {
-        var spy = spyOn(protocol, 'remove');
+        var spy = spyOn(protocol, 'processChanges');
 
         myBinder.pop();
 
@@ -131,6 +132,13 @@ describe('binder', function () {
         expect(function () {
           myBinder.pop();
         }).toThrow(new Error('Cannot call pop on a non-collection binder.'));
+      });
+
+
+      it('should remove the last item from the model', function () {
+        scope.myModel = ['foo', 'bar'];
+        myBinder.pop();
+        expect(scope.myModel).toEqual(['foo']);
       });
     });
   });

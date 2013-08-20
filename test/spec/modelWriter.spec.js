@@ -16,6 +16,21 @@ describe('modelWriter', function () {
     }
   }));
 
+
+  describe('.val()', function () {
+    it('should return a copy of the model value when calling val()', function () {
+      scope.myModel = ['foo', 'bar'];
+      expect(modelWriter.val(binder)).toEqual(['foo', 'bar']);
+    });
+
+
+    it('should escape $$hashKey\'s from models', function () {
+      scope.myModel = {$$hashKey: 'abc', foo: 'bar'};
+      expect(modelWriter.val(binder)).toEqual({foo: 'bar'});
+    })
+  });
+
+
   describe('Array Methods', function () {
     describe('push', function () {
       it('should have a push method', function () {
@@ -97,6 +112,28 @@ describe('modelWriter', function () {
         expect(binder.scope[binder.model]).toEqual(['foo']);
       });
     });
+
+
+    describe('length', function () {
+      it('should be a function', function () {
+        expect(typeof modelWriter.length).toBe('function');
+      });
+
+
+      it('should complain if the model is not a collection or string type', function () {
+        expect(function () {
+          modelWriter.length(binder);
+        }).toThrow(new Error('Binder must be a string or collection to call .length()'));
+      });
+
+
+      it('should return the length of the model', function () {
+        binder.type = binderTypes.COLLECTION;
+        scope.myModel = ['foo', 'bar', 'baz'];
+        expect(modelWriter.length(binder)).toBe(3);
+      });
+    });
+
   });
 
 

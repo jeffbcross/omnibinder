@@ -143,6 +143,25 @@ describe('binder', function () {
         expect(scope.model).toEqual(['foo']);
       });
     });
+
+
+    describe('splice', function () {
+      it('should exist', function () {
+        expect(typeof myBinder.splice).toBe('function');
+      });
+
+
+      it('should remove items based on index and howMany args', function () {
+        myBinder.type = binderTypes.COLLECTION;
+        scope.model = ['foo', 'bar', 'baz'];
+
+        myBinder.splice(0,1);
+        expect(scope.model).toEqual(['bar', 'baz']);
+
+        myBinder.splice(1, 1);
+        expect(scope.model).toEqual(['bar']);
+      });
+    });
   });
 
   describe('onProtocolChange', function () {
@@ -351,3 +370,4 @@ describe('binder', function () {
     });
   });
 });
+

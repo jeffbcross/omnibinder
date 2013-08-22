@@ -46,4 +46,20 @@ describe('Delta Factory', function () {
       }).toThrow(new Error('Change must contain a type'));
     });
   });
+
+
+  describe('.updateObject()', function () {
+    it('should update the object for all changes in the delta', function () {
+      sampleDelta.addChange(sampleChange);
+      sampleDelta.addChange(angular.copy(sampleChange));
+
+      expect(sampleDelta.changes[0].object).toEqual(['foo']);
+      expect(sampleDelta.changes[1].object).toEqual(['foo']);
+
+      sampleDelta.updateObject(['bar']);
+
+      expect(sampleDelta.changes[0].object).toEqual(['bar']);
+      expect(sampleDelta.changes[1].object).toEqual(['bar']);
+    });
+  })
 });

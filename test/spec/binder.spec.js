@@ -35,6 +35,20 @@ describe('binder', function () {
   });
 
 
+  describe('bindModel', function () {
+    it('should bind a model', function () {
+      var spy = spyOn(myBinder, 'onModelChange');
+      scope.model = [];
+      myBinder.bindModel(binderTypes.COLLECTION, scope, 'model');
+      scope.model.push('hi');
+      scope.$digest();
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+  });
+
+
   describe('onModelChange', function () {
     it('should exist', function () {
       expect(!!myBinder.onModelChange).toBe(true);

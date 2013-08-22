@@ -34,11 +34,4 @@ describe('rtObserver', function () {
       expect(spy).toHaveBeenCalled();
     });
   });
-
-
-  describe('unObserveCollection', function () {
-    it('should exist', function () {
-
-    });
-  });
 })

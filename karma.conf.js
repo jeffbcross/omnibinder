@@ -5,7 +5,6 @@
 // base path, that will be used to resolve files and exclude
 basePath = '';
 
-
 // list of files / patterns to load in the browser
 files = [
   JASMINE,
@@ -13,6 +12,7 @@ files = [
   'components/angular/angular.js',
   'components/angular-mocks/angular-mocks.js',
   'lib/binder.js',
+  'components/observe-js/src/observe.js',
   'lib/*.js',
   'test/mock/*.js',
   'test/spec/*.js',

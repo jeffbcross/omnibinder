@@ -1,22 +1,22 @@
-describe('rtObserver', function () {
-  var rtObserver, scope, obBinderTypes;
+describe('obObserver', function () {
+  var obObserver, scope, obBinderTypes;
 
   beforeEach(module('OmniBinder'));
-  beforeEach(inject(function ($rootScope, _rtObserver_, _obBinderTypes_) {
+  beforeEach(inject(function ($rootScope, _obObserver_, _obBinderTypes_) {
     scope = $rootScope;
     obBinderTypes = _obBinderTypes_;
-    rtObserver = _rtObserver_;
+    obObserver = _obObserver_;
   }));
 
 
   it('should exist', function () {
-    expect(!!rtObserver).toBe(true);
+    expect(!!obObserver).toBe(true);
   });
 
 
   describe('observeCollection', function () {
     it('should be a function', function () {
-      expect(typeof rtObserver.observeCollection).toBe('function');
+      expect(typeof obObserver.observeCollection).toBe('function');
     });
 
 
@@ -26,7 +26,7 @@ describe('rtObserver', function () {
 
       scope.myModel = ['foobar'];
 
-      rtObserver.observeCollection(obBinderTypes.COLLECTION, scope, 'myModel', caller.callback);
+      obObserver.observeCollection(obBinderTypes.COLLECTION, scope, 'myModel', caller.callback);
 
       scope.myModel.push('baz');
       scope.$digest();

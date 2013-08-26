@@ -1,14 +1,14 @@
 describe('Delta Factory', function () {
-  var deltaFactory, sampleChange, sampleDelta, syncEvents, captureFuncArgs;
+  var deltaFactory, sampleChange, sampleDelta, obSyncEvents, captureFuncArgs;
 
   beforeEach(module('OmniBinder'));
-  beforeEach(inject(function (_deltaFactory_, _syncEvents_, $captureFuncArgs) {
+  beforeEach(inject(function (_deltaFactory_, _obSyncEvents_, $captureFuncArgs) {
     captureFuncArgs = $captureFuncArgs;
-    syncEvents = _syncEvents_;
+    obSyncEvents = _obSyncEvents_;
     deltaFactory = _deltaFactory_;
     sampleDelta = deltaFactory();
     sampleChange = {
-      type: syncEvents.NEW,
+      type: obSyncEvents.NEW,
       object: ['foo'],
       name: '0'
     };

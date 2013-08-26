@@ -1,14 +1,14 @@
 describe('binder', function () {
-  var binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, syncEvents, modelWriter, myBinder, obBinderTypes;
+  var binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, obSyncEvents, modelWriter, myBinder, obBinderTypes;
 
   beforeEach(module('OmniBinder'));
 
 
-  beforeEach(inject(function (_obBinder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _syncEvents_, _modelWriter_, _obBinderTypes_, _deltaFactory_) {
+  beforeEach(inject(function (_obBinder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _obSyncEvents_, _modelWriter_, _obBinderTypes_, _deltaFactory_) {
     deltaFactory = _deltaFactory_;
     obBinderTypes = _obBinderTypes_;
     modelWriter = _modelWriter_;
-    syncEvents = _syncEvents_;
+    obSyncEvents = _obSyncEvents_;
     captureFunctionArgs = $captureFuncArgs;
     protocol = {
       host: 'localhost',
@@ -107,7 +107,7 @@ describe('binder', function () {
 
         expect(spy).toHaveBeenCalled();
         expect(hasChangesArray = Array.isArray(spy.mostRecentCall.args[1].changes)).toBe(true);
-        expect(typeofChange = spy.mostRecentCall.args[1].changes[0].type).toBe(syncEvents.NEW);
+        expect(typeofChange = spy.mostRecentCall.args[1].changes[0].type).toBe(obSyncEvents.NEW);
       });
 
 
@@ -208,7 +208,7 @@ describe('binder', function () {
       var delta = deltaFactory();
       delta.addChange({
         object: ['readme'],
-        type: syncEvents.NEW,
+        type: obSyncEvents.NEW,
         name: "1"
       });
 
@@ -220,7 +220,7 @@ describe('binder', function () {
       scope.$digest();
 
       expect(spy).toHaveBeenCalled();
-      expect(spy.mostRecentCall.args[1].changes[0].type).toBe(syncEvents.NEW);
+      expect(spy.mostRecentCall.args[1].changes[0].type).toBe(obSyncEvents.NEW);
     });
 
 
@@ -230,7 +230,7 @@ describe('binder', function () {
 
       var delta = deltaFactory();
       delta.addChange({
-        type: syncEvents.DELETED,
+        type: obSyncEvents.DELETED,
         object: ['readme'],
         name: '1'
       });

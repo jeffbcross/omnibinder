@@ -14,6 +14,7 @@ files = [
   'lib/binder.js',
   'components/observe-js/src/observe.js',
   'lib/*.js',
+  'lib/**/*.js',
   'test/mock/*.js',
   'test/spec/*.js',
   'test/integration/*.js'

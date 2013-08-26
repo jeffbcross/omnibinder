@@ -1,9 +1,9 @@
 describe('modelWriter', function () {
-  var modelWriter, scope, captureFunctionArgs, obBinderTypes, $timeout, binder, syncEvents;
+  var modelWriter, scope, captureFunctionArgs, obBinderTypes, $timeout, binder, obSyncEvents;
 
   beforeEach(module('OmniBinder'));
-  beforeEach(inject(function (_modelWriter_, _obBinderTypes_, $rootScope, $captureFuncArgs, _$timeout_, _syncEvents_) {
-    syncEvents = _syncEvents_;
+  beforeEach(inject(function (_modelWriter_, _obBinderTypes_, $rootScope, $captureFuncArgs, _$timeout_, _obSyncEvents_) {
+    obSyncEvents = _obSyncEvents_;
     modelWriter = _modelWriter_;
     scope = $rootScope;
     captureFunctionArgs = $captureFuncArgs;
@@ -40,7 +40,7 @@ describe('modelWriter', function () {
 
       it('should add an element to an existing array', function () {
         binder.scope[binder.model] = [];
-        modelWriter.push(binder, {changes: [{object: ['foo'], type: syncEvents.NEW, name: "0"}]})
+        modelWriter.push(binder, {changes: [{object: ['foo'], type: obSyncEvents.NEW, name: "0"}]})
         scope.$apply();
         expect(binder.scope[binder.model]).toEqual(['foo']);
       });
@@ -181,7 +181,7 @@ describe('modelWriter', function () {
       scope.myModel = [];
       binder.type = obBinderTypes.COLLECTION;
       modelWriter.processChanges(binder, {changes: [{
-        type: syncEvents.NEW,
+        type: obSyncEvents.NEW,
         name: '0',
         object: ['foo']
       }]});
@@ -189,7 +189,7 @@ describe('modelWriter', function () {
       expect(scope.myModel).toEqual(['foo']);
 
       modelWriter.processChanges(binder, {changes: [{
-        type: syncEvents.NEW,
+        type: obSyncEvents.NEW,
         name: '1',
         object: ['foo', 'bar']
       }]});
@@ -197,7 +197,7 @@ describe('modelWriter', function () {
       expect(scope.myModel).toEqual(['foo', 'bar']);
 
       modelWriter.processChanges(binder, {changes: [{
-        type: syncEvents.DELETED,
+        type: obSyncEvents.DELETED,
         name: '0',
         object: ['foo']
       }]});
@@ -205,7 +205,7 @@ describe('modelWriter', function () {
       expect(scope.myModel).toEqual(['bar']);
 
       modelWriter.processChanges(binder, {changes: [{
-        type: syncEvents.UPDATED,
+        type: obSyncEvents.UPDATED,
         name: '0',
         object: [{foo: 'barrrr'}]
       }]});
@@ -310,7 +310,7 @@ describe('modelWriter', function () {
         model: 'model',
         type: obBinderTypes.OBJECT
       }, {
-        type: syncEvents.UPDATED,
+        type: obSyncEvents.UPDATED,
         name: 'foo',
         object: {foo: 'baz'}
       });
@@ -335,7 +335,7 @@ describe('modelWriter', function () {
         type: obBinderTypes.COLLECTION
       }, {
         name: "1",
-        type: syncEvents.UPDATED,
+        type: obSyncEvents.UPDATED,
         object: [{}, {
           foo: 'baz'
         }]
@@ -353,7 +353,7 @@ describe('modelWriter', function () {
         type: obBinderTypes.OBJECT
       }, {
         name: "newer",
-        type: syncEvents.NEW,
+        type: obSyncEvents.NEW,
         object: {
           foo: 'bar',
           newer: 'property'

@@ -1,12 +1,12 @@
 describe('SyncEvents', function () {
-  var syncEvents;
+  var obSyncEvents;
   beforeEach(module('OmniBinder'))
-  beforeEach(inject(function (_syncEvents_) {
-    syncEvents = _syncEvents_;
+  beforeEach(inject(function (_obSyncEvents_) {
+    obSyncEvents = _obSyncEvents_;
   }));
 
   it('should have a dictionary of event constants', function () {
-    expect(syncEvents.READ).toBeDefined();
-    expect(syncEvents.NONE).toBeDefined();
+    expect(obSyncEvents.READ).toBeDefined();
+    expect(obSyncEvents.NONE).toBeDefined();
   });
 });

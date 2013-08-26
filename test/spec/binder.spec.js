@@ -1,12 +1,12 @@
 describe('binder', function () {
-  var binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, syncEvents, modelWriter, myBinder, binderTypes;
+  var binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, syncEvents, modelWriter, myBinder, obBinderTypes;
 
   beforeEach(module('OmniBinder'));
 
 
-  beforeEach(inject(function (_obBinder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _syncEvents_, _modelWriter_, _binderTypes_, _deltaFactory_) {
+  beforeEach(inject(function (_obBinder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _syncEvents_, _modelWriter_, _obBinderTypes_, _deltaFactory_) {
     deltaFactory = _deltaFactory_;
-    binderTypes = _binderTypes_;
+    obBinderTypes = _obBinderTypes_;
     modelWriter = _modelWriter_;
     syncEvents = _syncEvents_;
     captureFunctionArgs = $captureFuncArgs;
@@ -40,7 +40,7 @@ describe('binder', function () {
     it('should bind a model', function () {
       var spy = spyOn(myBinder, 'onModelChange');
       scope.model = [];
-      myBinder.bindModel(binderTypes.COLLECTION, scope, 'model');
+      myBinder.bindModel(obBinderTypes.COLLECTION, scope, 'model');
       scope.model.push('hi');
       scope.$digest();
 
@@ -85,7 +85,7 @@ describe('binder', function () {
       it('should throw an error if the binder does not have "collection" type', function () {
         expect(function () {
           myBinder.push('foobar');
-        }).toThrow(new Error("Cannot call push on non-collection binder. Binder must be instantiated with type: binderTypes.COLLECTION"));
+        }).toThrow(new Error("Cannot call push on non-collection binder. Binder must be instantiated with type: obBinderTypes.COLLECTION"));
       });
 
 
@@ -124,7 +124,7 @@ describe('binder', function () {
     describe('pop', function () {
       beforeEach(function () {
         myBinder.scope[myBinder.model] = ['foo', 'bar'];
-        myBinder.type = binderTypes.COLLECTION;
+        myBinder.type = obBinderTypes.COLLECTION;
       });
 
 
@@ -151,7 +151,7 @@ describe('binder', function () {
 
 
       it('should remove the last item from the model', function () {
-        myBinder.type = binderTypes.COLLECTION;
+        myBinder.type = obBinderTypes.COLLECTION;
         scope.model = ['foo', 'bar'];
         myBinder.pop();
 
@@ -167,7 +167,7 @@ describe('binder', function () {
 
 
       it('should remove items based on index and howMany args', function () {
-        myBinder.type = binderTypes.COLLECTION;
+        myBinder.type = obBinderTypes.COLLECTION;
         scope.model = ['foo', 'bar', 'baz'];
 
         myBinder.splice(0,1);
@@ -225,7 +225,7 @@ describe('binder', function () {
 
 
     it('should update the model array after REMOVE event from the protocol', function () {
-      myBinder.type = binderTypes.COLLECTION;
+      myBinder.type = obBinderTypes.COLLECTION;
       scope.myModel = ['please', 'readme'];
 
       var delta = deltaFactory();

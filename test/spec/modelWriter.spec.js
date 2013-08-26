@@ -1,13 +1,13 @@
 describe('modelWriter', function () {
-  var modelWriter, scope, captureFunctionArgs, binderTypes, $timeout, binder, syncEvents;
+  var modelWriter, scope, captureFunctionArgs, obBinderTypes, $timeout, binder, syncEvents;
 
   beforeEach(module('OmniBinder'));
-  beforeEach(inject(function (_modelWriter_, _binderTypes_, $rootScope, $captureFuncArgs, _$timeout_, _syncEvents_) {
+  beforeEach(inject(function (_modelWriter_, _obBinderTypes_, $rootScope, $captureFuncArgs, _$timeout_, _syncEvents_) {
     syncEvents = _syncEvents_;
     modelWriter = _modelWriter_;
     scope = $rootScope;
     captureFunctionArgs = $captureFuncArgs;
-    binderTypes = _binderTypes_;
+    obBinderTypes = _obBinderTypes_;
     $timeout = _$timeout_;
     binder = {
       scope: scope,
@@ -63,7 +63,7 @@ describe('modelWriter', function () {
 
     describe('pop', function () {
       beforeEach(function () {
-        binder.type = binderTypes.COLLECTION;
+        binder.type = obBinderTypes.COLLECTION;
       });
 
 
@@ -94,12 +94,12 @@ describe('modelWriter', function () {
           modelWriter.pop(binder, {});
         }).toThrow(new Error('Cannot call pop on a non-collection binder type.'));
 
-        binder.type = binderTypes.OBJECT;
+        binder.type = obBinderTypes.OBJECT;
         expect(function () {
           modelWriter.pop(binder, {});
         }).toThrow(new Error('Cannot call pop on a non-collection binder type.'));
 
-        binder.type = binderTypes.COLLECTION;
+        binder.type = obBinderTypes.COLLECTION;
         expect(function () {
           modelWriter.pop(binder, {});
         }).not.toThrow(new Error('Cannot call pop on a non-collection binder type.'));
@@ -128,7 +128,7 @@ describe('modelWriter', function () {
 
 
       it('should return the length of the model', function () {
-        binder.type = binderTypes.COLLECTION;
+        binder.type = obBinderTypes.COLLECTION;
         scope.myModel = ['foo', 'bar', 'baz'];
         expect(modelWriter.length(binder)).toBe(3);
       });
@@ -151,7 +151,7 @@ describe('modelWriter', function () {
     //   mySyncResource.bind({
     //     scope: scope,
     //     model: 'myModel',
-    //     type: binderTypes.COLLECTION
+    //     type: obBinderTypes.COLLECTION
     //   });
 
     //   scope.myModel = ['foobar'];
@@ -179,7 +179,7 @@ describe('modelWriter', function () {
 
     it('should execute changes in order', function () {
       scope.myModel = [];
-      binder.type = binderTypes.COLLECTION;
+      binder.type = obBinderTypes.COLLECTION;
       modelWriter.processChanges(binder, {changes: [{
         type: syncEvents.NEW,
         name: '0',
@@ -234,7 +234,7 @@ describe('modelWriter', function () {
       modelWriter.newFromProtocol({
         scope: scope,
         model: 'model',
-        type: binderTypes.COLLECTION
+        type: obBinderTypes.COLLECTION
       }, {
         name: "1",
         object: ['foo', 'bar']
@@ -298,7 +298,7 @@ describe('modelWriter', function () {
 
     it('should complain if it does not get a valid change object', function () {
       expect(function () {
-        modelWriter.updatedFromProtocol({type: binderTypes.OBJECT}, {object: "foobar"})
+        modelWriter.updatedFromProtocol({type: obBinderTypes.OBJECT}, {object: "foobar"})
       }).toThrow(new Error("Change object must contain a name"));
     });
 
@@ -308,7 +308,7 @@ describe('modelWriter', function () {
       modelWriter.updatedFromProtocol({
         scope: scope,
         model: 'model',
-        type: binderTypes.OBJECT
+        type: obBinderTypes.OBJECT
       }, {
         type: syncEvents.UPDATED,
         name: 'foo',
@@ -332,7 +332,7 @@ describe('modelWriter', function () {
       modelWriter.updatedFromProtocol({
         scope: scope,
         model: 'model',
-        type: binderTypes.COLLECTION
+        type: obBinderTypes.COLLECTION
       }, {
         name: "1",
         type: syncEvents.UPDATED,
@@ -350,7 +350,7 @@ describe('modelWriter', function () {
       modelWriter.updatedFromProtocol({
         scope: scope,
         model: 'model',
-        type: binderTypes.OBJECT
+        type: obBinderTypes.OBJECT
       }, {
         name: "newer",
         type: syncEvents.NEW,

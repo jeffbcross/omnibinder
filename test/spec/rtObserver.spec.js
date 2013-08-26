@@ -1,10 +1,10 @@
 describe('rtObserver', function () {
-  var rtObserver, scope, binderTypes;
+  var rtObserver, scope, obBinderTypes;
 
   beforeEach(module('OmniBinder'));
-  beforeEach(inject(function ($rootScope, _rtObserver_, _binderTypes_) {
+  beforeEach(inject(function ($rootScope, _rtObserver_, _obBinderTypes_) {
     scope = $rootScope;
-    binderTypes = _binderTypes_;
+    obBinderTypes = _obBinderTypes_;
     rtObserver = _rtObserver_;
   }));
 
@@ -26,7 +26,7 @@ describe('rtObserver', function () {
 
       scope.myModel = ['foobar'];
 
-      rtObserver.observeCollection(binderTypes.COLLECTION, scope, 'myModel', caller.callback);
+      rtObserver.observeCollection(obBinderTypes.COLLECTION, scope, 'myModel', caller.callback);
 
       scope.myModel.push('baz');
       scope.$digest();

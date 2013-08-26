@@ -1,7 +1,7 @@
 describe('modelWriter', function () {
   var modelWriter, scope, captureFunctionArgs, binderTypes, $timeout, binder, syncEvents;
 
-  beforeEach(module('Binder'));
+  beforeEach(module('OmniBinder'));
   beforeEach(inject(function (_modelWriter_, _binderTypes_, $rootScope, $captureFuncArgs, _$timeout_, _syncEvents_) {
     syncEvents = _syncEvents_;
     modelWriter = _modelWriter_;

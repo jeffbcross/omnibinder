@@ -1,7 +1,7 @@
 // describe('throttler', function () {
 //   var throttler, scope, $binder, $q, $timeout, binder;
 
-//   beforeEach(module('Binder'));
+//   beforeEach(module('OmniBinder'));
 //   beforeEach(inject(function (_throttler_, $rootScope, _binder_, _$q_, _$timeout_) {
 //     throttler = _throttler_;
 //     $q = _$q_;

@@ -1,6 +1,6 @@
 describe('SyncEvents', function () {
   var syncEvents;
-  beforeEach(module('Binder'))
+  beforeEach(module('OmniBinder'))
   beforeEach(inject(function (_syncEvents_) {
     syncEvents = _syncEvents_;
   }));

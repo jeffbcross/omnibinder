@@ -1,10 +1,10 @@
 describe('binder', function () {
   var binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, syncEvents, modelWriter, myBinder, binderTypes;
 
-  beforeEach(module('Binder'));
+  beforeEach(module('OmniBinder'));
 
 
-  beforeEach(inject(function (_binder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _syncEvents_, _modelWriter_, _binderTypes_, _deltaFactory_) {
+  beforeEach(inject(function (_obBinder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _syncEvents_, _modelWriter_, _binderTypes_, _deltaFactory_) {
     deltaFactory = _deltaFactory_;
     binderTypes = _binderTypes_;
     modelWriter = _modelWriter_;
@@ -15,9 +15,10 @@ describe('binder', function () {
       processChanges: function (binder, delta) {},
       change: function () {},
       add: function () {},
-      remove: function () {}
+      remove: function () {},
+      subscribe: function () {}
     };
-    binder = _binder_;
+    binder = _obBinder_;
     $timeout = _$timeout_;
     $q = _$q_;
     scope = $rootScope;

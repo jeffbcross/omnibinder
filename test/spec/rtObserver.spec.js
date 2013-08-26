@@ -1,7 +1,7 @@
 describe('rtObserver', function () {
   var rtObserver, scope, binderTypes;
 
-  beforeEach(module('Binder'));
+  beforeEach(module('OmniBinder'));
   beforeEach(inject(function ($rootScope, _rtObserver_, _binderTypes_) {
     scope = $rootScope;
     binderTypes = _binderTypes_;

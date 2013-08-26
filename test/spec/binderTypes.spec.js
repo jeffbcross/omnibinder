@@ -1,6 +1,6 @@
 describe('binderTypes', function () {
   var binderTypes;
-  beforeEach(module('Binder'));
+  beforeEach(module('OmniBinder'));
   beforeEach(inject(function (_binderTypes_) {
     binderTypes = _binderTypes_;
   }));

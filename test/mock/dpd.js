@@ -1,4 +1,4 @@
-angular.module('Binder')
+angular.module('OmniBinder')
   .factory('dpd', function ($timeout) {
     return {
       documents: {

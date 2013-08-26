@@ -1,7 +1,7 @@
 describe('Delta Factory', function () {
   var deltaFactory, sampleChange, sampleDelta, syncEvents, captureFuncArgs;
 
-  beforeEach(module('Binder'));
+  beforeEach(module('OmniBinder'));
   beforeEach(inject(function (_deltaFactory_, _syncEvents_, $captureFuncArgs) {
     captureFuncArgs = $captureFuncArgs;
     syncEvents = _syncEvents_;

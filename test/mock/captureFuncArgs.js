@@ -1,4 +1,4 @@
-angular.module('Binder')
+angular.module('OmniBinder')
   .factory('$captureFuncArgs', function () {
     return function captureFunctionArgs (funcString) {
       //Takes in a stringified function, returns array of arguments.

@@ -1,7 +1,7 @@
 describe('unHash', function () {
   var unHash, captureFunctionArgs;
 
-  beforeEach(module('Binder'));
+  beforeEach(module('OmniBinder'));
   beforeEach(inject(function (_unHash_, $captureFuncArgs) {
     unHash = _unHash_;
     captureFunctionArgs = $captureFuncArgs;

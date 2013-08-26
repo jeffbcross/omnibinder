@@ -4,8 +4,8 @@ describe('binder', function () {
   beforeEach(module('OmniBinder'));
 
 
-  beforeEach(inject(function (_obBinder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _obSyncEvents_, _modelWriter_, _obBinderTypes_, _deltaFactory_) {
-    deltaFactory = _deltaFactory_;
+  beforeEach(inject(function (_obBinder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _obSyncEvents_, _modelWriter_, _obBinderTypes_, _obDelta_) {
+    obDelta = _obDelta_;
     obBinderTypes = _obBinderTypes_;
     modelWriter = _modelWriter_;
     obSyncEvents = _obSyncEvents_;
@@ -205,7 +205,7 @@ describe('binder', function () {
 
     it('should update the model array after adding ADD event from the protocol', function () {
       var spy = spyOn(modelWriter, 'processChanges');
-      var delta = deltaFactory();
+      var delta = obDelta();
       delta.addChange({
         object: ['readme'],
         type: obSyncEvents.NEW,
@@ -228,7 +228,7 @@ describe('binder', function () {
       myBinder.type = obBinderTypes.COLLECTION;
       scope.myModel = ['please', 'readme'];
 
-      var delta = deltaFactory();
+      var delta = obDelta();
       delta.addChange({
         type: obSyncEvents.DELETED,
         object: ['readme'],

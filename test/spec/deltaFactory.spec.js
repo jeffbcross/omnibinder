@@ -1,12 +1,12 @@
 describe('Delta Factory', function () {
-  var deltaFactory, sampleChange, sampleDelta, obSyncEvents, captureFuncArgs;
+  var obDelta, sampleChange, sampleDelta, obSyncEvents, captureFuncArgs;
 
   beforeEach(module('OmniBinder'));
-  beforeEach(inject(function (_deltaFactory_, _obSyncEvents_, $captureFuncArgs) {
+  beforeEach(inject(function (_obDelta_, _obSyncEvents_, $captureFuncArgs) {
     captureFuncArgs = $captureFuncArgs;
     obSyncEvents = _obSyncEvents_;
-    deltaFactory = _deltaFactory_;
-    sampleDelta = deltaFactory();
+    obDelta = _obDelta_;
+    sampleDelta = obDelta();
     sampleChange = {
       type: obSyncEvents.NEW,
       object: ['foo'],
@@ -21,8 +21,8 @@ describe('Delta Factory', function () {
 
 
   it('should accept a single change in the constructor', function () {
-    expect(captureFuncArgs(deltaFactory)[0]).toBe('change');
-    var delta = deltaFactory(sampleChange);
+    expect(captureFuncArgs(obDelta)[0]).toBe('change');
+    var delta = obDelta(sampleChange);
     expect(delta.changes[0]).toEqual(sampleChange);
   });
 

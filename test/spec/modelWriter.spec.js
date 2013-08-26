@@ -1,10 +1,10 @@
-describe('modelWriter', function () {
-  var modelWriter, scope, captureFunctionArgs, obBinderTypes, $timeout, binder, obSyncEvents;
+describe('obModelWriter', function () {
+  var obModelWriter, scope, captureFunctionArgs, obBinderTypes, $timeout, binder, obSyncEvents;
 
   beforeEach(module('OmniBinder'));
-  beforeEach(inject(function (_modelWriter_, _obBinderTypes_, $rootScope, $captureFuncArgs, _$timeout_, _obSyncEvents_) {
+  beforeEach(inject(function (_obModelWriter_, _obBinderTypes_, $rootScope, $captureFuncArgs, _$timeout_, _obSyncEvents_) {
     obSyncEvents = _obSyncEvents_;
-    modelWriter = _modelWriter_;
+    obModelWriter = _obModelWriter_;
     scope = $rootScope;
     captureFunctionArgs = $captureFuncArgs;
     obBinderTypes = _obBinderTypes_;
@@ -20,13 +20,13 @@ describe('modelWriter', function () {
   describe('.val()', function () {
     it('should return a copy of the model value when calling val()', function () {
       scope.myModel = ['foo', 'bar'];
-      expect(modelWriter.val(binder)).toEqual(['foo', 'bar']);
+      expect(obModelWriter.val(binder)).toEqual(['foo', 'bar']);
     });
 
 
     it('should escape $$hashKey\'s from models', function () {
       scope.myModel = {$$hashKey: 'abc', foo: 'bar'};
-      expect(modelWriter.val(binder)).toEqual({foo: 'bar'});
+      expect(obModelWriter.val(binder)).toEqual({foo: 'bar'});
     })
   });
 
@@ -34,13 +34,13 @@ describe('modelWriter', function () {
   describe('Array Methods', function () {
     describe('push', function () {
       it('should have a push method', function () {
-        expect(typeof modelWriter.push).toBe('function');
+        expect(typeof obModelWriter.push).toBe('function');
       });
 
 
       it('should add an element to an existing array', function () {
         binder.scope[binder.model] = [];
-        modelWriter.push(binder, {changes: [{object: ['foo'], type: obSyncEvents.NEW, name: "0"}]})
+        obModelWriter.push(binder, {changes: [{object: ['foo'], type: obSyncEvents.NEW, name: "0"}]})
         scope.$apply();
         expect(binder.scope[binder.model]).toEqual(['foo']);
       });
@@ -49,14 +49,14 @@ describe('modelWriter', function () {
       it('should throw an error if the existing model is something other than array or undefined', function () {
         binder.scope[binder.model] = {};
         expect(function () {
-          modelWriter.push(binder, {data: 'foo'});
+          obModelWriter.push(binder, {data: 'foo'});
         }).toThrow(new Error("Cannot call 'push' on a model that is not array or undefined."));
       });
 
 
       it('should return a reference to the model', function () {
         binder.scope[binder.model] = [];
-        expect(modelWriter.push(binder, {changes: [{object: ['foo'], name: 0}]})).toBe(0);
+        expect(obModelWriter.push(binder, {changes: [{object: ['foo'], name: 0}]})).toBe(0);
       });
     });
 
@@ -68,13 +68,13 @@ describe('modelWriter', function () {
 
 
       it('should exist', function () {
-        expect(typeof modelWriter.pop).toBe('function');
+        expect(typeof obModelWriter.pop).toBe('function');
       });
 
 
       it('should complain when popping an undefined model', function () {
         expect(function () {
-          modelWriter.pop(binder, {})
+          obModelWriter.pop(binder, {})
         }).toThrow(new Error("Cannot call 'pop' on an undefined model."))
       });
 
@@ -82,7 +82,7 @@ describe('modelWriter', function () {
       it('should complain when popping a model that is not an array', function () {
         binder.scope[binder.model] = {};
         expect(function () {
-          modelWriter.pop(binder, {});
+          obModelWriter.pop(binder, {});
         }).toThrow(new Error("Cannot call 'pop' on a non-array object."));
       });
 
@@ -91,24 +91,24 @@ describe('modelWriter', function () {
         binder.scope[binder.model] = ['foo'];
         binder.type = undefined;
         expect(function () {
-          modelWriter.pop(binder, {});
+          obModelWriter.pop(binder, {});
         }).toThrow(new Error('Cannot call pop on a non-collection binder type.'));
 
         binder.type = obBinderTypes.OBJECT;
         expect(function () {
-          modelWriter.pop(binder, {});
+          obModelWriter.pop(binder, {});
         }).toThrow(new Error('Cannot call pop on a non-collection binder type.'));
 
         binder.type = obBinderTypes.COLLECTION;
         expect(function () {
-          modelWriter.pop(binder, {});
+          obModelWriter.pop(binder, {});
         }).not.toThrow(new Error('Cannot call pop on a non-collection binder type.'));
       });
 
 
       it('should remove and return the last item in an array', function () {
         binder.scope[binder.model] = ['foo', 'bar'];
-        expect(modelWriter.pop(binder, {})).toEqual('bar');
+        expect(obModelWriter.pop(binder, {})).toEqual('bar');
         expect(binder.scope[binder.model]).toEqual(['foo']);
       });
     });
@@ -116,13 +116,13 @@ describe('modelWriter', function () {
 
     describe('length', function () {
       it('should be a function', function () {
-        expect(typeof modelWriter.length).toBe('function');
+        expect(typeof obModelWriter.length).toBe('function');
       });
 
 
       it('should complain if the model is not a collection or string type', function () {
         expect(function () {
-          modelWriter.length(binder);
+          obModelWriter.length(binder);
         }).toThrow(new Error('Binder must be a string or collection to call .length()'));
       });
 
@@ -130,7 +130,7 @@ describe('modelWriter', function () {
       it('should return the length of the model', function () {
         binder.type = obBinderTypes.COLLECTION;
         scope.myModel = ['foo', 'bar', 'baz'];
-        expect(modelWriter.length(binder)).toBe(3);
+        expect(obModelWriter.length(binder)).toBe(3);
       });
     });
 
@@ -165,12 +165,12 @@ describe('modelWriter', function () {
 
   describe('processChanges', function () {
     it('should exist', function () {
-      expect(typeof modelWriter.processChanges).toBe('function');
+      expect(typeof obModelWriter.processChanges).toBe('function');
     });
 
 
     it('should accept an array of changes from the protocol', function () {
-      var args = captureFunctionArgs(modelWriter.processChanges);
+      var args = captureFunctionArgs(obModelWriter.processChanges);
       expect(args[0]).toBe('binder');
       expect(args[1]).toBe('delta');
       expect(args[2]).toBeUndefined();
@@ -180,7 +180,7 @@ describe('modelWriter', function () {
     it('should execute changes in order', function () {
       scope.myModel = [];
       binder.type = obBinderTypes.COLLECTION;
-      modelWriter.processChanges(binder, {changes: [{
+      obModelWriter.processChanges(binder, {changes: [{
         type: obSyncEvents.NEW,
         name: '0',
         object: ['foo']
@@ -188,7 +188,7 @@ describe('modelWriter', function () {
 
       expect(scope.myModel).toEqual(['foo']);
 
-      modelWriter.processChanges(binder, {changes: [{
+      obModelWriter.processChanges(binder, {changes: [{
         type: obSyncEvents.NEW,
         name: '1',
         object: ['foo', 'bar']
@@ -196,7 +196,7 @@ describe('modelWriter', function () {
 
       expect(scope.myModel).toEqual(['foo', 'bar']);
 
-      modelWriter.processChanges(binder, {changes: [{
+      obModelWriter.processChanges(binder, {changes: [{
         type: obSyncEvents.DELETED,
         name: '0',
         object: ['foo']
@@ -204,7 +204,7 @@ describe('modelWriter', function () {
 
       expect(scope.myModel).toEqual(['bar']);
 
-      modelWriter.processChanges(binder, {changes: [{
+      obModelWriter.processChanges(binder, {changes: [{
         type: obSyncEvents.UPDATED,
         name: '0',
         object: [{foo: 'barrrr'}]
@@ -217,12 +217,12 @@ describe('modelWriter', function () {
 
   describe('newFromProtocol', function () {
     it('should exist', function () {
-      expect(!!modelWriter.newFromProtocol).toBe(true);
+      expect(!!obModelWriter.newFromProtocol).toBe(true);
     });
 
 
     it('should have the correct function signature', function () {
-      var args = captureFunctionArgs(modelWriter.newFromProtocol.toString());
+      var args = captureFunctionArgs(obModelWriter.newFromProtocol.toString());
       expect(args[0]).toEqual('binder');
       expect(args[1]).toEqual('change');
       expect(args[2]).toBeUndefined();
@@ -231,7 +231,7 @@ describe('modelWriter', function () {
 
     it('should add an item to a collection', function () {
       scope.model = ['foo'];
-      modelWriter.newFromProtocol({
+      obModelWriter.newFromProtocol({
         scope: scope,
         model: 'model',
         type: obBinderTypes.COLLECTION
@@ -247,12 +247,12 @@ describe('modelWriter', function () {
 
   describe('removedFromProtocol', function () {
     it('should exist', function () {
-      expect(!!modelWriter.removedFromProtocol).toBe(true);
+      expect(!!obModelWriter.removedFromProtocol).toBe(true);
     });
 
 
     it('should have the correct function signature', function () {
-      var args = captureFunctionArgs(modelWriter.removedFromProtocol.toString());
+      var args = captureFunctionArgs(obModelWriter.removedFromProtocol.toString());
       expect(args[0]).toEqual('binder');
       expect(args[1]).toEqual('delta');
       expect(args[2]).toBeUndefined();
@@ -261,7 +261,7 @@ describe('modelWriter', function () {
 
     it('should update the local model based on removal event from protocol', function () {
       scope.model = [{id: 1}, {id: 2}];
-      modelWriter.removedFromProtocol({
+      obModelWriter.removedFromProtocol({
         scope: scope,
         model: 'model'
       }, {
@@ -280,7 +280,7 @@ describe('modelWriter', function () {
       };
       scope.model = [{id: 1}, {id: 2}];
 
-      modelWriter.removedFromProtocol(binder, {
+      obModelWriter.removedFromProtocol(binder, {
         data: {id: 1}
       });
 
@@ -292,20 +292,20 @@ describe('modelWriter', function () {
 
   describe('updatedFromProtocol', function () {
     it('should exist', function () {
-      expect(!!modelWriter.updatedFromProtocol).toBe(true);
+      expect(!!obModelWriter.updatedFromProtocol).toBe(true);
     });
 
 
     it('should complain if it does not get a valid change object', function () {
       expect(function () {
-        modelWriter.updatedFromProtocol({type: obBinderTypes.OBJECT}, {object: "foobar"})
+        obModelWriter.updatedFromProtocol({type: obBinderTypes.OBJECT}, {object: "foobar"})
       }).toThrow(new Error("Change object must contain a name"));
     });
 
 
     it('should extend an existing object', function () {
       scope.model = {foo: 'bar'};
-      modelWriter.updatedFromProtocol({
+      obModelWriter.updatedFromProtocol({
         scope: scope,
         model: 'model',
         type: obBinderTypes.OBJECT
@@ -320,7 +320,7 @@ describe('modelWriter', function () {
 
 
     it('should have the correct function signature', function () {
-      var args = captureFunctionArgs(modelWriter.updatedFromProtocol.toString());
+      var args = captureFunctionArgs(obModelWriter.updatedFromProtocol.toString());
       expect(args[0]).toEqual('binder');
       expect(args[1]).toEqual('change');
       expect(args[2]).toBeUndefined();
@@ -329,7 +329,7 @@ describe('modelWriter', function () {
 
     it('should replace a model at the correct position', function () {
       scope.model = [{}, {foo:'bar'}];
-      modelWriter.updatedFromProtocol({
+      obModelWriter.updatedFromProtocol({
         scope: scope,
         model: 'model',
         type: obBinderTypes.COLLECTION
@@ -347,7 +347,7 @@ describe('modelWriter', function () {
 
     it('should merge objects instead of overwriting', function () {
       scope.model = {foo:'bar'};
-      modelWriter.updatedFromProtocol({
+      obModelWriter.updatedFromProtocol({
         scope: scope,
         model: 'model',
         type: obBinderTypes.OBJECT

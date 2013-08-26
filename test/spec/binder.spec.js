@@ -1,13 +1,13 @@
 describe('binder', function () {
-  var binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, obSyncEvents, modelWriter, myBinder, obBinderTypes;
+  var binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, obSyncEvents, obModelWriter, myBinder, obBinderTypes;
 
   beforeEach(module('OmniBinder'));
 
 
-  beforeEach(inject(function (_obBinder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _obSyncEvents_, _modelWriter_, _obBinderTypes_, _obDelta_) {
+  beforeEach(inject(function (_obBinder_, $rootScope, _$q_, _$timeout_, $captureFuncArgs, _obSyncEvents_, _obModelWriter_, _obBinderTypes_, _obDelta_) {
     obDelta = _obDelta_;
     obBinderTypes = _obBinderTypes_;
-    modelWriter = _modelWriter_;
+    obModelWriter = _obModelWriter_;
     obSyncEvents = _obSyncEvents_;
     captureFunctionArgs = $captureFuncArgs;
     protocol = {
@@ -89,8 +89,8 @@ describe('binder', function () {
       });
 
 
-      it('should call modelWriter.push when calling binder.push', function () {
-        var spy = spyOn(modelWriter, 'push');
+      it('should call obModelWriter.push when calling binder.push', function () {
+        var spy = spyOn(obModelWriter, 'push');
         myBinder.type = 'collection';
         myBinder.push('foo');
         scope.$apply();
@@ -204,7 +204,7 @@ describe('binder', function () {
 
 
     it('should update the model array after adding ADD event from the protocol', function () {
-      var spy = spyOn(modelWriter, 'processChanges');
+      var spy = spyOn(obModelWriter, 'processChanges');
       var delta = obDelta();
       delta.addChange({
         object: ['readme'],

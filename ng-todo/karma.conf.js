@@ -5,13 +5,13 @@ module.exports = function(config) {
   config.set({
     frameworks: ['jasmine'],
     files: [
-      'components/angular/angular.js',
-      'components/angular-mocks/angular-mocks.js',
-      'components/observe-js/src/observe.js',
-      'lib/binder.js',
-      'lib/*.js',
-      'test/mock/*.js',
-      'test/spec/*.js'
+      'angular.js',
+      'angular-resource.js',
+      'angular-mocks.js',
+      'todo.js',
+      'todoSpec.js',
+      'todoMongoSpec.js',
+      'ItemMock.js'
     ],
 
     autoWatch: true,

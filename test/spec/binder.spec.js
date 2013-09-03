@@ -201,45 +201,6 @@ describe('binder', function () {
       expect(args[0]).toBe('delta');
       expect(args[1]).toBeUndefined();
     });
-
-
-    it('should update the model array after adding ADD event from the protocol', function () {
-      var spy = spyOn(obModelWriter, 'processChanges');
-      var delta = obDelta();
-      delta.addChange({
-        object: ['readme'],
-        type: obSyncEvents.NEW,
-        name: "1"
-      });
-
-      scope.myModel = ['please'];
-      myBinder.type = 'collection';
-
-      myBinder.onProtocolChange(delta);
-
-      scope.$digest();
-
-      expect(spy).toHaveBeenCalled();
-      expect(spy.mostRecentCall.args[1].changes[0].type).toBe(obSyncEvents.NEW);
-    });
-
-
-    it('should update the model array after REMOVE event from the protocol', function () {
-      myBinder.type = obBinderTypes.COLLECTION;
-      scope.myModel = ['please', 'readme'];
-
-      var delta = obDelta();
-      delta.addChange({
-        type: obSyncEvents.DELETED,
-        object: ['readme'],
-        name: '1'
-      });
-
-      myBinder.onProtocolChange(delta);
-      scope.$digest();
-
-      expect(scope.myModel).toEqual(['please']);
-    });
   });
 
 

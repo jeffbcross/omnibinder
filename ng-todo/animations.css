@@ -1,0 +1,21 @@
+li {
+  display: block;
+  height: 20px;
+  overflow: hidden;
+  position: relative;
+
+  -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.7s;
+  -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.7s;
+  -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.7s;
+  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.7s;
+}
+
+.repeat-enter, .repeat-leave {
+  height: 0;
+  opacity: 0;
+}
+
+.repeat-enter-active {
+  height: 20px;
+  opacity: 1;
+}

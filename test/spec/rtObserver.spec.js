@@ -15,6 +15,7 @@ describe('obObserver', function () {
 
 
   describe('observeCollection', function () {
+    if (!Object.observe) return
     it('should be a function', function () {
       expect(typeof obObserver.observeCollection).toBe('function');
     });

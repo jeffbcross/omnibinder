@@ -24,15 +24,22 @@ describe('obObserver', function () {
     it('should immediately respond to model changes', function () {
       var caller = {callback: function () {}};
       var spy = spyOn(caller, 'callback');
+      runs(function () {
+        scope.myModel = ['foobar'];
 
-      scope.myModel = ['foobar'];
+        obObserver.observeCollection(obBinderTypes.COLLECTION, scope, 'myModel', caller.callback);
 
-      obObserver.observeCollection(obBinderTypes.COLLECTION, scope, 'myModel', caller.callback);
+        scope.myModel.push('baz');
+        scope.$digest();
+      });
 
-      scope.myModel.push('baz');
-      scope.$digest();
+      waitsFor(function () {
+        return spy.callCount;
+      }, 100, "spy to be called");
 
-      expect(spy).toHaveBeenCalled();
+      runs(function () {
+        expect(spy).toHaveBeenCalled();
+      });
     });
   });
 })

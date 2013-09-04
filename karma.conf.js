@@ -15,6 +15,7 @@ module.exports = function(config) {
     ],
 
     autoWatch: true,
+    //Recommend starting Chrome manually with experimental javascript flag enabled, and open localhost:9876.
     browsers: ['Chrome']
   });
 };

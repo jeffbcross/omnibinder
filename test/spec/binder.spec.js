@@ -1,4 +1,31 @@
-describe('binder', function () {
+describe('obModelCache', function () {
+  var obModelCache;
+
+  beforeEach(module('OmniBinder'));
+
+  beforeEach(inject(function (_obModelCache_) {
+    obModelCache = _obModelCache_;
+  }));
+
+  it('should exist', function () {
+    expect(!!obModelCache).toBe(true);
+  });
+
+  it('should set the cache to a copy of the passed-in model', function () {
+    var model = {foo: 'bar'};
+    var binder = {};
+    expect(obModelCache.get(binder)).toBeUndefined();
+
+    obModelCache.set(binder, model);
+    expect(obModelCache.get(binder)).toEqual(model);
+    expect(obModelCache.get(binder)).not.toBe(model);
+
+    model.foo = 'baz';
+    expect(obModelCache.get(binder)).toEqual({foo: 'bar'});
+  });
+});
+
+describe('obBinder', function () {
   var binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, obSyncEvents, obModelWriter, myBinder, obBinderTypes;
 
   beforeEach(module('OmniBinder'));
@@ -38,15 +65,27 @@ describe('binder', function () {
 
   describe('bindModel', function () {
     it('should bind a model', function () {
+
+      var done;
+      var i = 0;
       var spy = spyOn(myBinder, 'onModelChange');
-      scope.model = [];
-      myBinder.bindModel(obBinderTypes.COLLECTION, scope, 'model');
-      scope.model.push('hi');
-      scope.$digest();
 
-      expect(spy).toHaveBeenCalled();
+      runs(function () {
+        scope.boundmodel = [];
+        myBinder.bindModel(obBinderTypes.COLLECTION, scope, 'boundmodel');
+        scope.boundmodel.push('hi');
+        scope.$digest();
+      });
+
+
+      waitsFor(function () {
+        return spy.callCount;
+      }, 250, "call count to be greater than 0");
+
+      runs(function () {
+        expect(spy).toHaveBeenCalled();
+      });
     });
-
   });
 
 
@@ -58,126 +97,10 @@ describe('binder', function () {
 
     it('should have the correct signature', function () {
       var args = captureFunctionArgs(myBinder.onModelChange.toString());
-      expect(args[0]).toBe('newVal');
-      expect(args[1]).toBe('oldVal');
-      expect(args[2]).toBeUndefined();
-    })
-
-
-    it('should call protocol.change when new data is added', function () {
-      var spy = spyOn(protocol, 'processChanges');
-      myBinder.onModelChange(['foo', 'addme'], ['foo']);
-      scope.$digest();
-
-      myBinder.onModelChange.call(myBinder, ['foo'], ['foo', 'remove'], myBinder);
-      scope.$digest();
-
-      myBinder.onModelChange.call(myBinder, ['too'], ['foo'], myBinder);
-      scope.$digest();
-
-      expect(spy.callCount).toBe(3);
+      expect(!args[0]).toBe(true);
     });
   });
 
-
-  describe('Array Methods', function () {
-    describe('push', function () {
-      it('should throw an error if the binder does not have "collection" type', function () {
-        expect(function () {
-          myBinder.push('foobar');
-        }).toThrow(new Error("Cannot call push on non-collection binder. Binder must be instantiated with type: obBinderTypes.COLLECTION"));
-      });
-
-
-      it('should call obModelWriter.push when calling binder.push', function () {
-        var spy = spyOn(obModelWriter, 'push');
-        myBinder.type = 'collection';
-        myBinder.push('foo');
-        scope.$apply();
-        expect(spy).toHaveBeenCalled();
-      });
-
-
-      it('should immediately invoke the change pipeline to the protocol', function () {
-        var spy = spyOn(protocol, 'processChanges'), hasChangesArray, typeofChange;
-
-        myBinder.type = 'collection';
-        myBinder.push('foo');
-        scope.$apply();
-
-        expect(spy).toHaveBeenCalled();
-        expect(hasChangesArray = Array.isArray(spy.mostRecentCall.args[1].changes)).toBe(true);
-        expect(typeofChange = spy.mostRecentCall.args[1].changes[0].type).toBe(obSyncEvents.NEW);
-      });
-
-
-      it('should add the model to the queue of unsynced changes in the binder', function () {
-        myBinder.type = 'collection';
-        myBinder.push('foo');
-        scope.$apply();
-        expect(myBinder.unsyncedChanges.length).toBe(1);
-        expect(myBinder.unsyncedChanges[0].object).toEqual(['foo']);
-      });
-    });
-
-
-    describe('pop', function () {
-      beforeEach(function () {
-        myBinder.scope[myBinder.model] = ['foo', 'bar'];
-        myBinder.type = obBinderTypes.COLLECTION;
-      });
-
-
-      it('should exist', function () {
-        expect(typeof myBinder.pop).toBe('function');
-      });
-
-
-      it('should call protocol.pop if method exists', function () {
-        var spy = spyOn(protocol, 'processChanges');
-
-        myBinder.pop();
-
-        expect(spy).toHaveBeenCalled();
-      });
-
-
-      it('should complain if calling pop on a non-collection type binder', function () {
-        myBinder.type = null;
-        expect(function () {
-          myBinder.pop();
-        }).toThrow(new Error('Cannot call pop on a non-collection binder.'));
-      });
-
-
-      it('should remove the last item from the model', function () {
-        myBinder.type = obBinderTypes.COLLECTION;
-        scope.model = ['foo', 'bar'];
-        myBinder.pop();
-
-        expect(scope.model).toEqual(['foo']);
-      });
-    });
-
-
-    describe('splice', function () {
-      it('should exist', function () {
-        expect(typeof myBinder.splice).toBe('function');
-      });
-
-
-      it('should remove items based on index and howMany args', function () {
-        myBinder.type = obBinderTypes.COLLECTION;
-        scope.model = ['foo', 'bar', 'baz'];
-
-        myBinder.splice(0,1);
-        expect(scope.model).toEqual(['bar', 'baz']);
-
-        myBinder.splice(1, 1);
-        expect(scope.model).toEqual(['bar']);
-      });
-    });
-  });
 
   describe('onProtocolChange', function () {
     var myBinder;
@@ -198,7 +121,7 @@ describe('binder', function () {
 
     it('should have the correct function signature', function () {
       var args = captureFunctionArgs(myBinder.onProtocolChange.toString());
-      expect(args[0]).toBe('delta');
+      expect(args[0]).toBe('changes');
       expect(args[1]).toBeUndefined();
     });
   });
@@ -234,7 +157,8 @@ describe('binder', function () {
 
     it('should cause model changes to go through binder.onModelChange', function () {
       var spy = spyOn(protocol, 'processChanges');
-      myBinder.onModelChange('Fooey', 'Booey');
+      myBinder.scope[myBinder.model] = ['foo', 'bar'];
+      myBinder.onModelChange.call(myBinder);
       scope.$apply();
 
       expect(spy).toHaveBeenCalled();
@@ -327,23 +251,4 @@ describe('binder', function () {
       }).toThrow(new Error('key must be a string'));
     });
   });
-
-
-  describe('.change()', function () {
-    it('should exist', function () {
-      expect(typeof myBinder.change).toBe('function');
-    });
-
-
-    it('should only invoke one change pipeline when calling change', function () {
-      scope.products = [];
-      var spy = spyOn(myBinder, 'change');
-      scope.$apply();
-      myBinder.change({type: 'add', data: [{title: 'Widget'}]})
-      scope.$apply();
-
-      expect(spy.callCount).toBe(1);
-    });
-  });
 });
-

@@ -64,8 +64,8 @@ describe('obBinder', function () {
 
 
   describe('bindModel', function () {
+    //These tests will currently fail if run in a browser without Object.observe enabled.
     it('should bind a model', function () {
-
       var done;
       var i = 0;
       var spy = spyOn(myBinder, 'onModelChange');
@@ -73,7 +73,7 @@ describe('obBinder', function () {
       runs(function () {
         scope.boundmodel = [];
         myBinder.bindModel(obBinderTypes.COLLECTION, scope, 'boundmodel');
-        scope.boundmodel.push('hi');
+        scope.boundmodel.push({foo: 'bar'});
         scope.$digest();
       });
 

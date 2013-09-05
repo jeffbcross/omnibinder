@@ -22,12 +22,11 @@ describe('obObserver', function () {
 
 
     it('should immediately respond to model changes', function () {
-      var caller = {callback: function () {}};
-      var spy = spyOn(caller, 'callback');
+      var spy = spyOn(angular, 'noop');
       runs(function () {
         scope.myModel = [{foo: 'bar'}];
 
-        obObserver.observeCollection(scope.myModel, caller.callback);
+        obObserver.observeCollection(scope.myModel, angular.noop);
 
         scope.myModel.push({bar: 'baz'});
         scope.$digest();
@@ -42,15 +41,14 @@ describe('obObserver', function () {
       });
     });
 
+
     it('should respond to changes to objects that were already in the model array', function () {
-      var caller = {callback: function () {}};
-      var spy = spyOn(caller, 'callback');
-      var changes = [{}]
+      var spy = spyOn(angular, 'noop');
 
       runs(function () {
         scope.myModel = [{foo: 'bar'}];
 
-        obObserver.observeCollection(scope.myModel, caller.callback);
+        obObserver.observeCollection(scope.myModel, angular.noop);
 
         scope.myModel[0].foo = 'changed';
       });
@@ -63,11 +61,11 @@ describe('obObserver', function () {
         expect(spy).toHaveBeenCalled();
         expect(spy.callCount).toBe(1);
       });
-    })
+    });
+
 
     it('should respond to changes to objects that were added within the model array', function () {
-      var caller = {callback: function () {}};
-      var spy = spyOn(caller, 'callback');
+      var spy = spyOn(angular, 'noop');
       var initialObject = {foo: 'bar'};
       var secondObject = {baz: 'bar'};
       var changes = [{addedCount: 1, removed: [initialObject], index: 0}];
@@ -76,7 +74,7 @@ describe('obObserver', function () {
       runs(function () {
         scope.myModel = [initialObject];
 
-        obObserver.observeCollection(scope.myModel, caller.callback);
+        obObserver.observeCollection(scope.myModel, angular.noop);
 
         scope.myModel.splice(0, 1, secondObject);
       });
@@ -95,12 +93,42 @@ describe('obObserver', function () {
 
       waitsFor(function () {
         return spy.callCount;
-      }, 100, "spy to be called a 2nd time");
+      }, 250, "spy to be called a 2nd time");
 
       runs(function () {
         expect(spy).toHaveBeenCalledWith(secondChanges);
         expect(spy.callCount).toBe(1);
-      })
+      });
+    });
+
+
+    it('should unobserve objects after they\'ve been removed from the collection', function () {
+      var spy, obj, collection, i = 0;
+
+      runs(function () {
+        spy = spyOn(angular, 'noop');
+        obj = {foo: 'bar'};
+        collection = [obj];
+
+        obObserver.observeCollection(collection, angular.noop);
+        collection.splice(0, 1);
+      });
+
+      waitsFor(function () {
+        return ++i > 10;
+      }, 100, "10 loops");
+
+      runs(function () {
+        obj.foo = 'baz';
+      });
+
+      waitsFor(function () {
+        return ++i > 20;
+      }, 100, "10 more loops");
+
+      runs(function () {
+        expect(spy.callCount).toBe(1);
+      });
     });
   });
-})
+});

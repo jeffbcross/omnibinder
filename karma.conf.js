@@ -11,7 +11,8 @@ module.exports = function(config) {
       'lib/binder.js',
       'lib/*.js',
       'test/mock/*.js',
-      'test/spec/*.js'
+      'test/spec/*.js',
+      'test/integration/*.js'
     ],
 
     autoWatch: true,

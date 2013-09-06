@@ -1,32 +1,6 @@
-describe('obModelCache', function () {
-  var obModelCache;
-
-  beforeEach(module('OmniBinder'));
-
-  beforeEach(inject(function (_obModelCache_) {
-    obModelCache = _obModelCache_;
-  }));
-
-  it('should exist', function () {
-    expect(!!obModelCache).toBe(true);
-  });
-
-  it('should set the cache to a copy of the passed-in model', function () {
-    var model = {foo: 'bar'};
-    var binder = {};
-    expect(obModelCache.get(binder)).toBeUndefined();
-
-    obModelCache.set(binder, model);
-    expect(obModelCache.get(binder)).toEqual(model);
-    expect(obModelCache.get(binder)).not.toBe(model);
-
-    model.foo = 'baz';
-    expect(obModelCache.get(binder)).toEqual({foo: 'bar'});
-  });
-});
-
 describe('obBinder', function () {
-  var binder, $q, scope, $timeout, binder, captureFunctionArgs, protocol, obSyncEvents, obModelWriter, myBinder, obBinderTypes;
+  var binder, $q, scope, $timeout, binder,captureFunctionArgs, sampleChange,
+      protocol, obSyncEvents, obModelWriter, myBinder, obBinderTypes;
 
   beforeEach(module('OmniBinder'));
 
@@ -52,6 +26,12 @@ describe('obBinder', function () {
     myBinder = binder(scope, 'model', protocol, {
       query: {id: 'abc', path: 'foo.bar'}
     });
+
+    sampleChange = {
+      addedCount: 1,
+      removed: [],
+      index: 0
+    };
   }));
 
 
@@ -94,7 +74,8 @@ describe('obBinder', function () {
 
     it('should have the correct signature', function () {
       var args = captureFunctionArgs(myBinder.onModelChange.toString());
-      expect(!args[0]).toBe(true);
+      expect(args[0]).toBe('changes');
+      expect(args[1]).toBeUndefined();
     });
   });
 
@@ -146,7 +127,7 @@ describe('obBinder', function () {
     it('should cause model changes to go through binder.onModelChange', function () {
       var spy = spyOn(protocol, 'processChanges');
       myBinder.scope[myBinder.model] = ['foo', 'bar'];
-      myBinder.onModelChange.call(myBinder);
+      myBinder.onModelChange.call(myBinder, [sampleChange]);
       scope.$apply();
 
       expect(spy).toHaveBeenCalled();
@@ -179,20 +160,6 @@ describe('obBinder', function () {
       binder(scope, null, protocol);
     }).toThrow(new Error('model is required'));
   });
-
-
-  // describe('onModelChange', function () {
-  //   it('should throw an error if I pass in something other than function', function () {
-  //     expect(function () {
-  //       binder({
-  //         scope: scope,
-  //         model: 'foo',
-  //         protocol: protocol,
-  //         onModelChange: {change: this}
-  //       })
-  //     }).toThrow(new Error('onModelChange must be a function'));
-  //   });
-  // });
 
 
   describe('key', function () {

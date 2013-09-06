@@ -49,10 +49,7 @@ describe('obBinder', function () {
     $timeout = _$timeout_;
     $q = _$q_;
     scope = $rootScope;
-    myBinder = binder({
-      protocol: protocol,
-      scope: scope,
-      model: 'model',
+    myBinder = binder(scope, 'model', protocol, {
       query: {id: 'abc', path: 'foo.bar'}
     });
   }));
@@ -106,11 +103,7 @@ describe('obBinder', function () {
     var myBinder;
 
     beforeEach(function () {
-      myBinder = binder({
-        scope: scope,
-        model: 'myModel',
-        protocol: protocol
-      });
+      myBinder = binder(scope, 'myModel', protocol);
     });
 
 
@@ -129,10 +122,7 @@ describe('obBinder', function () {
 
   describe('Constructor', function () {
     it('should return a binder object', function () {
-      var myBinder = binder({
-        protocol: protocol,
-        scope: scope,
-        model: 'myModel',
+      var myBinder = binder(scope, 'myModel', protocol, {
         query: {
           id: 'abc'
         }
@@ -146,9 +136,7 @@ describe('obBinder', function () {
 
     it('should complain if no protocol is provided', function () {
       expect(function () {
-        binder({
-          model: 'myModel',
-          scope: scope,
+        binder(scope, 'myModel', null, {
           query: {}
         });
       }).toThrow(new Error("protocol is required"))
@@ -173,42 +161,22 @@ describe('obBinder', function () {
 
   it('should accept scope as the first argument', function () {
     scope.hello = 'world';
-    var myBinder = binder({
-      scope: scope,
-      model: 'hello',
-      protocol: protocol
-    });
+    var myBinder = binder(scope, 'hello', protocol);
 
     expect(myBinder.scope.hello).toBe('world');
   });
 
 
-  it('should accept a model name as the second argument', function () {
-    scope.super = 'heroic';
-    myBinder.model = 'super';
-
-    expect(myBinder.model).toBe('super');
-    expect(myBinder.val()).toBe('heroic');
-  });
-
-
   it('should throw an error when scope is not provided', function () {
     expect(function () {
-      binder({
-        scope: null,
-        model: 'super',
-        protocol: protocol
-      });
+      binder(null, 'super', protocol);
     }).toThrow(new Error('scope is required'));
   });
 
 
   it('should throw an error when model is not provided', function () {
     expect(function () {
-      binder({
-        scope: scope,
-        protocol: protocol
-      });
+      binder(scope, null, protocol);
     }).toThrow(new Error('model is required'));
   });
 
@@ -229,10 +197,7 @@ describe('obBinder', function () {
 
   describe('key', function () {
     it('should allow setting of a `key` property, which should be used to uniquely identify elements', function () {
-      var myBinder = binder({
-        protocol: protocol,
-        scope: scope,
-        model: 'foo',
+      var myBinder = binder(scope, 'foo', protocol, {
         key: 'id'
       });
 
@@ -242,11 +207,8 @@ describe('obBinder', function () {
 
     it('should throw an error when anything other than a string is passed as key', function () {
       expect(function () {
-        binder({
-          scope: scope,
-          model: 'foo',
-          key: {"true" : 'that'},
-          protocol: protocol
+        binder(scope, 'foo', protocol, {
+          key: {"true" : 'that'}
         });
       }).toThrow(new Error('key must be a string'));
     });

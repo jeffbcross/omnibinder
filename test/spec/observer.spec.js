@@ -26,7 +26,7 @@ describe('obObserver', function () {
       runs(function () {
         scope.myModel = [{foo: 'bar'}];
 
-        obObserver.observeCollection(scope.myModel, angular.noop);
+        obObserver.observeCollection({}, scope.myModel, angular.noop);
 
         scope.myModel.push({bar: 'baz'});
         scope.$digest();
@@ -48,7 +48,7 @@ describe('obObserver', function () {
       runs(function () {
         scope.myModel = [{foo: 'bar'}];
 
-        obObserver.observeCollection(scope.myModel, angular.noop);
+        obObserver.observeCollection({}, scope.myModel, angular.noop);
 
         scope.myModel[0].foo = 'changed';
       });
@@ -74,7 +74,7 @@ describe('obObserver', function () {
       runs(function () {
         scope.myModel = [initialObject];
 
-        obObserver.observeCollection(scope.myModel, angular.noop);
+        obObserver.observeCollection({}, scope.myModel, angular.noop);
 
         scope.myModel.splice(0, 1, secondObject);
       });
@@ -110,7 +110,7 @@ describe('obObserver', function () {
         obj = {foo: 'bar'};
         collection = [obj];
 
-        obObserver.observeCollection(collection, angular.noop);
+        obObserver.observeCollection({}, collection, angular.noop);
         collection.splice(0, 1);
       });
 

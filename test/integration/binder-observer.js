@@ -34,13 +34,13 @@ describe('Binder>Observer Integration', function () {
   });
 
 
-  it('should call onModelChange when a bound collection has had an item added to it', function () {
+  it('should call protocol.processChanges when a bound collection has had an item added to it', function () {
     var binder,
         spy;
 
     runs(function () {
       scope.myCollection = [];
-      spy = spyOn(Binder.prototype, 'onModelChange');
+      spy = spyOn(protocol, 'processChanges');
       binder = obBinder(scope, 'myCollection', protocol, {
         type: obBinderTypes.COLLECTION
       });

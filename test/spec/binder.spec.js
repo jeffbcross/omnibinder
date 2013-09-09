@@ -1,3 +1,56 @@
+describe('obUnsyncedChanges', function () {
+  var obUnsyncedChanges;
+  beforeEach(module('OmniBinder'));
+
+  beforeEach(inject(function (_obUnsyncedChanges_) {
+    obUnsyncedChanges = _obUnsyncedChanges_;
+  }));
+
+
+  it('should exist', function () {
+    expect(!!obUnsyncedChanges).toBe(true);
+  });
+
+  describe('.add()', function () {
+    it('should create an unsyncedChanges object on the binder if one does not exist', function () {
+      var binder = {};
+
+      expect(binder.unsyncedChanges).toBeUndefined();
+
+      obUnsyncedChanges.add(binder, 'model', []);
+      expect(typeof binder.unsyncedChanges).toBe('object');
+    });
+
+
+    it('should add a change to unsyncedChanges for the correct destination', function () {
+      var binder = {};
+      var changes = [{addedCount: 1, removed: [], index: 0}];
+      obUnsyncedChanges.add(binder, 'model', changes);
+
+      expect(binder.unsyncedChanges.model).toEqual(changes);
+    });
+  });
+
+  describe('.check()', function () {
+    it('should return changes that are not already in the queue', function () {
+      var change = {addedCount: 1, removed: [], index: 0};
+          changes = [{addedCount: 1, removed: [], index: 1}],
+          binder = {
+            unsyncedChanges: {
+              model: [
+                change
+              ]
+            }
+          };
+
+      expect(obUnsyncedChanges.check(binder, 'model', changes)).toEqual(changes);
+      expect(obUnsyncedChanges.check(binder, 'model', [change])).toEqual([]);
+    });
+  });
+
+});
+
+
 describe('obBinder', function () {
   var binder, $q, scope, $timeout, binder,captureFunctionArgs, sampleChange,
       protocol, obSyncEvents, obModelWriter, myBinder, obBinderTypes;

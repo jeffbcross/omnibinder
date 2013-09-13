@@ -20,20 +20,35 @@ app.service('deployd', function () {
       }]);
     });
 
-    dpd.todos.on('updated', function (change) {
-      change.index = binder.scope[binder.model].length
+    function getIndexOfItem (list, id) {
+      var itemIndex;
+
+      angular.forEach(binder.scope[binder.model], function (it, i) {
+        if (itemIndex) return;
+        if (it && it.id === id) itemIndex = i;
+      });
+
+      return itemIndex;
+    }
+
+    dpd[binder.query.collection].on('updated', function (newItem) {
+      var modelCopy = angular.copy(binder.scope[binder.model]);
+      var itemIndex = getIndexOfItem(modelCopy, newItem.id);
+      if (typeof itemIndex !== 'number') return;
+
+      binder.scope[binder.model].splice(itemIndex, 1, newItem);
+      if (!binder.scope.$$phase) binder.scope.$apply();
+    });
+
+    dpd[binder.query.collection].on('created', function (change) {
+      change.index = binder.scope[binder.model].length;
       binder.onProtocolChange.call(binder, [change]);
     });
 
-    dpd.todos.on('deleted', function (removedItem) {
-      var itemIndex;
-
-      angular.forEach(binder.scope[binder.model], function (item, i) {
-        if (itemIndex) return;
-        if (item && item.id === removedItem.id) itemIndex = i;
-      });
-
-      if (!itemIndex) return;
+    dpd[binder.query.collection].on('deleted', function (removedItem) {
+      var modelCopy = angular.copy(binder.scope[binder.model]);
+      var itemIndex = getIndexOfItem(modelCopy, removedItem.id);
+      if (typeof itemIndex !== 'number') return;
 
       var change = {
         removed: [removedItem],
@@ -48,7 +63,7 @@ app.service('deployd', function () {
   this.processChanges = function (binder, delta) {
     function removeItem (item) {
       console.log('remove item', item);
-      dpd[binder.query.collection].del(item.id);
+      // dpd[binder.query.collection].del(item.id);
     }
 
     delta.changes.forEach(function (change) {

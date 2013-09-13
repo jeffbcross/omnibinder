@@ -4,4 +4,4 @@ var emittedObject = {
     added: [this]
 };
 
-emit('todos:updated', emittedObject);
+emit('todos:created', emittedObject);

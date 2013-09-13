@@ -7,74 +7,58 @@ var app = angular.module('todo', ['OmniBinder']);
 //   };
 // });
 
-app.service('firebase', function ($parse) {
-  this.subscribe = function (myBinder) {
-    this.ref = new Firebase(myBinder.query.url);
-    // myBinder.query
+app.service('deployd', function () {
+  this.subscribe = function (binder) {
+    dpd[binder.query.collection].get(function (items) {
+      console.log('fetched', arguments);
+      if (!items.length) return;
 
-    this.ref.child(myBinder.query.path).on('value', function (childSnapshot) {
-      // console.log('value', childSnapshot.val());
+      binder.onProtocolChange.call(binder, [{
+        added: items,
+        removed: [],
+        addedCount: items.length,
+        index: 0
+      }]);
     });
 
-    this.ref.child(myBinder.query.path).on('child_added', function (childSnapshot, prevChildName) {
-      // console.log('child_added', childSnapshot.val(), prevChildName);
-      myBinder.onProtocolChange([{
-        added: [childSnapshot.val()],
-        addedCount: 1,
-        index: $parse(myBinder.model)(myBinder.scope).length,
-        removed: []
-      }])
+    dpd.todos.on('updated', function (change) {
+      change.index = binder.scope[binder.model].length
+
+      binder.onProtocolChange.call(binder, [change]);
     });
-
-    this.ref.child(myBinder.query.path).on('child_removed', function (oldChildSnapshot) {
-      // console.log('child_removed', oldChildSnapshot.val());
-    });
-
-    this.ref.child(myBinder.query.path).on('child_changed', function (childSnapshot, prevChildName) {
-      // console.log('child_changed', childSnapshot.val(), prevChildName);
-    });
-
-    this.ref.child(myBinder.query.path).on('child_moved', function (childSnapshot, prevChildName) {
-      var index;
-      // console.log('child_moved', childSnapshot.val(), prevChildName);
-      if ((index = this.ignoredMoves.indexOf(childSnapshot.name())) > -1) {
-        delete this.ignoredMoves[index];
-        return console.log('child did not really move');
-      }
-      // console.log('index', index);
-    }.bind(this));
-  };
-
-  this.ignoredMoves = [];
-  this.ignoreMove = function (name) {
-    // console.log('ignoreMove', name);
-    this.ignoredMoves.push(name);
   };
 
   this.processChanges = function (binder, delta) {
-    if (delta.changes && delta.changes.length) {
-      angular.forEach(delta.changes, function (change) {
-        if (change.addedCount && typeof change.index === 'number') {
-          var ref = this.ref.child(binder.query.path).push(angular.copy(binder.scope[binder.model])[change.index]);
-          ref.setPriority(change.index);
-          this.ignoreMove(ref.name());
-        }
-      }, this);
+    function removeItem (item) {
+      console.log('remove item', item);
+      dpd[binder.query.collection].del(item.id);
     }
+
+    delta.changes.forEach(function (change) {
+      if (change.removed) {
+        change.removed.forEach(removeItem);
+      }
+
+      if (change.addedCount) {
+        for (var i = change.index; i < change.addedCount + change.index; i++) {
+          // dpd[binder.query.collection].post(binder.scope[binder.model][i], function (item) {
+          //   console.log('object created in deployd', item);
+          //   // binder.onProtocolChange() hold off until recursion is prevented
+          // })
+        }
+      }
+    });
   };
 });
 
-app.controller('App', function ($scope, obBinderTypes, obBinder, firebase) {
+app.controller('App', function ($scope, obBinderTypes, obBinder, deployd) {
   $scope.items = [];
 
-  var myBinder = obBinder({
-    scope: $scope,
-    model: 'items',
+  var myBinder = obBinder($scope, 'items', deployd, {
     deep: true,
-    protocol: firebase,
+    key: 'id',
     query: {
-      url: 'https://superheroic.firebaseio.com/',
-      path: 'items'
+      collection: 'todos'
     },
     type: obBinderTypes.COLLECTION
   });

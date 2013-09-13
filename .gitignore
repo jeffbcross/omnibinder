@@ -4,3 +4,4 @@ libpeerconnection.log
 npm-debug.log
 api/.dpd/
 data/
+api/.dpd/pids/mongod

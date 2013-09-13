@@ -46,8 +46,17 @@ describe('obUnsyncedChanges', function () {
       expect(obUnsyncedChanges.check(binder, 'model', changes)).toEqual(changes);
       expect(obUnsyncedChanges.check(binder, 'model', [change])).toEqual([]);
     });
-  });
 
+
+    it('should create an unsyncedChanges object on the binder if does not exist', function () {
+      binder = {};
+      expect(binder.unsyncedChanges).toBeUndefined();
+
+      obUnsyncedChanges.check(binder);
+
+      expect(binder.unsyncedChanges).toBeDefined();
+    });
+  });
 });
 
 

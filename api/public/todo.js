@@ -1,12 +1,5 @@
 var app = angular.module('todo', ['OmniBinder']);
 
-// angular.module('exceptionOverride', []).factory('$exceptionHandler', function () {
-//   return function (exception, cause) {
-//     exception.message += ' (caused by "' + cause + '")';
-//     throw exception;
-//   };
-// });
-
 app.service('deployd', function () {
   this.subscribe = function (binder) {
     dpd[binder.query.collection].get(function (items) {
@@ -36,8 +29,12 @@ app.service('deployd', function () {
       var itemIndex = getIndexOfItem(modelCopy, newItem.id);
       if (typeof itemIndex !== 'number') return;
 
-      binder.scope[binder.model].splice(itemIndex, 1, newItem);
-      if (!binder.scope.$$phase) binder.scope.$apply();
+      binder.onProtocolChange.call(binder, [{
+        index: itemIndex,
+        addedCount: 1,
+        added: [newItem],
+        removed: [modelCopy[itemIndex]]
+      }]);
     });
 
     dpd[binder.query.collection].on('created', function (change) {

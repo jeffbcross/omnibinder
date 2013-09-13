@@ -10,7 +10,6 @@ var app = angular.module('todo', ['OmniBinder']);
 app.service('deployd', function () {
   this.subscribe = function (binder) {
     dpd[binder.query.collection].get(function (items) {
-      console.log('fetched', arguments);
       if (!items.length) return;
 
       binder.onProtocolChange.call(binder, [{
@@ -23,9 +22,27 @@ app.service('deployd', function () {
 
     dpd.todos.on('updated', function (change) {
       change.index = binder.scope[binder.model].length
-
       binder.onProtocolChange.call(binder, [change]);
     });
+
+    dpd.todos.on('deleted', function (removedItem) {
+      var itemIndex;
+
+      angular.forEach(binder.scope[binder.model], function (item, i) {
+        if (itemIndex) return;
+        if (item && item.id === removedItem.id) itemIndex = i;
+      });
+
+      if (!itemIndex) return;
+
+      var change = {
+        removed: [removedItem],
+        addedCount: 0,
+        index: itemIndex
+      };
+
+      binder.onProtocolChange.call(binder, [change]);
+    })
   };
 
   this.processChanges = function (binder, delta) {

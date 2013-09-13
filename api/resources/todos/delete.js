@@ -1,0 +1,1 @@
+emit('todos:deleted', this);

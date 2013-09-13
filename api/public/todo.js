@@ -1,6 +1,17 @@
 var app = angular.module('todo', ['OmniBinder']);
 
 app.service('deployd', function () {
+  function getIndexOfItem (list, id) {
+    var itemIndex;
+
+    angular.forEach(list, function (it, i) {
+      if (itemIndex) return;
+      if (it && it.id === id) itemIndex = i;
+    });
+
+    return itemIndex;
+  }
+
   this.subscribe = function (binder) {
     dpd[binder.query.collection].get(function (items) {
       if (!items.length) return;
@@ -12,17 +23,6 @@ app.service('deployd', function () {
         index: 0
       }]);
     });
-
-    function getIndexOfItem (list, id) {
-      var itemIndex;
-
-      angular.forEach(binder.scope[binder.model], function (it, i) {
-        if (itemIndex) return;
-        if (it && it.id === id) itemIndex = i;
-      });
-
-      return itemIndex;
-    }
 
     dpd[binder.query.collection].on('updated', function (newItem) {
       var modelCopy = angular.copy(binder.scope[binder.model]);
@@ -60,7 +60,12 @@ app.service('deployd', function () {
   this.processChanges = function (binder, delta) {
     function removeItem (item) {
       console.log('remove item', item);
-      // dpd[binder.query.collection].del(item.id);
+      //Make sure the item wasn't actually just updated.
+      var modelCopy = angular.copy(binder.scope[binder.model]);
+      var itemIndex = getIndexOfItem(modelCopy, item.id);
+      if (typeof itemIndex === 'number') return;
+      console.log('looks like the item really is gone', item);
+      dpd[binder.query.collection].del(item.id);
     }
 
     delta.changes.forEach(function (change) {
@@ -104,8 +109,8 @@ app.controller('App', function ($scope, obBinderTypes, obBinder, deployd) {
   };
 
   $scope.archive = function() {
-    $scope.items = $scope.items.filter(function(item) {
-      return !item.done;
+    angular.forEach($scope.items, function (item, i) {
+      if (item.done) $scope.items.splice(i, 1);
     });
   };
 });

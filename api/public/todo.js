@@ -163,8 +163,14 @@ app.controller('App', function ($scope, obBinderTypes, obBinder, deployd) {
   };
 
   $scope.archive = function() {
-    angular.forEach($scope.items, function (item, i) {
-      if (item.done) $scope.items.splice(i, 1);
-    });
+    var item;
+    for (var i = 0; i < $scope.items.length; i++) {
+      item = $scope.items[i];
+      if (item.done) {
+        $scope.items.splice(i, 1);
+        i--;
+      }
+    }
+
   };
 });

@@ -34,7 +34,7 @@
 </p>
 
 <ul class="unstyled">
-  <li ng-repeat="item in items" ng-class="'done-'+item.done" ng-animate="'repeat'">
+  <li ng-repeat="item in items | orderBy:'text'" ng-class="'done-'+item.done" ng-animate="'repeat'">
     <input type="checkbox" ng-model="item.done" ng-change="item.$update()"> {{item.text}}</li>
 </ul>
 

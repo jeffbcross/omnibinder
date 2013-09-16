@@ -13,7 +13,7 @@ Currently, the only supported use case is binding arrays of objects to a protoco
 The `OmniBinder` module is a framework to enable realtime data synchronization between AngularJS apps and various [protocols & persistence layers](docs/protocol.md#protocol).
 
 The module is built to be flexible enough to support arbitrary protocols to react to in-memory model changes.
-Building a re-usable protocol is a matter of implementing the [interface](docs/change-pipeline.md#iprotocol) expected by the `obBinder` service, then managing the details of reading, subscribing to, and writing to the persistence layer underneath. For example, a protocol could be written for HTML5 LocalStorage, a REST API, an API using WebSockets, or any combination of arbitrary technologies underneath.
+Building a re-usable protocol is a matter of implementing the [interface](docs/protocol.md#iprotocol) expected by the `obBinder` service, then managing the details of reading, subscribing to, and writing to the persistence layer underneath. For example, a protocol could be written for HTML5 LocalStorage, a REST API, an API using WebSockets, or any combination of arbitrary technologies underneath.
 
 `OmniBinder` provides the following tools to make two-way data binding simple:
 

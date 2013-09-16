@@ -120,11 +120,20 @@ app.service('deployd', function () {
       var modelCopy = binder.scope[binder.model];
       if (change.addedCount) {
         for (var i = change.index; i < change.addedCount + change.index; i++) {
-          if (modelCopy[i].id) return;
-
-          waitForId(angular.copy(modelCopy[i]));
-          dpd[binder.query.collection].post(modelCopy[i]);
+          if (!modelCopy[i].id) {
+            waitForId(angular.copy(modelCopy[i]));
+            dpd[binder.query.collection].post(modelCopy[i]);
+          }
         }
+      }
+
+      //It's a one-for-one splice of the same object
+      if (change.removed.length === 1 && change.addedCount === 1 && modelCopy[change.index] && change.removed[0] && modelCopy[change.index].id === change.removed[0].id) {
+        console.log('it is an update');
+        dpd[binder.query.collection].put(modelCopy[i].id, modelCopy[i]);
+      }
+      else {
+        // console.log('not an update', change.removed.length === 1, change.addedCount === 1, modelCopy[change.index].id === change.removed[0].id);
       }
     });
 

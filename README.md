@@ -10,15 +10,16 @@ Currently, the only supported use case is binding arrays of objects to a protoco
 
 ## Overview
 
-The `OmniBinder` module is a framework to enable realtime data synchronization between AngularJS apps and various [protocols & persistence layers](#protocol).
+The `OmniBinder` module is a framework to enable realtime data synchronization between AngularJS apps and various [protocols & persistence layers](docs/protocol.md#protocol).
 
-The module is built to be flexible enough to support arbitrary protocols to react to in-memory model changes. Building a re-usable protocol is a matter of implementing the [interface](#iprotocol) expected by the `obBinder` service, then managing the details of reading, subscribing to, and writing to the persistence layer underneath. For example, a protocol could be written for HTML5 LocalStorage, a REST API, an API using WebSockets, or any combination of arbitrary technologies underneath.
+The module is built to be flexible enough to support arbitrary protocols to react to in-memory model changes.
+Building a re-usable protocol is a matter of implementing the [interface](docs/change-pipeline.md#iprotocol) expected by the `obBinder` service, then managing the details of reading, subscribing to, and writing to the persistence layer underneath. For example, a protocol could be written for HTML5 LocalStorage, a REST API, an API using WebSockets, or any combination of arbitrary technologies underneath.
 
 `OmniBinder` provides the following tools to make two-way data binding simple:
 
  * Bind scope models directly to a protocol, based on an optional protocol-specific [query](#binder).
  * [Change Pipelining](docs/change-pipeline.md): Bi-directional change pipelining supports writing of middleware-like functions to operate on a [`delta`](#delta) object in order after a change is registered from a local model or a protocol.
- * Small libraries with utility methods to add common processing to [Change Pipelines](docs/change-pipeline.md), such as [throttling](#throttler), [delta analysis](#differ), change batching (not yet implemented).
+ * Small libraries with utility methods to add common processing to [Change Pipelines](docs/change-pipeline.md), such as [throttling](#throttler) and change batching (not yet implemented).
 
 Currently, the `OmniBinder` toolchain is focused on supporting synchronization of strings, arrays, and objects, but should eventually have a good story for binary data.
 
@@ -48,29 +49,7 @@ app.controller('MyCtrl', function ($scope, obBinder, someJSONAPI) {
 
 ## Concepts
 
-<a id="protocol"></a>
-### Protocol
 
-The underlying power of `OmniBinder` is in the protocols that can be developed to power it. The `obBinder` service manages watching models for updates, executing the developer-specified [Change Pipeline](docs/change-pipeline.md), and calling appropriate methods on a protocol when the [Change Pipeline](docs/change-pipeline.md) is complete. For example, once all functions in a model's [Change Pipeline](docs/change-pipeline.md) have been called, the `obBinder` service will look at the `type` property of [`delta`](#delta) to determine which method of a protocol should be called with the change. By default, `obBinder` will call `protocol.change(binder, delta)`, leaving all responsibilty to the protocol to determine the best way to persist the model change. In fact, a protocol may prefer this if it has strict constraints on how to persist data changes.
-
-<a id="iprotocol"></a>
-#### IProtocol
-
-If a protocol would like to take advantage of opt-in policies provided by `OmniBinder`, in can implement the following supported methods. Except where otherwise indicated, all methods implement the signature `function (binder, delta) {}`.
-
- * __create__ - Persist a newly-created object to the protocol.
- * __read__ - Used to retrieve a full model representation from a protocol. (__Use case?__)
- * __update__ - Update an existing model in a protocol.
- * __remove__ - Remove a model from the protocol.
- * __subscribe__ - This method is called as soon as `obBinder.bind` is called, in order to get an initial value for the model and to automatically update the model upon further changes in the persistence layer. Implements signature `function (binder, callback) {}`, and calls `callback` each time a relevant update occurs. Ideally, the protocol will be able to provide some initial data on the `delta`, such as the type of change, and of course, some representation of the changed data.
- * __unsubscribe__ - Implements signature `function (binder, callback) {}`, called when a bound scope is destroyed or when `obBinder.unbind()` is called.
- * __change__ - A catch-all method if no methods have been added to the Change Pipeline to set `delta.type` to the appropriate type of change. This method leaves it up to the protocol to figure out how to persist a change. Some protocols may prefer to not perform any analysis on a `delta` before giving it to the protocol, so a protocol can decide the best strategy for persisting and merging objects.
-
-It's important to note that unless an [`onModelChange`](docs/change-pipeline.md) pipeline provides functions to analyze model changes and set `delta.type`, it's up to the protocol to figure out how to handle a change by looking at the `newVal` and `oldVal` of the `delta`.
-
-Protocols make use of the `query` object attached to a `binder` when calling syncResource.bind() to ensure that the data is being persisted properly. Queries may contain a URL path to a resource on a server, an id of a particular object, or filters to restrict changes to certain items. `obBinder` has no policy on what type of object a query is, or what properties it contains. The extent of the policy is that if different models should be treated differently by a protocol, the place to store the instructions is on `binder.query`.
-
-The protocol interface is still being actively developed, and will  change.
 
 <a id="binder"></a>
 ### binder
@@ -98,7 +77,7 @@ A new `delta` object is created each time a change is registered from a local mo
  * __newVal__ (*: optional) - If the change originates from a local model, the `obBinder` will assign `newVal` and `oldVal` directly from the `scope.$watch` callback.
  * __oldVal__ (*: optional) - See `newVal`.
  * __type__ (string: optional) - Represents the type of change, such as add/remove/update. Should be a constant from the `syncEvents` service, unless there's some newfangled event that isn't part of that dictionary, which the protocol would know how to support.
- * __silent__ (boolean: optional) - Can be set from the [protocol](#protocol) at the beginning of the [onProtocolChange pipeline](docs/change-pipeline.md) to prevent the onModelChange pipeline from immediately responding to the updated model. This will only prevent a single occurence of the `onModelChange` pipeline, and will not stop the model change from propagating elsewhere in the Angular application.
+ * __silent__ (boolean: optional) - Can be set from the [protocol](docs/protocol.md#protocol) at the beginning of the [onProtocolChange pipeline](docs/change-pipeline.md) to prevent the onModelChange pipeline from immediately responding to the updated model. This will only prevent a single occurence of the `onModelChange` pipeline, and will not stop the model change from propagating elsewhere in the Angular application.
 
 ## Services
 

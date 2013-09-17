@@ -6,14 +6,27 @@ __Status__: _Experimental, In-Development._
 
 Currently, the only supported use case is binding arrays of objects to a protocol.
 
-<a id="overview"></a>
 
+<a id="overview"></a>
 ## Overview
 
-The `OmniBinder` module is a framework to enable realtime data synchronization between AngularJS apps and various [protocols & persistence layers](#protocol).
+The `OmniBinder` module is a framework built on top of AngularJS to enable realtime data synchronization between AngularJS apps and various [protocols & persistence layers](#protocol).
 
 The module is built to be flexible enough to support arbitrary protocols to react to in-memory model changes.
 Building a re-usable protocol is a matter of implementing the [interface](docs/module-api.md#iprotocol) expected by the `obBinder` service, then managing the details of reading, subscribing to, and writing to the persistence layer underneath. For example, a protocol could be written for HTML5 LocalStorage, a REST API, an API using WebSockets, or any combination of arbitrary technologies underneath.
+
+_Simple Example_
+
+```javascript
+var app = angular.module('myApp', ['OmniBinder']);
+app.controller('MyCtrl', function ($scope, obBinder, someJSONAPI) {
+  var myProtocol = someJSONAPI({url: 'http://myhost'});
+  $scope.myProducts = [{title: 'Widget'}, {title: 'Doodad'}];
+
+  // Starts binding the model to the protocol
+  var myBinder = obBinder($scope, 'myProducts', myProtocol);
+});
+```
 
 `OmniBinder` provides the following tools to make two-way data binding simple:
 
@@ -23,10 +36,6 @@ Building a re-usable protocol is a matter of implementing the [interface](docs/m
 
 Currently, the `OmniBinder` toolchain is focused on supporting synchronization of arrays of objects, but will eventually have a good story for other types of data.
 
-<a id="protocol"></a>
-# Protocol
-
-The underlying power of `OmniBinder` is in the protocols that can be developed to power it. The `obBinder` service manages watching models for updates, executing the developer-specified [Change Pipeline](docs/change-pipeline.md), and calling appropriate methods on a protocol when the [Change Pipeline](docs/change-pipeline.md) is complete. Once all functions in a model's [Change Pipeline](docs/change-pipeline.md) have been called, the `obBinder` service will send the delta to the `processChanges` method of the protocol.
 
 ## Problems to Solve with this framework.
 
@@ -43,21 +52,20 @@ The underlying power of `OmniBinder` is in the protocols that can be developed t
  * [Stretch Protocol](docs/stretch-protocol.md)
 
 ## Todos App
-TODO
 
-## Getting Started
+The project contains a basic Todo application running with a bundled [deployd](http://www.deployd.com) API.
 
-[OmniBinder API Reference](docs/module-api.md)
+To run the app, make sure you have installed:
 
-_Simple Example_
+ * [MongoDB](http://mongodb.org)
+ * [Node](http://nodejs.org)
+ * npm install -g deployd
 
-```javascript
-var app = angular.module('myApp', ['OmniBinder']);
-app.controller('MyCtrl', function ($scope, obBinder, someJSONAPI) {
-  var myProtocol = someJSONAPI({url: 'http://myhost'});
-  $scope.myProducts = [{title: 'Widget'}, {title: 'Doodad'}];
+Open the api directory in Terminal, and run the `dpd` command.
+Open two browsers and point them to localhost:2403, then start creating/updating/archiving
+todos to see both browsers stay in sync.
 
-  // Starts binding the model to the protocol
-  var myBinder = obBinder($scope, 'myProducts', myProtocol);
-});
-```
+## Make a Protocol
+
+See the [OmniBinder API Reference](docs/module-api.md) for documentation
+to make a protocol that works with OmniBinder, and integrate it into an app.

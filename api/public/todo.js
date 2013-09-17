@@ -61,8 +61,6 @@ app.service('deployd', function () {
         });
       }
 
-
-
       binder.onProtocolChange.call(binder, [{
         index: itemIndex,
         addedCount: 1,
@@ -116,6 +114,9 @@ app.service('deployd', function () {
       if (change.removed) {
         change.removed.forEach(removeItem);
       }
+      else if (typeof change.name !== 'undefined') {
+        return processObjectChange(delta);
+      }
 
       var modelCopy = binder.scope[binder.model];
       if (change.addedCount) {
@@ -129,13 +130,15 @@ app.service('deployd', function () {
 
       //It's a one-for-one splice of the same object
       if (change.removed.length === 1 && change.addedCount === 1 && modelCopy[change.index] && change.removed[0] && modelCopy[change.index].id === change.removed[0].id) {
-        console.log('it is an update');
         dpd[binder.query.collection].put(modelCopy[i].id, modelCopy[i]);
       }
-      else {
-        // console.log('not an update', change.removed.length === 1, change.addedCount === 1, modelCopy[change.index].id === change.removed[0].id);
-      }
     });
+
+    function processObjectChange (delta) {
+      angular.forEach(delta.changes, function (change) {
+        dpd[binder.query.collection].put(change.object.id, change.object);
+      });
+    }
 
     function removeItem (item) {
       //Make sure the item wasn't actually just updated.

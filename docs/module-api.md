@@ -131,7 +131,7 @@ _Not Yet Implemented_
 
     __Arguments:__
 
-    * Scope `context`: required
+    * Binder `context`: required
     * Array `collection`: required
     * Object `object`: required
     * Function `callback`: required
@@ -141,7 +141,7 @@ _Not Yet Implemented_
 
     __Arguments:__
 
-    * Scope `context`
+    * Binder `context`
       The context with which to call the callback.
     * Array `collection`
       The collection to be observed.

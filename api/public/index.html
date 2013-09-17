@@ -18,6 +18,13 @@
   <script src="observe.js"></script>
 
   <style type="text/css">
+    .todo {
+      max-width: 250px;
+      height: auto;
+    }
+    .todo a {
+      cursor: pointer;
+    }
     .done-true {
       color: gray;
       text-decoration: line-through;
@@ -34,8 +41,9 @@
 </p>
 
 <ul class="unstyled">
-  <li ng-repeat="item in items | orderBy:'text'" ng-class="'done-'+item.done" ng-animate="'repeat'">
-    <input type="checkbox" ng-model="item.done" ng-change="item.$update()"> {{item.text}}</li>
+  <li ng-repeat="item in items | orderBy:'text'" ng-class="'done-'+item.done" class="todo" ng-animate="'repeat'">
+    <input type="checkbox" ng-model="item.done" ng-change="item.$update()">
+  </li>
 </ul>
 
 <form>

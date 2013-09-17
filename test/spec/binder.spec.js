@@ -113,13 +113,12 @@ describe('obBinder', function () {
         scope.boundmodel = [];
         myBinder.bindModel(obBinderTypes.COLLECTION, scope, 'boundmodel');
         scope.boundmodel.push({foo: 'bar'});
-        scope.$digest();
       });
 
 
       waitsFor(function () {
         return spy.callCount;
-      }, 250, "call count to be greater than 0");
+      }, 100, "call count to be greater than 0");
 
       runs(function () {
         expect(spy).toHaveBeenCalled();

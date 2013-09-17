@@ -1,6 +1,27 @@
+# OmniBinder Module API
+
+ * [Factories](#factories)
+    * [obBinder](#obBinder)
+    * [obArrayChange](#obArrayChange)
+    * [obOldObject](#obOldObject)
+    * [obObjectChange](#obObjectChange)
+ * [Services](#services)
+    * [obObserver](#obObserver)
+    * [obBinderTypes](#obBinderTypes)
+ * [Interfaces](#interfaces)
+    * [IProtocol](#iprotocol)
+ * [Types](#types)
+    * [Binder](#typeBinder)
+    * [Delta](#typeDelta)
+    * [ArrayChange](#typeArrayChange)
+    * [ObjectChange](#typeObjectChange)
+
+
+<a id="factories"></a>
 ## Factories
 
-<a id="binder"></a>
+
+<a id="obBinder"></a>
 ### obBinder
 
 The `obBinder` factory provides the main public API for
@@ -35,7 +56,7 @@ The factory takes the following arguments:
       This is available as `binder.query` in any [Change Pipeline](docs/change-pipeline.md)
       functions, but is otherwise only used by some protocols.
     * __String `type`: optional__
-      Should be one of constants available in [`binderTypes`](#binderTypes) service.
+      Should be one of constants available in [`binderTypes`](#obBinderTypes) service.
       This is useful to help protocols know how to analyze changes,
       but should be used as a best practice to take advantage of
       future enhancements to the `OmniBinder` module.
@@ -46,6 +67,8 @@ The factory takes the following arguments:
 
 Returns: [Binder](#typeBinder)
 
+
+<a id="obArrayChange"></a>
 ### obArrayChange
 
 A convenience factory to generate a well-formed
@@ -59,6 +82,8 @@ The factory takes the following arguments:
 
 Returns: [ArrayChange](#arrayChange) change
 
+
+<a id="obOldObject"></a>
 ### obOldObject
 
 Re-constructs the previous version of an object,
@@ -70,10 +95,95 @@ The factory takes the following arguments:
 
 Returns: Object `oldObject`
 
+
+<a id="obObjectChange"></a>
 ### obObjectChange
 _Not Yet Implemented_
 
+
+<a id="services"></a>
+## Services
+
+
+<a id="obObserver"></a>
+### obObserver
+
+#### Methods
+
+ * __`observeObjectInCollection`__
+    Observe a single object in a collection.
+
+    When Object.observe notifies that this object has changed,
+    the callback will be called with the proper context,
+    and will prepare an Array.observe-like changeset instead
+    of the Object.observe style of changes.
+
+    The assumption is that when observing a collection, the preferred
+    format of changes will operations that can be applied to a collection
+    to easily keep multiple copies of a collection in sync.
+
+    A member outside the scope of this service would need to compare the
+    new item with the removed item to determine if the change was actually
+    an update to an object, rather than a removal/addition that is typically
+    represented by an Array.observe change set. For example, the collection
+    has a unique key constraint, the values of that key could be compared in
+    the removed and added objects.
+
+    __Arguments:__
+
+    * Scope `context`: required
+    * Array `collection`: required
+    * Object `object`: required
+    * Function `callback`: required
+
+ * __`observeCollection`__
+    Observe an array and its child objects, then notify callback on any change.
+
+    __Arguments:__
+
+    * Scope `context`
+      The context with which to call the callback.
+    * Array `collection`
+      The collection to be observed.
+    * Function `callback`
+      The callback to call on an array change.
+
+
+<a id="obBinderTypes"></a>
+### obBinderTypes
+
+A static dictionary of model types which can be optionally be
+added to the [options](#typeBinderOptions) object passed into [`obBinder`](#obBinder)
+in order to provide an opportunity to reduce ambiguity in
+[Change Pipeline](docs/change-pipeline.md) methods,
+and potentially the protocol.
+This value can help OmniBinder know how to create or update
+models in ambiguous circumstances.
+The service currently contains the following constants:
+
+ * __String `COLLECTION` = "collection"__
+   For lists of any type of data.
+ * __String `OBJECT` = "object"__
+   For plain old objects.
+ * __String `BOOLEAN` = "boolean"__
+ * __String `STRING` = "string"__
+ * __String `NUMBER` = "number"__
+ * __String `BINARY` = "binary"__
+   For binary data such as an image, video, audio clip.
+ * __String `BINARY_STREAM` = "binaryStream"__
+   For streaming binary data such as video chat or audio call.
+
+```javascript
+...
+var binder = obBinder($scope, 'myModel', {
+  type: binderTypes.COLLECTION
+});
+```
+
+
+<a id="interfaces"></a>
 ## Interfaces
+
 
 <a id="iprotocol"></a>
 ### IProtocol
@@ -83,7 +193,7 @@ and manages the low-level synchronization of a local model to a remote data stor
 
 A protocol only needs to expose these methods to be used by `obBinder` instances.
 
- * __processChanges ([Binder](#typeBinder) binder, [Delta](#delta) delta)__
+ * __processChanges ([Binder](#typeBinder) binder, [Delta](#typeDelta) delta)__
    Takes a delta with an array of `Object.observe` or `Array.observe` type changes,
    and applies them to the protocol's version of the model.
  * __subscribe ([Binder](#typeBinder) binder)__
@@ -160,12 +270,14 @@ differently by a protocol, the place to store the instructions is on `binder.que
 The protocol interface is still being actively developed, and will change.
 
 
+<a id="types"></a>
 ## Types
+
 
 <a id="typeBinder"></a>
 ### Binder
 
-Created by the [`obBinder`](#binder) factory.
+Created by the [`obBinder`](#obBinder) factory.
 
 #### Methods
 
@@ -182,7 +294,8 @@ Created by the [`obBinder`](#binder) factory.
  * __BinderType `type`__
  * __Protocol `protocol`__
 
-<a id="delta"></a>
+
+<a id="typeDelta"></a>
 ### Delta
 
 A new `delta` object is created each time a change is registered from a local model or protocol.
@@ -192,7 +305,8 @@ The `delta` is passed to every method in the [Change Pipeline](docs/change-pipel
 
  * __Array&lt;ArrayChange, ObjectChange&gt; `changes`__
 
-<a id="arrayChange"></a>
+
+<a id="typeArrayChange"></a>
 ### ArrayChange
 
 Based on changes generated by [observe-js](https://github.com/Polymer/observe-js),
@@ -206,7 +320,8 @@ models between different sources in as simple a format as possible.
  * __Array `removed`__
  * __Integer `addedCount`__
 
-<a id="objectChange"></a>
+
+<a id="typeObjectChange"></a>
 ### ObjectChange
 
 Similar to ArrayChange, but focused on applying changes
@@ -217,7 +332,8 @@ to plain old JavaScript objects.
  * __* `oldValue`__
  * __String `type`__
 
-<a id="binderOptions"></a>
+
+<a id="typeBinderOptions"></a>
 ### BinderOptions
 
 An options object that can be passed as the final argument to
@@ -228,89 +344,3 @@ the `obBinder` factory to help facilitate model synchronization.
  * __BinderType `type`__
  * __String `key`__
  * __* `query`__
-
-## Services
-
-### obObserver
-
-#### Methods
-
- * __`observeObjectInCollection`__
-    Observe a single object in a collection.
-
-    When Object.observe notifies that this object has changed,
-    the callback will be called with the proper context,
-    and will prepare an Array.observe-like changeset instead
-    of the Object.observe style of changes.
-
-    The assumption is that when observing a collection, the preferred
-    format of changes will operations that can be applied to a collection
-    to easily keep multiple copies of a collection in sync.
-
-    A member outside the scope of this service would need to compare the
-    new item with the removed item to determine if the change was actually
-    an update to an object, rather than a removal/addition that is typically
-    represented by an Array.observe change set. For example, the collection
-    has a unique key constraint, the values of that key could be compared in
-    the removed and added objects.
-
-    __Arguments:__
-
-    * Scope `context`: required
-    * Array `collection`: required
-    * Object `object`: required
-    * Function `callback`: required
-
- * __`observeCollection`__
-    Observe an array and its child objects, then notify callback on any change.
-
-    __Arguments:__
-
-    * Scope `context`
-      The context with which to call the callback.
-    * Array `collection`
-      The collection to be observed.
-    * Function `callback`
-      The callback to call on an array change.
-
-<a id="binderTypes"></a>
-### obBinderTypes
-
-A static dictionary of model types which can be optionally be
-added to the [options](#binderOptions) object passed into [`obBinder`](#binder)
-in order to provide an opportunity to reduce ambiguity in
-[Change Pipeline](docs/change-pipeline.md) methods,
-and potentially the protocol.
-This value can help OmniBinder know how to create or update
-models in ambiguous circumstances.
-The service currently contains the following constants:
-
- * __String `COLLECTION` = "collection"__
-   For lists of any type of data.
- * __String `OBJECT` = "object"__
-   For plain old objects.
- * __String `BOOLEAN` = "boolean"__
- * __String `STRING` = "string"__
- * __String `NUMBER` = "number"__
- * __String `BINARY` = "binary"__
-   For binary data such as an image, video, audio clip.
- * __String `BINARY_STREAM` = "binaryStream"__
-   For streaming binary data such as video chat or audio call.
-
-```javascript
-...
-var binder = obBinder($scope, 'myModel', {
-  type: binderTypes.COLLECTION
-});
-```
-
-### obObserver
-
-This service is used by `obBinder` to observe models for changes.
-`obObserver` uses the [observe-js](https://github.com/Polymer/observe-js)
-library from the [Polymer](http://www.polymer-project.org/) project,
-which is a layer on top of natively-implemented Object.observe and Array.observe APIs.
-
-#### Methods
-
- * __

@@ -9,12 +9,6 @@ new transport capabilities).
  * Most protocols are concerned with transactional relationships
    between client and server, and ignore how data is handled in the client.
 
-## Classifications of Entities in the Realtime Web
-
- * Models
- * Streams
- * States
-
 ## Open Questions
 
  * Should data formats be formalized? JSON?
@@ -55,5 +49,10 @@ new transport capabilities).
    such as collection filters that want to filter a
    collection by price between 0 and 5.
 
-## Example Implementations
+## Classifications of Entities in the Realtime Web
 
+ * Models
+ * Streams
+ * States
+
+## Example Implementations

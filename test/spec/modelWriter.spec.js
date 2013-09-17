@@ -17,6 +17,31 @@ describe('obModelWriter', function () {
   }));
 
 
+  ddescribe('applyObjectChange', function () {
+    it('should apply a change directly to an object if the model type is an object', function () {
+
+    });
+
+
+    it('should apply a change to an object within an array if a key is available on the binder', function () {
+      var newObject = {
+          id: 'foo',
+          bar: 'hello'
+        };
+
+      binder.key = 'id';
+      scope.myModel = [{id: 'foo', bar: 'baz'}];
+      obModelWriter.applyObjectChange(binder, {
+        name: 'bar',
+        type: 'update',
+        object: newObject
+      });
+
+      expect(scope.myModel[0]).toEqual(newObject);
+    });
+  });
+
+
   describe('processChanges', function () {
     it('should exist', function () {
       expect(typeof obModelWriter.processChanges).toBe('function');

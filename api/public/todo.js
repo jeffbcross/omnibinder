@@ -60,13 +60,20 @@ app.service('deployd', function () {
           if (angular.equals(item, itemCopy)) itemIndex = i;
         });
       }
+      var changes = [];
 
-      binder.onProtocolChange.call(binder, [{
-        index: itemIndex,
-        addedCount: 1,
-        added: [newItem],
-        removed: [modelCopy[itemIndex]]
-      }]);
+      //We're generating a change for each key since right now
+      //we don't know which one was actually changed.
+      angular.forEach(Object.keys(newItem), function (key) {
+        if (key === binder.key) return;
+        changes.push({
+          name: key,
+          object: newItem,
+          type: 'update'
+        });
+      });
+
+      binder.onProtocolChange.call(binder, changes);
     }
 
     function itemCreated (newItem) {

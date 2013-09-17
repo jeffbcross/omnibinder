@@ -155,7 +155,6 @@ app.controller('App', function ($scope, obBinderTypes, obBinder, deployd) {
   $scope.items = [];
 
   var myBinder = obBinder($scope, 'items', deployd, {
-    deep: true,
     key: 'id',
     query: {
       collection: 'todos'

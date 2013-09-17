@@ -17,7 +17,7 @@ describe('obModelWriter', function () {
   }));
 
 
-  ddescribe('applyObjectChange', function () {
+  describe('applyObjectChange', function () {
     it('should apply a change directly to an object if the model type is an object', function () {
 
     });

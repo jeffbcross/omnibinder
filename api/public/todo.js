@@ -65,7 +65,6 @@ app.service('deployd', function () {
       //We're generating a change for each key since right now
       //we don't know which one was actually changed.
       angular.forEach(Object.keys(newItem), function (key) {
-        if (key === binder.key) return;
         changes.push({
           name: key,
           object: newItem,

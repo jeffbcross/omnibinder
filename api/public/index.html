@@ -43,6 +43,8 @@
 <ul class="unstyled">
   <li ng-repeat="item in items | orderBy:'text'" ng-class="'done-'+item.done" class="todo" ng-animate="'repeat'">
     <input type="checkbox" ng-model="item.done" ng-change="item.$update()">
+    <span ng-bind="item.text"></span>
+
   </li>
 </ul>
 

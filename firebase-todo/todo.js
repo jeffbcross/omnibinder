@@ -53,6 +53,33 @@ app.service('firebase', function (obBinderTypes) {
           added: [snap]
         }]);
       });
+
+      /*binder.fbRef.on('child_moved', function (snapshot, prev) {
+        var snap = snapshot.val(),
+            originalIndex = getIndexOfItem(binder.scope[binder.model], snapshot.name(), binder.key),
+            newIndex;
+
+        console.log('child_moved', snap, originalIndex);
+
+        if (typeof originalIndex !== 'number') return;
+
+        newIndex = getIndexOfItem(binder.scope[binder.model], prev, binder.key);
+        newIndex = newIndex ? newIndex - 1 : 0;
+
+        console.log('newIndex', newIndex);
+
+        binder.onProtocolChange.call(binder, [{
+          index: originalIndex,
+          addedCount: 0,
+          removed: [snap],
+          added: []
+        }, {
+          index: newIndex,
+          addedCount: 1,
+          removed: [],
+          added: [snap]
+        }]);
+      });*/
     }
   };
 

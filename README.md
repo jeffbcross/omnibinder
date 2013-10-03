@@ -44,12 +44,51 @@ Currently, the `OmniBinder` toolchain is focused on supporting synchronization o
  * Standardizing a realtime data sync & caching strategy.
  * Represent binary streams in Angular.
  * Allowing interaction with large sets of remote data without loading all data into memory.
+ * Handling Errors associated with applying bi-directional changes
+ * Resilience in the absence of reliable network connectivity
 
 ## Design Proposals
 
- * [Change Pipeline](docs/change-pipeline.md)
- * [Observation Strategies](docs/observation-strategies.md)
- * [Stretch Protocol](docs/stretch-protocol.md)
+ 
+### Syndicating Data Changes
+
+Moving models between client and server is easy. Passing rapidly-changing models around is less easy. Passing changesets to be applied to rapidly-changing models is difficult. Passing changesets to be applied to rapidly-changing models in an interceptable and transformable way is more difficult.
+
+The Change Pipeline aims to solve this problem by implementing a standard,
+bi-directional pipeline through which all changes will pass.
+
+[Change Pipeline Proposal](docs/change-pipeline.md)
+
+
+### Observing Local Model Changes
+
+To dirty-check or not to dirty-check, that is the question.
+
+The OmniBinder framework is presently using Object.observe and Array.observe 
+to notify of model changes and provide change summaries. However, even with
+these natively-implemented APIs, certain use cases still require putting some
+thought into balancing performance with usability.
+
+Read how observation is presently implemented in Omnibinder.
+
+[Observation Strategies](docs/observation-strategies.md)
+
+### Standardizing Distributed Data
+
+OmniBinder's primary goal is to provide a small framework with a simple
+API that makes it easy to write custom protocols to manage transportation
+of data over network protocols like HTTP and WebSockets.
+
+Beyond this goal, contributors to the project are collaborating on forming
+a flexible standard underneath, with the goal of being able to write a single
+protocol adapter to work with several backend providers.
+
+[Stretch Protocol Draft](docs/stretch-protocol.md)
+
+
+### Intelligent Error Handling
+
+### Handling Network Flakiness
 
 ## Todos App
 

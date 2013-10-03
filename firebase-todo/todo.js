@@ -1,28 +1,24 @@
 var app = angular.module('todo', ['OmniBinder']);
 
-app.service('firebase', function () {
+app.service('firebase', function (obBinderTypes) {
 
   this.subscribe = function (binder) {
-    console.log('subscribe this');
     binder.fbRef = new Firebase(binder.query.url);
-    binder.fbRef.on('value', function (snapshot) {
-      
-      var snap = snapshot.val();
-      console.log('we got data!', snap);
-      var model = [];
 
-      angular.forEach(snap, function (item, key) {
-        if (binder.key) item[binder.key] = key;
-        model.push(item);
+    if (binder.type === obBinderTypes.COLLECTION) {
+      binder.fbRef.on('child_added', function (snapshot, prev) {
+        var snap = snapshot.val();
+        
+        if (binder.key) snap[binder.key] = snapshot.name();
+
+        binder.onProtocolChange.call(binder, [{
+          addedCount: 1,
+          added: [snap],
+          index: binder.scope[binder.model].length, //TODO: This should be smarter to compare prev to the model
+          removed: []
+        }]);
       });
-
-      binder.onProtocolChange.call(binder, [{
-        addedCount: model.length,
-        index: binder.scope[binder.model].length,
-        removed: [],
-        added: model
-      }]);
-    });
+    }
   };
 
   this.processChanges = function (binder, delta) {

@@ -18,6 +18,21 @@ app.service('firebase', function (obBinderTypes) {
           removed: []
         }]);
       });
+
+      binder.fbRef.on('child_removed', function (snapshot, prev) {
+        var modelCopy = angular.copy(binder.scope[binder.model]);
+        var itemIndex = getIndexOfItem(modelCopy, snapshot.name(), binder.key);
+        
+        if (typeof itemIndex !== 'number') return;
+
+        var change = {
+          removed: [snapshot.val()],
+          addedCount: 0,
+          index: itemIndex
+        };
+
+        binder.onProtocolChange.call(binder, [change]);
+      });
     }
   };
 
@@ -25,6 +40,17 @@ app.service('firebase', function (obBinderTypes) {
     console.log('process this');
 
   };
+
+  function getIndexOfItem (list, id, key) {
+    var itemIndex;
+
+    angular.forEach(list, function (it, i) {
+      if (itemIndex) return;
+      if (it && it[key] === id) itemIndex = i;
+    });
+
+    return itemIndex;
+  }
 });
 
 // app.service('deployd', function () {

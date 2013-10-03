@@ -7,14 +7,17 @@ app.service('firebase', function (obBinderTypes) {
 
     if (binder.type === obBinderTypes.COLLECTION) {
       binder.fbRef.on('child_added', function (snapshot, prev) {
-        var snap = snapshot.val();
+        var index, snap = snapshot.val();
         
         if (binder.key) snap[binder.key] = snapshot.name();
+
+        index = getIndexOfItem(binder.scope[binder.model], snapshot.name(), binder.key);
+        index = index ||  binder.scope[binder.model].length;
 
         binder.onProtocolChange.call(binder, [{
           addedCount: 1,
           added: [snap],
-          index: binder.scope[binder.model].length, //TODO: This should be smarter to compare prev to the model
+          index: index,
           removed: []
         }]);
       });

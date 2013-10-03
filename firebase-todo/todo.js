@@ -12,7 +12,7 @@ app.service('firebase', function (obBinderTypes) {
         if (binder.key) snap[binder.key] = snapshot.name();
 
         index = getIndexOfItem(binder.scope[binder.model], snapshot.name(), binder.key);
-        index = index ||  binder.scope[binder.model].length;
+        index = typeof index === 'number' ? index : binder.scope[binder.model].length;
 
         binder.onProtocolChange.call(binder, [{
           addedCount: 1,
@@ -23,18 +23,38 @@ app.service('firebase', function (obBinderTypes) {
       });
 
       binder.fbRef.on('child_removed', function (snapshot, prev) {
-        var modelCopy = angular.copy(binder.scope[binder.model]);
-        var itemIndex = getIndexOfItem(modelCopy, snapshot.name(), binder.key);
+        var index;
+
+        index = getIndexOfItem(binder.scope[binder.model], snapshot.name(), binder.key);
+        index = typeof index === 'number' ? index : binder.scope[binder.model].length;
         
         if (typeof itemIndex !== 'number') return;
 
         var change = {
           removed: [snapshot.val()],
           addedCount: 0,
-          index: itemIndex
+          index: index
         };
 
         binder.onProtocolChange.call(binder, [change]);
+      });
+
+      binder.fbRef.on('child_changed', function (snapshot) {
+        var index, removed, snap = snapshot.val();
+
+        if (binder.key) snap[binder.key] = snapshot.name();
+
+        index = getIndexOfItem(binder.scope[binder.model], snapshot.name(), binder.key);
+        index = typeof index === 'number' ? index : binder.scope[binder.model].length;
+
+        removed = angular.copy(binder.scope[binder.model][index]);
+
+        binder.onProtocolChange.call(binder, [{
+          index: index,
+          addedCount: 1,
+          removed: [removed],
+          added: [snap]
+        }]);
       });
     }
   };

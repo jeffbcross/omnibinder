@@ -23,12 +23,9 @@ app.service('firebase', function (obBinderTypes) {
       });
 
       binder.fbRef.on('child_removed', function (snapshot, prev) {
-        var index;
-
-        index = getIndexOfItem(binder.scope[binder.model], snapshot.name(), binder.key);
-        index = typeof index === 'number' ? index : binder.scope[binder.model].length;
+        var index = getIndexOfItem(binder.scope[binder.model], snapshot.name(), binder.key);
         
-        if (typeof itemIndex !== 'number') return;
+        if (typeof index !== 'number') return;
 
         var change = {
           removed: [snapshot.val()],

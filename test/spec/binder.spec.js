@@ -100,6 +100,78 @@ describe('obBinder', function () {
   });
 
 
+  describe('ignoredChanges', function () {
+    it('should increment ignoreNModelChanges for each affected object in a change that comes from a protocol', function () {
+      scope.myModel = []
+      var myBinder = binder(scope, 'myModel', protocol, {
+        query: { id: 'abc' },
+        type: obBinderTypes.COLLECTION
+      });
+      expect(myBinder.ignoreNModelChanges).toBe(0);
+      myBinder.onProtocolChange.call(myBinder, [{
+        added: [{foo: 'bar'}, {bar: 'baz'}],
+        addedCount: 2,
+        index: 0,
+        removed: []
+      }]);
+
+      scope.$digest();
+      expect(myBinder.ignoreNModelChanges).toBe(2);
+    });
+
+
+    it('should not send model changes to a protocol if the ignoreNModelChanges is greater than 0', function () {
+      scope.myModel = [];
+      var spy = spyOn(protocol, 'processChanges');
+      var myBinder = binder(scope, 'myModel', protocol, {
+        query: { id: 'abc' },
+        type: obBinderTypes.COLLECTION
+      });
+
+      myBinder.ignoreNModelChanges = 2;
+
+      myBinder.onModelChange.call(myBinder, [{
+        addedCount: 2,
+        added: [{foo: 'bar'}, {baz: 'foo'}],
+        removed: [],
+        index: 0
+      }]);
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(myBinder.ignoreNModelChanges).toBe(0);
+
+      myBinder.onModelChange.call(myBinder, [{
+        addedCount: 2,
+        added: [{foo: 'bar'}, {baz: 'foo'}],
+        removed: [],
+        index: 0
+      }]);
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+
+    it('should decrement the ignoreNModelChanges value for each affected object in changes from the model', function () {
+      scope.myModel = [];
+      var myBinder = binder(scope, 'myModel', protocol, {
+        query: { id: 'abc' },
+        type: obBinderTypes.COLLECTION
+      });
+
+      myBinder.ignoreNModelChanges = 2;
+
+      myBinder.onModelChange.call(myBinder, [{
+        addedCount: 2,
+        added: [{foo: 'bar'}, {baz: 'foo'}],
+        removed: [],
+        index: 0
+      }]);
+
+      expect(myBinder.ignoreNModelChanges).toBe(0);
+    });
+  });
+
+
   describe('Constructor', function () {
     it('should return a binder object', function () {
       var myBinder = binder(scope, 'myModel', protocol, {

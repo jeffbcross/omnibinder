@@ -5,9 +5,9 @@ module.exports = function(config) {
   config.set({
     frameworks: ['jasmine'],
     files: [
-      'components/angular/angular.js',
-      'components/angular-mocks/angular-mocks.js',
-      'components/observe-js/src/observe.js',
+      'bower_components/angular/angular.js',
+      'bower_components/angular-mocks/angular-mocks.js',
+      'bower_components/observe-js/src/observe.js',
       'lib/binder.js',
       'lib/*.js',
       'test/mock/*.js',

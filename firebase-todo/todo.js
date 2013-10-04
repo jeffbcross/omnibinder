@@ -8,7 +8,7 @@ app.service('firebase', function (obBinderTypes) {
     if (binder.type === obBinderTypes.COLLECTION) {
       binder.fbRef.on('child_added', function (snapshot, prev) {
         var index, snap = snapshot.val();
-        
+
         if (binder.key) snap[binder.key] = snapshot.name();
 
         index = getIndexOfItem(binder.scope[binder.model], snapshot.name(), binder.key);
@@ -24,7 +24,7 @@ app.service('firebase', function (obBinderTypes) {
 
       binder.fbRef.on('child_removed', function (snapshot, prev) {
         var index = getIndexOfItem(binder.scope[binder.model], snapshot.name(), binder.key);
-        
+
         if (typeof index !== 'number') return;
 
         var change = {
@@ -54,6 +54,7 @@ app.service('firebase', function (obBinderTypes) {
         }]);
       });
 
+      //TODO: Finish the move implementation
       /*binder.fbRef.on('child_moved', function (snapshot, prev) {
         var snap = snapshot.val(),
             originalIndex = getIndexOfItem(binder.scope[binder.model], snapshot.name(), binder.key),
@@ -84,8 +85,20 @@ app.service('firebase', function (obBinderTypes) {
   };
 
   this.processChanges = function (binder, delta) {
-    console.log('process this');
+    /*var change;
 
+    for (var i = 0; i < delta.changes.length; i++) {
+      change = delta.changes[i];
+
+      if (change.addedCount) {
+        for (var j = change.index; j < change.addedCount + change.index; j++) {
+          binder.fbRef.push(binder.scope[binder.model][j], function () {
+
+          });
+
+        }
+      }
+    }*/
   };
 
   function getIndexOfItem (list, id, key) {

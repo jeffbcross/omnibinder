@@ -1,6 +1,6 @@
 var app = angular.module('todo', ['OmniBinder']);
 
-app.service('firebase', function (obBinderTypes) {
+app.service('firebase', function (obBinderTypes, $parse) {
 
   this.subscribe = function (binder) {
     binder.fbRef = new Firebase(binder.query.url);
@@ -8,8 +8,21 @@ app.service('firebase', function (obBinderTypes) {
     if (binder.type === obBinderTypes.COLLECTION) {
       binder.fbRef.on('child_added', function (snapshot, prev) {
         var index, snap = snapshot.val();
+        console.log('child_added', snap);
 
         if (binder.key) snap[binder.key] = snapshot.name();
+
+        if (isWaitingForId(binder, snap)) {
+
+          binder.onProtocolChange.call(binder, [{
+            name: binder.key,
+            object: snap,
+            type: 'new',
+            force: true
+          }]);
+
+          return;
+        }
 
         index = getIndexOfItem(binder.scope[binder.model], snapshot.name(), binder.key);
         index = typeof index === 'number' ? index : binder.scope[binder.model].length;
@@ -82,23 +95,45 @@ app.service('firebase', function (obBinderTypes) {
         }]);
       });*/
     }
+
+    function isWaitingForId (binder, object) {
+      var copy = angular.copy(object),
+          isWaiting = false;
+
+      delete copy.id;
+
+      angular.forEach(binder.pendingObjects, function (obj, i) {
+        if (isWaiting) return;
+        if (angular.equals(obj, copy)) {
+          binder.pendingObjects.splice(i, 1);
+          isWaiting = true;
+        }
+      });
+
+      return isWaiting;
+    }
   };
 
   this.processChanges = function (binder, delta) {
-    /*var change;
+    var change,
+        getter = $parse(binder.model);
 
     for (var i = 0; i < delta.changes.length; i++) {
       change = delta.changes[i];
 
       if (change.addedCount) {
         for (var j = change.index; j < change.addedCount + change.index; j++) {
-          binder.fbRef.push(binder.scope[binder.model][j], function () {
-
-          });
-
+          binder.ignoreNProtocolChanges++;
+          processAddedItem(angular.copy(getter(binder.scope)[j]));
         }
       }
-    }*/
+    }
+
+    function processAddedItem (model) {
+      binder.pendingObjects = binder.pendingObjects || [];
+      binder.pendingObjects.push(model);
+      binder.fbRef.push(model);
+    }
   };
 
   function getIndexOfItem (list, id, key) {

@@ -73,6 +73,24 @@ Read how observation is presently implemented in Omnibinder.
 
 [Observation Strategies](docs/observation-strategies.md)
 
+
+### Preventing Recursive Model Updates
+
+Many realtime-oriented backend implementations allow registering 
+for updates of changes to models on the backend. These updates
+usually will notify the client of the change, even if the client
+initiated the change. 
+
+The client needs to somehow know not to apply the change to the
+model, since the model already has the change.
+
+The inverse of this problem is the same: `Object.observe` will
+notify of a change to a local model, even if the protocol was
+the source of the change.
+
+[Recursion Prevention](docs/recursion-prevention.md)
+
+
 ### Standardizing Distributed Data
 
 OmniBinder's primary goal is to provide a small framework with a simple

@@ -25,6 +25,8 @@ processed. Consider this workflow:
  * Change Object Comparison
  * Change type & name/index comparison
  * Adding and persisting metadata to changed items
+ * It's the protocol's problem
+ * Probability determination using combination of above
 
 ### Change Counting
 
@@ -58,3 +60,20 @@ original change from the other direction had looked like this:
 
 then with this strategy, I would not apply any of the other operations
 from the new change.
+
+### Changed Item Counting
+
+### Change Object Comparison
+
+### Change Type & Name/Index Comparison
+
+### Adding & Persiting Change MetaData to Models
+
+### It's the Protocol's Problem
+
+The easiest solution to this problem would be to leave
+it up to each protocol to 
+
+### Probability Determination Using Combination of Above Strategies
+
+

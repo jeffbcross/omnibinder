@@ -1,4 +1,6 @@
-### Change Pipeline
+### Change Pipeline (Draft)
+
+(see [Readme](../README.md) for problem description)
 
 ## Status: Proposal (Not Implemented)
 

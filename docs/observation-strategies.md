@@ -1,5 +1,7 @@
 # Local Observation Strategies
 
+(see [Readme](../README.md) for problem description)
+
 ## General Approach
 [Object.observe](http://updates.html5rocks.com/2012/11/Respond-to-change-with-Object-observe)
 and Array.observe set the standard for how changes to models

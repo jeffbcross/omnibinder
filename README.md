@@ -49,7 +49,7 @@ Currently, the `OmniBinder` toolchain is focused on supporting synchronization o
 
 ## Design Proposals
 
- 
+
 ### Syndicating Data Changes
 
 Moving models between client and server is easy. Passing rapidly-changing models around is less easy. Passing changesets to be applied to rapidly-changing models is difficult. Passing changesets to be applied to rapidly-changing models in an interceptable and transformable way is more difficult.
@@ -64,7 +64,7 @@ bi-directional pipeline through which all changes will pass.
 
 To dirty-check or not to dirty-check, that is the question.
 
-The OmniBinder framework is presently using Object.observe and Array.observe 
+The OmniBinder framework is presently using Object.observe and Array.observe
 to notify of model changes and provide change summaries. However, even with
 these natively-implemented APIs, certain use cases still require putting some
 thought into balancing performance with usability.
@@ -76,10 +76,10 @@ Read how observation is presently implemented in Omnibinder.
 
 ### Preventing Recursive Model Updates
 
-Many realtime-oriented backend implementations allow registering 
+Many realtime-oriented backend implementations allow registering
 for updates of changes to models on the backend. These updates
 usually will notify the client of the change, even if the client
-initiated the change. 
+initiated the change.
 
 The client needs to somehow know not to apply the change to the
 model, since the model already has the change.
@@ -108,9 +108,25 @@ protocol adapter to work with several backend providers.
 
 ### Handling Network Flakiness
 
+In an ideal realtime application, data changes would constantly
+flow in all directions with zero latency, and with a definitive
+history of yet-to-be and already-applied model changes.
+
+Unfortunately, distributed computing knows not such a scenario.
+Applications must be resilient enough to withstand periods of
+network absence or flakiness, with flexible strategies provided by the
+underlying data synchronization framework (OmniBinder) to
+handle such inconveniences in the most user-appropriate
+and data-appropriate way possible.
+
+[Network Resiliency Proposal Draft](docs/network-resiliency.md)
+
+
 ## Todos App
 
 The project contains a basic Todo application running with a bundled [deployd](http://www.deployd.com) API.
+
+(Note: This demo is broken at HEAD because of refactoring. Last working SHA is d5fb82b7ebf2395706448a3d7d6a1117962ed1b5)
 
 To run the app, make sure you have installed:
 

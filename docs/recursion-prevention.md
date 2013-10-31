@@ -1,4 +1,4 @@
-# Recursion Prevention
+# Recursion Prevention Proposal (Draft)
 
 (see [Readme](../README.md) for problem description)
 
@@ -72,7 +72,7 @@ from the new change.
 ### It's the Protocol's Problem
 
 The easiest solution to this problem would be to leave
-it up to each protocol to 
+it up to each protocol to
 
 ### Probability Determination Using Combination of Above Strategies
 

@@ -1,4 +1,6 @@
-# Stretch: A protocol for the Realtime Web.
+# Stretch: A protocol for the Realtime Web. (Draft)
+
+(see [Readme](../README.md) for problem description)
 
 ## Why a New Protocol?
 

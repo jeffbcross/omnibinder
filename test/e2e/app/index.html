@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <script src="http://code.angularjs.org/1.2.0-rc.3/angular.min.js"></script>
+    <script src="app.js"></script>
+  </head>
+  <body>
+    <div ng-app="testApp">
+      <div ng-controller="TestableCtrl as testable">
+        {{testable.model}}
+      </div>
+      <input ng-model="foo">
+      <ul id="itemsList"><li ng-repeat="item in items"></li></ul>
+
+      <textarea id="localStorageKey"></textarea>
+      <textarea id="localStorageValue"></textarea>
+      <button id="localStorageSave" onclick="saveLocalStorage()">SAVE</button>
+    </div>
+
+
+    <script>
+      function saveLocalStorage () {
+        var key = document.querySelector('#localStorageKey').value;
+        var val = document.querySelector('#localStorageValue').value;
+        console.log('saving', key, val);
+        localStorage.setItem(key, val);
+      }
+    </script>
+  </body>
+</html>

@@ -1,7 +1,9 @@
 bower_components/
+node_modules/
 .DS_Store
 libpeerconnection.log
 npm-debug.log
 api/.dpd/
 data/
 api/.dpd/pids/mongod
+api/public/lib

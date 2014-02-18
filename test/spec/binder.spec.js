@@ -62,6 +62,23 @@ describe('obBinder', function () {
         expect(spy).toHaveBeenCalled();
       });
     });
+
+    it('should unbind model', function () {
+      var spy = spyOn(myBinder, 'onModelChange');
+
+      runs(function () {
+        scope.boundmodel = [];
+        myBinder.bindModel(obBinderTypes.COLLECTION, scope, 'boundmodel');
+        myBinder.unbind();
+        scope.boundmodel.push({foo: 'bar'});
+      });
+
+      waits(100);
+
+      runs(function () {
+        expect(spy).not.toHaveBeenCalled();
+      });
+    });
   });
 
 
